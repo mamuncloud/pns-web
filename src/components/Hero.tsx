@@ -29,6 +29,7 @@ export default function Hero() {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
+              loading="eager"
             />
           </div>
         </div>
