@@ -26,6 +26,7 @@ export default function Bestsellers() {
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               priority
+              loading="eager"
             />
           </div>
           <h3 className="font-headline text-2xl font-bold text-dark mb-1">

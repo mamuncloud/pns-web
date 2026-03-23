@@ -30,6 +30,7 @@ export default function Categories() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwh7u_IcGu3UPmgaywaxDbRRVelM7WTd_2_S8jcUBGKcdJikwD-DG6llmhKHJrhZOfnhlYJuMizOibDmcGgWXu0h5fqMc-Y_gVBHl1qqaq2cBjmTut-T5OOjhyIULHe6ucB0q_EYl8FkaW-Aue3ybUcyJQSZNd7PzBmjRj7ms5TiVUeJGMoWTe6tynJ5LvFjyUtZRxYZ5573yMhfRH_zT03vlVcMcUAMTF8k67hEFEODYOFnPTu76gJQomCcs5ta5ockKtKk4I1Go"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
+              loading="eager"
             />
           </div>
           <div className="relative z-10">
