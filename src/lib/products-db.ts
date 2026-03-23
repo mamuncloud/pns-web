@@ -41,28 +41,3 @@ export async function getProductsFromDb(): Promise<Product[]> {
     return [];
   }
 }
-
-export async function getProductByIdFromDb(id: string): Promise<Product | null> {
-  try {
-    const response = await api.get<BackendProduct>(`/products/${id}`);
-    
-    if (!response.success || !response.data) return null;
-
-    const product = response.data;
-
-    return {
-      id: product.id,
-      name: product.name,
-      description: product.description || "",
-      image_url: getProductImageUrl(product.imageUrl || ""),
-      taste: (product.taste || []) as EnumTaste[],
-      variants: (product.variants || []).map((v) => ({
-        package: v.label as EnumPackage,
-        price: v.price
-      }))
-    };
-  } catch (error) {
-    console.error("Error in getProductByIdFromDb (API):", error);
-    return null;
-  }
-}
