@@ -40,7 +40,7 @@ export default function Navbar() {
         <Link className={getLinkClass("/products")} href="/products">
           Product
         </Link>
-        <Link className={getLinkClass("#")} href="#">
+        <Link className={getLinkClass("/partner")} href="/partner">
           Partner with Us
         </Link>
       </div>
