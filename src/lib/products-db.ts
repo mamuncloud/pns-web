@@ -1,17 +1,31 @@
-import { db } from "@/db";
+import { api } from "./api";
 import { EnumTaste, EnumPackage, Product } from "@/types/product";
 import { getProductImageUrl } from "./utils";
 
+// Types from the backend
+interface BackendProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  imageUrl: string | null;
+  taste: string[];
+  isActive: boolean;
+  variants: Array<{
+    id: string;
+    label: string;
+    price: number;
+    stock: number;
+  }>;
+}
+
 export async function getProductsFromDb(): Promise<Product[]> {
   try {
-    const data = await db.query.products.findMany({
-      with: {
-        variants: true,
-      },
-    });
+    const response = await api.get<BackendProduct[]>("/products");
+    
+    if (!response.success) return [];
 
-    // Map Drizzle format to Frontend compatible format
-    return data.map((p) => ({
+    // Map Backend format to Frontend compatible format
+    return response.data.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description || "",
@@ -23,21 +37,18 @@ export async function getProductsFromDb(): Promise<Product[]> {
       }))
     }));
   } catch (error) {
-    console.error("Error in getProductsFromDb:", error);
+    console.error("Error in getProductsFromDb (API):", error);
     return [];
   }
 }
 
 export async function getProductByIdFromDb(id: string): Promise<Product | null> {
   try {
-    const product = await db.query.products.findFirst({
-      where: (products, { eq }) => eq(products.id, id),
-      with: {
-        variants: true,
-      },
-    });
+    const response = await api.get<BackendProduct>(`/products/${id}`);
+    
+    if (!response.success || !response.data) return null;
 
-    if (!product) return null;
+    const product = response.data;
 
     return {
       id: product.id,
@@ -51,7 +62,7 @@ export async function getProductByIdFromDb(id: string): Promise<Product | null> 
       }))
     };
   } catch (error) {
-    console.error("Error in getProductByIdFromDb:", error);
+    console.error("Error in getProductByIdFromDb (API):", error);
     return null;
   }
 }
