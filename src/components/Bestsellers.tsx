@@ -1,9 +1,9 @@
 import ProductCard from "./ProductCard";
-import { dummyProducts } from "@/lib/data/products";
+import { getProducts } from "@/lib/api-client";
 
-export default function Bestsellers() {
-  // Use the first 3 products as bestsellers for demonstration
-  const bestsellerProducts = dummyProducts.slice(0, 3);
+export default async function Bestsellers() {
+  const products = await getProducts();
+  const bestsellerProducts = products.slice(0, 3);
 
   return (
     <section className="max-w-7xl mx-auto px-6 mb-24">

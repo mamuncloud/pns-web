@@ -1,7 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getProducts } from "@/lib/api-client";
 
-export default function Categories() {
+export default async function Categories() {
+  const products = await getProducts();
+  let counts = { Pedas: 0, Gurih: 0, Manis: 0 };
+  
+  products.forEach((p) => {
+    if (p.taste) {
+      p.taste.forEach((t) => {
+        if (t in counts) {
+          counts[t as keyof typeof counts]++;
+        }
+      });
+    }
+  });
+
   return (
     <section className="max-w-7xl mx-auto px-6 mb-24">
       <div className="flex justify-between items-end mb-10">
@@ -55,7 +69,7 @@ export default function Categories() {
           </div>
           <div className="relative z-10">
             <h3 className="font-headline text-3xl font-extrabold text-dark mb-1">Gurih</h3>
-            <p className="text-dark/60 font-bold">24 Produk</p>
+            <p className="text-dark/60 font-bold">{counts.Gurih} Produk</p>
           </div>
         </div>
 
@@ -72,7 +86,7 @@ export default function Categories() {
           </div>
           <div className="relative z-10">
             <h3 className="font-headline text-3xl font-extrabold text-dark mb-1">Manis</h3>
-            <p className="text-dark/60 font-bold">12 Produk</p>
+            <p className="text-dark/60 font-bold">{counts.Manis} Produk</p>
           </div>
         </div>
       </div>

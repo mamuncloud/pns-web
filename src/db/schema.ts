@@ -1,5 +1,5 @@
 import { pgTable, varchar, integer, boolean, timestamp, pgEnum, text } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 // Enums (Must match PascalCase names in DB)
 export const orderTypeEnum = pgEnum("OrderType", ["PRE_ORDER", "WALK_IN"]);
@@ -30,7 +30,11 @@ export const products = pgTable("products", {
   id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  imageUrl: varchar("imageUrl", { length: 255 }),
+  imageUrl: text("imageUrl"),
+  taste: text("taste")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")

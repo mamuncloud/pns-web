@@ -2,17 +2,18 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductCard from "@/components/ProductCard";
-import { dummyProducts } from "@/lib/data/products";
+import { getProducts } from "@/lib/api-client";
 
 export const metadata = {
   title: "Produk | Planet Nyemil Snack",
   description: "Daftar lengkap produk snack Planet Nyemil Snack (PNS).",
 };
 
-export default function ProductsPage() {
-  const pedasProducts = dummyProducts.filter(p => p.taste.includes("Pedas"));
-  const gurihProducts = dummyProducts.filter(p => p.taste.includes("Gurih"));
-  const manisProducts = dummyProducts.filter(p => p.taste.includes("Manis"));
+export default async function ProductsPage() {
+  const allProducts = await getProducts();
+  const pedasProducts = allProducts.filter(p => p.taste.includes("Pedas"));
+  const gurihProducts = allProducts.filter(p => p.taste.includes("Gurih"));
+  const manisProducts = allProducts.filter(p => p.taste.includes("Manis"));
 
   return (
     <>
@@ -77,7 +78,7 @@ export default function ProductsPage() {
 
             <TabsContent value="semua" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {dummyProducts.map(product => (
+                {allProducts.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
