@@ -10,9 +10,9 @@ export const metadata = {
 };
 
 export default function ProductsPage() {
-  const pedasProducts = dummyProducts.filter(p => p.taste === "Pedas");
-  const gurihProducts = dummyProducts.filter(p => p.taste === "Gurih");
-  const manisProducts = dummyProducts.filter(p => p.taste === "Manis");
+  const pedasProducts = dummyProducts.filter(p => p.taste.includes("Pedas"));
+  const gurihProducts = dummyProducts.filter(p => p.taste.includes("Gurih"));
+  const manisProducts = dummyProducts.filter(p => p.taste.includes("Manis"));
 
   return (
     <>

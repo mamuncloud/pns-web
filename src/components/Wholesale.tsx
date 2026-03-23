@@ -4,7 +4,7 @@ export default function Wholesale() {
       <div className="bg-[#4E342E] rounded-[2.5rem] p-10 md:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="relative z-10 max-w-xl text-center md:text-left">
           <h3 className="font-headline text-4xl font-extrabold text-white mb-4">
-            Varian Bal
+            Grosir lebih Hemat
           </h3>
           <p className="text-white/70 text-lg font-medium">
             Stok lebih banyak, harga lebih hemat untuk pesta atau jualan

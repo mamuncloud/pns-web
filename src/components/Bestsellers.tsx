@@ -111,7 +111,7 @@ export default function Bestsellers() {
           </p>
           <div className="flex gap-2">
             <span className="px-4 py-1.5 bg-[#FDF2F2] rounded-full text-[10px] font-bold text-primary">
-              bal
+              Grocery
             </span>
             <span className="px-4 py-1.5 bg-[#FDF2F2] rounded-full text-[10px] font-bold text-primary">
               Extra Hot

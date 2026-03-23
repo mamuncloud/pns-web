@@ -34,9 +34,11 @@ export default function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-          <Badge className={`${tasteColors[product.taste]} font-bold rounded-xl px-3 py-1 shadow-md border-0`}>
-            {product.taste}
-          </Badge>
+          {product.taste.map((t) => (
+            <Badge key={t} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0`}>
+              {t}
+            </Badge>
+          ))}
         </div>
       </div>
       
