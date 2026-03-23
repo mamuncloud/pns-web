@@ -17,7 +17,13 @@ const tasteColors = {
   Manis: "bg-[#4CAF50] text-white hover:bg-[#388E3C]",
 };
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ 
+  product, 
+  isBestseller = false 
+}: { 
+  product: Product;
+  isBestseller?: boolean;
+}) {
   // Sort variants by price to find lowest price
   const sortedVariants = [...product.variants].sort((a, b) => a.price - b.price);
   const lowestPrice = sortedVariants[0]?.price || 0;
@@ -34,8 +40,19 @@ export default function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+          {isBestseller && (
+            <div className="bg-primary text-white font-bold text-[10px] px-3 py-1 rounded-full flex items-center gap-1 shadow-lg w-fit">
+              <span
+                className="material-symbols-outlined text-[12px]"
+                style={{ fontVariationSettings: '"FILL" 1' }}
+              >
+                star
+              </span>
+              Terlaris
+            </div>
+          )}
           {product.taste.map((t) => (
-            <Badge key={t} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0`}>
+            <Badge key={t} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0 w-fit`}>
               {t}
             </Badge>
           ))}
