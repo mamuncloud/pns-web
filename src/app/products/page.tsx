@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductCard from "@/components/ProductCard";
-import { getProducts } from "@/lib/api-client";
+import { getProductsFromDb } from "@/lib/products-db";
 
 export const metadata = {
   title: "Produk | Planet Nyemil Snack",
@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 export default async function ProductsPage() {
-  const allProducts = await getProducts();
+  const allProducts = await getProductsFromDb();
   const pedasProducts = allProducts.filter(p => p.taste.includes("Pedas"));
   const gurihProducts = allProducts.filter(p => p.taste.includes("Gurih"));
   const manisProducts = allProducts.filter(p => p.taste.includes("Manis"));

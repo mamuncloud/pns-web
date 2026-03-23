@@ -1,8 +1,8 @@
 import ProductCard from "./ProductCard";
-import { getProducts } from "@/lib/api-client";
+import { getProductsFromDb } from "@/lib/products-db";
 
 export default async function Bestsellers() {
-  const products = await getProducts();
+  const products = await getProductsFromDb();
   const bestsellerProducts = products.slice(0, 3);
 
   return (

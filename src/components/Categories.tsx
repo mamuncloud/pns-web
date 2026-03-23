@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getProducts } from "@/lib/api-client";
+import { getProductsFromDb } from "@/lib/products-db";
 
 export default async function Categories() {
-  const products = await getProducts();
+  const products = await getProductsFromDb();
   const counts = { Pedas: 0, Gurih: 0, Manis: 0 };
   
   products.forEach((p) => {

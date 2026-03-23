@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
+import { getProductByIdFromDb, getProductsFromDb } from "@/lib/products-db";
 
 const app = new Elysia({ prefix: "/api" })
   .get("/", () => ({ message: "Welcome to PNS API (Elysia Edition)" }))
@@ -30,19 +31,10 @@ const app = new Elysia({ prefix: "/api" })
   .group("/products", (app) =>
     app
       .get("/", async () => {
-        return await db.query.products.findMany({
-          with: {
-            variants: true,
-          },
-        });
+        return await getProductsFromDb();
       })
       .get("/:id", async ({ params: { id }, set }) => {
-        const product = await db.query.products.findFirst({
-          where: (products, { eq }) => eq(products.id, id),
-          with: {
-            variants: true,
-          },
-        });
+        const product = await getProductByIdFromDb(id);
         if (!product) {
           set.status = 404;
           return { message: "Product not found" };
