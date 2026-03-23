@@ -1,1 +1,6 @@
-bunx lint-staged
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🧹 Running pre-commit cleanup..."
+bun run cleanup
+npx lint-staged
