@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { EnumTaste, EnumPackage, Product } from "@/types/product";
-import { getProductImageUrl } from "./api-client";
+import { getProductImageUrl } from "./utils";
 
 export async function getProductsFromDb(): Promise<Product[]> {
   try {
