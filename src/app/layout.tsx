@@ -11,6 +11,9 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Planet Nyemil Snack",
   description: "Nikmati Camilan Favorit Kamu",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

@@ -25,6 +25,7 @@ export default function Bestsellers() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJsdhRZKYL6zo9Mdx9cVWQNU0HwZ9QwfXqgM_27Ox0k3OW_uxNGhStPMZFVkHJL6_6nr9Ya29juAaUCVAf8DDS0O9fk6V3VYQupkrdozVqEDpY6B6eGeENijGmV_9_wAUobFiP1AhRo0GaoTFwN49ojRNxaT7zh27-Fzv20M-zb3UcANMpR4GB_C0vykgSr-C70QQmjpyE-WUU4o9eYFpXe73LiH8eZBi6e9wkbdGvUK2XFbXFMKI8bV5niZcKTM2BbNs4q9lzCmk"
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
+              priority
             />
           </div>
           <h3 className="font-headline text-2xl font-bold text-dark mb-1">

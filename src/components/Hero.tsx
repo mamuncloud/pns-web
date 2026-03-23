@@ -28,6 +28,7 @@ export default function Hero() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7kF66mTD-AEC-pQweXs4lTGOMZ5AYN6Qasl2kBCcpHSxupGtiYsILuYvxDgvd8YkzkWlMGt8pMLrYK4UAk4A0BgIwSipNvHognZ8ytxVELOE67mVU1loPXniQ97KQRf8Bzz4LyTO4NpXwCOOQIgWneVqo_Hjp9EiuY-QN-HGydWDvsII41VqYyWONPt1GFDwjammyH_y65Txr0VOGadobCIOyxTJFGCeRqDQctgeEbcAY16jSmyAy_5OFJhrauSW3LTDT0ZdUPbI"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
+              priority
             />
           </div>
         </div>
