@@ -24,7 +24,7 @@ export default function Navbar() {
           <Image
             alt="Planet Nyemil Snack Logo"
             className="object-contain"
-            src="https://lh3.googleusercontent.com/aida/ADBb0ugu9YgiSdGuBizvxfPffI9VpO4LHdECL9eYgXr1Asvt8Vc24w3aMlhbjGJ1i6xzo6kHWY5eiRUd4LY50La2UtSlRi8VrluWX36tRH8i89oEFqDgamSP5YloKLTD1b6VtR8ANLNUVBWUvjYvSaLtTKF1ZOWUzMslbLKO27RL9VoZPIuhSOC4z2bYmt-bxqkSeXASIHpQ3_jq7a2TjCUMyWYShHhsTgGyvdoMbtgGk8K7VUWbiUnmLO-VZrIt5lnSjHq0wG8KuLvlzQ"
+            src="/logo.png"
             fill
             sizes="40px"
           />
