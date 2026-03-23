@@ -4,7 +4,7 @@ import { getProducts } from "@/lib/api-client";
 
 export default async function Categories() {
   const products = await getProducts();
-  let counts = { Pedas: 0, Gurih: 0, Manis: 0 };
+  const counts = { Pedas: 0, Gurih: 0, Manis: 0 };
   
   products.forEach((p) => {
     if (p.taste) {

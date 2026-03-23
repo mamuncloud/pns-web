@@ -10,16 +10,23 @@ export async function getProducts(): Promise<Product[]> {
       throw new Error(`Failed to fetch products: ${res.statusText}`);
     }
     
-    const data = await res.json();
+    const data = await res.json() as Array<{
+      id: string;
+      name: string;
+      description: string | null;
+      imageUrl: string | null;
+      taste: string[] | null;
+      variants: Array<{ label: string; price: number }>;
+    }>;
     
     // Map Drizzle/Elysia format to Frontend compatible format
-    return data.map((p: any) => ({
+    return data.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description || "",
       image_url: getProductImageUrl(p.imageUrl || ""),
-      taste: p.taste as EnumTaste[],
-      variants: p.variants.map((v: any) => ({
+      taste: (p.taste || []) as EnumTaste[],
+      variants: (p.variants || []).map((v) => ({
         package: v.label as EnumPackage,
         price: v.price
       }))

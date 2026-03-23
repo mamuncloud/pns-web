@@ -17,11 +17,12 @@ const app = new Elysia({ prefix: "/api" })
         latency: `${latency}ms`,
         timestamp: new Date().toISOString(),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       return {
         status: "unhealthy",
         database: "disconnected",
-        error: error.message,
+        error: errorMessage,
         timestamp: new Date().toISOString(),
       };
     }

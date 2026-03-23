@@ -27,7 +27,7 @@ export default async function ProductsPage() {
                 🔥 Promo Spesial Bulan Ini
               </span>
               <h1 className="font-headline text-4xl md:text-5xl font-black mb-4 tracking-tight">
-                Diskon 20% Untuk Semua Produk "Pedas"
+                Diskon 20% Untuk Semua Produk &quot;Pedas&quot;
               </h1>
               <p className="text-lg text-white/90 font-medium">
                 Gunakan kode <strong className="bg-white text-primary px-2 py-0.5 rounded ml-1">PEDASGILA20</strong> saat checkout!
