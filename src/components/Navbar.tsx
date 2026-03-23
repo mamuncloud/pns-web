@@ -1,7 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  const getLinkClass = (path: string) => {
+    return cn(
+      "font-semibold transition-colors py-1",
+      pathname === path
+        ? "text-primary font-bold border-b-2 border-primary"
+        : "text-on-background/70 hover:text-primary"
+    );
+  };
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md flex justify-between items-center px-6 md:px-12 py-4 max-w-full">
       <div className="flex items-center gap-3">
@@ -19,13 +34,13 @@ export default function Navbar() {
         </span>
       </div>
       <div className="hidden md:flex items-center gap-10">
-        <Link className="text-primary font-bold border-b-2 border-primary py-1" href="/">
+        <Link className={getLinkClass("/")} href="/">
           Home
         </Link>
-        <Link className="text-on-background/70 font-semibold hover:text-primary transition-colors" href="#">
+        <Link className={getLinkClass("/products")} href="/products">
           Product
         </Link>
-        <Link className="text-on-background/70 font-semibold hover:text-primary transition-colors" href="#">
+        <Link className={getLinkClass("#")} href="#">
           Partner with Us
         </Link>
       </div>
