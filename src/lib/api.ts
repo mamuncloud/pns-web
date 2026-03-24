@@ -11,10 +11,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+
   const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
@@ -28,12 +31,20 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   return result as ApiResponse<T>;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string | null;
+  name: string | null;
+  role: string;
+  type: 'EMPLOYEE' | 'USER';
+}
+
 export const api = {
   get: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'GET' }),
   
-  post: <T>(endpoint: string, body: unknown, options: RequestInit = {}) => 
-    fetchApi<T>(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
+  post: <T>(endpoint: string, body?: unknown, options: RequestInit = {}) => 
+    fetchApi<T>(endpoint, { ...options, method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   
   put: <T>(endpoint: string, body: unknown, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
@@ -43,4 +54,9 @@ export const api = {
   
   delete: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'DELETE' }),
+
+  auth: {
+    requestLogin: (email: string) => api.post<{ message: string }>('/auth/request-login', { email }),
+    verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
+  }
 };
