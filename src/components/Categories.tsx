@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getProductsFromDb } from "@/lib/products-db";
 
 export default async function Categories() {
-  const products = await getProductsFromDb();
+  const { data: products } = await getProductsFromDb(1, 100);
   const counts = { Pedas: 0, Gurih: 0, Manis: 0 };
   
   products.forEach((p) => {

@@ -2,6 +2,18 @@ import { api } from "./api";
 import { EnumTaste, EnumPackage, Product } from "@/types/product";
 import { getProductImageUrl } from "./utils";
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface PaginatedProducts {
+  data: Product[];
+  meta: PaginationMeta;
+}
+
 // Types from the backend
 interface BackendProduct {
   id: string;
@@ -18,14 +30,22 @@ interface BackendProduct {
   }>;
 }
 
-export async function getProductsFromDb(): Promise<Product[]> {
+export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string): Promise<PaginatedProducts> {
   try {
-    const response = await api.get<BackendProduct[]>("/products");
+    let url = `/products?page=${page}&limit=${limit}`;
+    if (taste) url += `&taste=${taste}`;
     
-    if (!response.success) return [];
+    const response = await api.get<BackendProduct[]>(url);
+    
+    if (!response.success) {
+      return { 
+        data: [], 
+        meta: { page, limit, totalItems: 0, totalPages: 0 } 
+      };
+    }
 
     // Map Backend format to Frontend compatible format
-    return response.data.map((p) => ({
+    const products = response.data.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description || "",
@@ -36,8 +56,18 @@ export async function getProductsFromDb(): Promise<Product[]> {
         price: v.price
       }))
     }));
+
+    const meta = response.meta as unknown as PaginationMeta;
+
+    return {
+      data: products,
+      meta: meta || { page, limit, totalItems: 0, totalPages: 0 }
+    };
   } catch (error) {
     console.error("Error in getProductsFromDb (API):", error);
-    return [];
+    return { 
+      data: [], 
+      meta: { page, limit, totalItems: 0, totalPages: 0 } 
+    };
   }
 }

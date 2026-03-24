@@ -3,17 +3,33 @@ import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductCard from "@/components/ProductCard";
 import { getProductsFromDb } from "@/lib/products-db";
+import ProductPagination from "@/components/ProductPagination";
+import Link from "next/link";
 
 export const metadata = {
   title: "Produk | Planet Nyemil Snack",
   description: "Daftar lengkap produk snack Planet Nyemil Snack (PNS).",
 };
 
-export default async function ProductsPage() {
-  const allProducts = await getProductsFromDb();
-  const pedasProducts = allProducts.filter(p => p.taste.includes("Pedas"));
-  const gurihProducts = allProducts.filter(p => p.taste.includes("Gurih"));
-  const manisProducts = allProducts.filter(p => p.taste.includes("Manis"));
+export default async function ProductsPage(props: {
+  searchParams: Promise<{ page?: string; tab?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams.page) || 1;
+  const activeTab = searchParams.tab || "semua";
+  
+  // Map tab to taste filter for backend
+  const tasteMap: Record<string, string | undefined> = {
+    semua: undefined,
+    pedas: "Pedas",
+    gurih: "Gurih",
+    manis: "Manis",
+  };
+  
+  const tasteFilter = tasteMap[activeTab];
+  
+  // Fetch paginated products from DB
+  const { data: products, meta } = await getProductsFromDb(page, 12, tasteFilter);
 
   return (
     <>
@@ -47,76 +63,53 @@ export default async function ProductsPage() {
             </p>
           </div>
 
-          {/* Categories Tabs */}
-          <Tabs defaultValue="semua" className="w-full">
-            <TabsList className="mb-10 p-1.5 bg-[#f6f6f6] rounded-full inline-flex w-full md:w-auto h-auto overflow-x-auto shadow-inner hide-scrollbar">
-              <TabsTrigger 
-                value="semua" 
-                className="rounded-full px-6 py-3 font-bold text-sm md:text-base data-[state=active]:bg-primary data-[state=active]:text-white transition-all w-full md:w-auto flex-shrink-0"
-              >
-                Semua Rasa
-              </TabsTrigger>
-              <TabsTrigger 
-                value="pedas" 
-                className="rounded-full px-6 py-3 font-bold text-sm md:text-base data-[state=active]:bg-[#C62828] data-[state=active]:text-white transition-all w-full md:w-auto flex-shrink-0"
-              >
-                🔥 Pedas
-              </TabsTrigger>
-              <TabsTrigger 
-                value="gurih" 
-                className="rounded-full px-6 py-3 font-bold text-sm md:text-base data-[state=active]:bg-[#F57F17] data-[state=active]:text-white transition-all w-full md:w-auto flex-shrink-0"
-              >
-                🧀 Gurih
-              </TabsTrigger>
-              <TabsTrigger 
-                value="manis" 
-                className="rounded-full px-6 py-3 font-bold text-sm md:text-base data-[state=active]:bg-[#4CAF50] data-[state=active]:text-white transition-all w-full md:w-auto flex-shrink-0"
-              >
-                🍯 Manis
-              </TabsTrigger>
-            </TabsList>
+          {/* Categories Tabs as Links for Search SEO and Pagination logic */}
+          <div className="w-full mb-10">
+            <div className="p-1.5 bg-[#f6f6f6] rounded-full inline-flex w-full md:w-auto h-auto overflow-x-auto shadow-inner hide-scrollbar">
+              {[
+                { id: "semua", label: "Semua Rasa", activeColor: "bg-primary" },
+                { id: "pedas", label: "🔥 Pedas", activeColor: "bg-[#C62828]" },
+                { id: "gurih", label: "🧀 Gurih", activeColor: "bg-[#F57F17]" },
+                { id: "manis", label: "🍯 Manis", activeColor: "bg-[#4CAF50]" },
+              ].map((tab) => (
+                <Link
+                  key={tab.id}
+                  href={`/products?tab=${tab.id}&page=1`}
+                  className={`rounded-full px-6 py-3 font-bold text-sm md:text-base transition-all w-full md:w-auto flex-shrink-0 text-center ${
+                    activeTab === tab.id
+                      ? `${tab.activeColor} text-white shadow-md`
+                      : "text-dark/60 hover:text-dark"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
-            <TabsContent value="semua" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {allProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+          {/* Product Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+            {products.length === 0 && (
+              <div className="col-span-full py-20 text-center">
+                <div className="bg-[#f6f6f6] inline-flex items-center justify-center w-20 h-20 rounded-full mb-4">
+                  <span className="material-symbols-outlined text-4xl text-dark/20">inventory_2</span>
+                </div>
+                <h3 className="text-xl font-bold text-dark mb-2">Produk Tidak Ditemukan</h3>
+                <p className="text-on-background/60">Belum ada produk untuk kategori ini.</p>
               </div>
-            </TabsContent>
+            )}
+          </div>
 
-            <TabsContent value="pedas" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {pedasProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-                {pedasProducts.length === 0 && (
-                  <div className="col-span-full py-10 text-center text-dark/50 font-medium">Belum ada produk pedas.</div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="gurih" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {gurihProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-                {gurihProducts.length === 0 && (
-                  <div className="col-span-full py-10 text-center text-dark/50 font-medium">Belum ada produk gurih.</div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="manis" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {manisProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-                {manisProducts.length === 0 && (
-                  <div className="col-span-full py-10 text-center text-dark/50 font-medium">Belum ada produk manis.</div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
+          {/* Pagination */}
+          {meta.totalPages > 1 && (
+            <ProductPagination 
+              currentPage={meta.page} 
+              totalPages={meta.totalPages} 
+            />
+          )}
         </div>
       </main>
       <Footer />
