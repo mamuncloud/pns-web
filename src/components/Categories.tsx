@@ -4,6 +4,10 @@ import { getProductsFromDb } from "@/lib/products-db";
 
 export default async function Categories() {
   const { data: products } = await getProductsFromDb(1, 100);
+  if (!products || products.length === 0) {
+    return null;
+  }
+
   const counts = { Pedas: 0, Gurih: 0, Manis: 0 };
   
   products.forEach((p) => {

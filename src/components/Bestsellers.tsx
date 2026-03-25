@@ -4,6 +4,10 @@ import { getProductsFromDb } from "@/lib/products-db";
 export default async function Bestsellers() {
   const { data: products } = await getProductsFromDb(1, 3);
   const bestsellerProducts = products;
+  
+  if (!bestsellerProducts || bestsellerProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-6 mb-24">
