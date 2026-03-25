@@ -33,7 +33,7 @@ export default function ProductCard({
     <Card className="rounded-[2rem] overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full bg-white p-0 gap-0">
       <div className="relative aspect-square w-full bg-[#f8f8f8] overflow-hidden">
         <Image
-          src={product.image_url}
+          src={product.imageUrl}
           alt={product.name}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"

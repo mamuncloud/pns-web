@@ -69,7 +69,7 @@ export default function POSPage() {
   };
 
   const totalRevenue = cart.reduce((acc, item) => acc + (item.variants[0]?.price || 0) * item.quantity, 0);
-  const totalHpp = cart.reduce((acc, item) => acc + (item.hpp || (item.variants[0]?.price || 0) * 0.7) * item.quantity, 0);
+  const totalHpp = cart.reduce((acc, item) => acc + (item.currentHpp || (item.variants[0]?.price || 0) * 0.7) * item.quantity, 0);
   const totalProfit = totalRevenue - totalHpp;
   const averageMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
@@ -163,7 +163,7 @@ export default function POSPage() {
                   </div>
                   {/* Staff Intelligence: Cost Awareness */}
                   <p className="text-[9px] font-bold text-muted-foreground/60 mt-1 uppercase tracking-tighter">
-                    Est. Profit: <span className="text-green-600/70">Rp {( ((item.variants[0]?.price || 0) - (item.hpp || (item.variants[0]?.price || 0) * 0.7)) * item.quantity ).toLocaleString('id-ID')}</span>
+                    Est. Profit: <span className="text-green-600/70">Rp {( ((item.variants[0]?.price || 0) - (item.currentHpp || (item.variants[0]?.price || 0) * 0.7)) * item.quantity ).toLocaleString('id-ID')}</span>
                   </p>
                 </div>
                 <button 

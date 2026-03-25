@@ -11,6 +11,9 @@ import {
   Calculator
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getProductsFromDb } from "@/lib/products-db";
+import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 
 interface InsightItemProps {
@@ -52,6 +55,38 @@ function InsightItem({ title, subtitle, value, percentage, status, icon: Icon }:
 }
 
 export default function InsightSection() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const { data } = await getProductsFromDb(1, 100);
+        setProducts(data || []);
+      } catch (error) {
+        console.error("Error fetching insights:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const topPerformers = [...products]
+    .filter(p => p.sellingPrice > 0)
+    .sort((a, b) => (b.margin || 0) - (a.margin || 0))
+    .slice(0, 2);
+
+  const criticalIssues = [...products]
+    .filter(p => (p.margin !== undefined && p.margin < 15) || p.stockQty < 10)
+    .sort((a, b) => {
+      // Prioritize margin danger, then low stock
+      if ((a.margin || 0) < 15 && (b.margin || 0) >= 15) return -1;
+      if ((a.margin || 0) >= 15 && (b.margin || 0) < 15) return 1;
+      return a.stockQty - b.stockQty;
+    })
+    .slice(0, 3);
+
   return (
     <Card className="border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
       <CardHeader className="border-b border-gray-50 dark:border-gray-800/50 bg-gray-50/30 dark:bg-gray-900/10">
@@ -77,22 +112,23 @@ export default function InsightSection() {
               <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Top Profit Performance</h4>
             </div>
             <div className="space-y-3">
-              <InsightItem 
-                title="Keripik Singkong Pedas"
-                subtitle="High demand, healthy margin"
-                value="Rp 1.2M"
-                percentage={85}
-                status="success"
-                icon={TrendingUp}
-              />
-              <InsightItem 
-                title="Basreng Jeruk"
-                subtitle="Best seller this week"
-                value="Rp 850k"
-                percentage={70}
-                status="success"
-                icon={TrendingUp}
-              />
+              {isLoading ? (
+                <div className="h-20 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
+              ) : topPerformers.length > 0 ? (
+                topPerformers.map(p => (
+                  <InsightItem 
+                    key={p.id}
+                    title={p.name}
+                    subtitle="High demand, healthy margin"
+                    value={`Rp ${(p.sellingPrice / 1000).toFixed(1)}k`}
+                    percentage={Math.min(100, (p.margin || 0) * 2)} // Scaling margin to progress
+                    status="success"
+                    icon={TrendingUp}
+                  />
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No high-performing products found.</p>
+              )}
             </div>
           </div>
 
@@ -103,27 +139,26 @@ export default function InsightSection() {
               <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Critical Margin & Health</h4>
             </div>
             <div className="space-y-3">
-              <InsightItem 
-                title="Makaroni Bantet"
-                subtitle="Margin drop by 5% due to HPP increase"
-                value="Margin 12%"
-                status="danger"
-                icon={AlertTriangle}
-              />
-              <InsightItem 
-                title="Cireng Chips"
-                subtitle="No sales for 14 days (Dead stock)"
-                value="52 units"
-                status="warning"
-                icon={PackageX}
-              />
-              <InsightItem 
-                title="Defect Inventory"
-                subtitle="Highest loss contributor this month"
-                value="Rp 320k"
-                status="danger"
-                icon={PackageX}
-              />
+              {isLoading ? (
+                <div className="h-20 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
+              ) : criticalIssues.length > 0 ? (
+                criticalIssues.map(p => {
+                  const isMarginDanger = (p.margin || 0) < 15;
+                  
+                  return (
+                    <InsightItem 
+                      key={p.id}
+                      title={p.name}
+                      subtitle={isMarginDanger ? `Margin too low: ${Math.round(p.margin || 0)}%` : `Stock running low: ${p.stockQty} left`}
+                      value={isMarginDanger ? `Margin ${Math.round(p.margin || 0)}%` : `${p.stockQty} units`}
+                      status={isMarginDanger ? "danger" : "warning"}
+                      icon={isMarginDanger ? AlertTriangle : PackageX}
+                    />
+                  );
+                })
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No critical issues detected.</p>
+              )}
             </div>
           </div>
         </div>

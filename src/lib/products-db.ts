@@ -20,13 +20,17 @@ interface BackendProduct {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  brandId: string | null;
   taste: string[];
   isActive: boolean;
-  hpp?: number;
-  margin?: number;
+  sellingPrice: number;
+  currentHpp: number;
+  stockQty: number;
+  baseCostPerGram: number;
+  packagingCost: number;
   status?: string;
-  lastPurchasePrice?: number;
-  priceChangePercentage?: number;
+  createdAt: string;
+  updatedAt: string;
   variants: Array<{
     id: string;
     label: string;
@@ -50,28 +54,33 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
     }
 
     // Map Backend format to Frontend compatible format
-    const products = response.data.map((p) => {
-      // Calculate margin if not provided (fallback)
-      const avgPrice = p.variants.length > 0 
-        ? p.variants.reduce((acc, v) => acc + v.price, 0) / p.variants.length 
+    const products = response.data.map((p): Product => {
+      // Calculate margin based on sellingPrice and currentHpp
+      const margin = p.sellingPrice > 0 
+        ? ((p.sellingPrice - p.currentHpp) / p.sellingPrice) * 100 
         : 0;
-      const calculatedMargin = p.margin ?? (p.hpp && avgPrice > 0 ? ((avgPrice - p.hpp) / avgPrice) * 100 : 0);
 
       return {
         id: p.id,
         name: p.name,
         description: p.description || "",
-        image_url: getProductImageUrl(p.imageUrl || ""),
+        imageUrl: getProductImageUrl(p.imageUrl || ""),
         taste: (p.taste || []) as EnumTaste[],
+        brandId: p.brandId || undefined,
+        sellingPrice: p.sellingPrice,
+        currentHpp: p.currentHpp,
+        stockQty: p.stockQty,
+        baseCostPerGram: p.baseCostPerGram,
+        packagingCost: p.packagingCost,
         variants: (p.variants || []).map((v) => ({
           package: v.label as EnumPackage,
-          price: v.price
+          price: v.price,
+          stock: v.stock
         })),
-        hpp: p.hpp,
-        margin: calculatedMargin,
+        margin: margin,
         status: (p.status || 'Normal') as ProductStatus,
-        lastPurchasePrice: p.lastPurchasePrice,
-        priceChangePercentage: p.priceChangePercentage,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
       };
     });
 

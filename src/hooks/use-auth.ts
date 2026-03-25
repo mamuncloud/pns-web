@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AuthUser } from "@/lib/api";
+import { AuthUser } from "@/types/financial";
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);

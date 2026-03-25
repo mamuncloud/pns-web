@@ -100,7 +100,7 @@ export default function DashboardProductsPage() {
                   const avgPrice = product.variants.length > 0 
                     ? product.variants.reduce((acc, v) => acc + v.price, 0) / product.variants.length 
                     : 0;
-                  const hpp = product.hpp || avgPrice * 0.7; // Mock fallback
+                  const hpp = product.currentHpp || avgPrice * 0.7; // Mock fallback
                   const margin = product.margin || ((avgPrice - hpp) / avgPrice) * 100;
                   
                   const statusColor = margin < 15 ? "text-red-600 bg-red-50 dark:bg-red-500/10" : 
@@ -112,8 +112,8 @@ export default function DashboardProductsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={cn("h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden")}>
-                            {product.image_url ? (
-                              <Image src={product.image_url} alt={product.name} width={40} height={40} className="h-full w-full object-cover" />
+                            {product.imageUrl ? (
+                              <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="h-full w-full object-cover" />
                             ) : (
                               <Package className="h-5 w-5 text-muted-foreground" />
                             )}

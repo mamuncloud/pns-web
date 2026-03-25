@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { getProductsFromDb } from "@/lib/products-db";
+import { api } from "@/lib/api";
 import { Product } from "@/types/product";
+import { StockAdjustment, AdjustmentReason } from "@/types/financial";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,46 +19,64 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const adjustmentReasons = [
-  { id: "defect", label: "Rusak (Defect)", color: "bg-red-500" },
-  { id: "expired", label: "Kadaluwarsa (Expired)", color: "bg-amber-500" },
-  { id: "lost", label: "Hilang", color: "bg-gray-500" },
+const adjustmentReasons: { id: AdjustmentReason; label: string; color: string }[] = [
+  { id: "DEFECT", label: "Rusak (Defect)", color: "bg-red-500" },
+  { id: "EXPIRED", label: "Kadaluwarsa (Expired)", color: "bg-amber-500" },
+  { id: "LOST", label: "Hilang", color: "bg-gray-500" },
 ];
 
 export default function StockAdjustmentPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [history, setHistory] = useState<StockAdjustment[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [qty, setQty] = useState<number>(0);
-  const [reason, setReason] = useState<string>("defect");
+  const [reason, setReason] = useState<AdjustmentReason>("DEFECT");
   const [note, setNote] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       const { data } = await getProductsFromDb(1, 100);
       setProducts(data);
+      
+      const adjustments = await api.stockAdjustments.list();
+      if (adjustments.success) {
+        setHistory(adjustments.data);
+      }
     }
-    fetchProducts();
+    fetchData();
   }, []);
 
-  const hpp = selectedProduct?.hpp || (selectedProduct?.variants[0]?.price || 0) * 0.7;
-  const estimatedLoss = qty * hpp;
+  const currentHpp = selectedProduct?.currentHpp || 0;
+  const estimatedLoss = qty * currentHpp;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct || qty <= 0) return;
     
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    alert(`Adjustment submitted: ${selectedProduct.name} - ${qty} units (${reason})`);
-    
-    // Reset form
-    setSelectedProduct(null);
-    setQty(0);
-    setReason("defect");
-    setNote("");
-    setIsSubmitting(false);
+    try {
+      await api.stockAdjustments.create({
+        productId: selectedProduct.id,
+        qty,
+        reason
+      });
+      alert(`Adjustment submitted: ${selectedProduct.name} - ${qty} units (${reason})`);
+      
+      // Refresh history
+      const adjustments = await api.stockAdjustments.list();
+      if (adjustments.success) setHistory(adjustments.data);
+
+      // Reset form
+      setSelectedProduct(null);
+      setQty(0);
+      setReason("DEFECT");
+      setNote("");
+    } catch (error: unknown) {
+      alert(`Error submitting adjustment: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -84,13 +104,13 @@ export default function StockAdjustmentPage() {
                     className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white dark:bg-gray-950 dark:border-gray-800 font-bold text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                     value={selectedProduct?.id || ""}
                     onChange={(e) => {
-                      const p = products.find(p => p.id === e.target.value);
+                      const p = products.find((p: Product) => p.id === e.target.value);
                       setSelectedProduct(p || null);
                     }}
                     required
                   >
                     <option value="">-- Pilih Produk --</option>
-                    {products.map(p => (
+                    {products.map((p: Product) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
@@ -169,7 +189,7 @@ export default function StockAdjustmentPage() {
                 </p>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed italic">
-                Kerugian dihitung berdasarkan HPP rata-rata unit ({selectedProduct ? `Rp ${hpp?.toLocaleString('id-ID')}` : '-'}) dikalikan dengan jumlah unit yang disesuaikan.
+                Kerugian dihitung berdasarkan HPP rata-rata unit ({selectedProduct ? `Rp ${currentHpp.toLocaleString('id-ID')}` : '-'}) dikalikan dengan jumlah unit yang disesuaikan.
               </p>
               {qty > 5 && (
                 <div className="p-3 bg-white dark:bg-gray-950 rounded-lg border border-red-100 dark:border-red-900/30 flex items-center gap-2">
@@ -223,28 +243,37 @@ export default function StockAdjustmentPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                {[
-                  { time: "Tadi, 10:45", product: "Keripik Singkong", qty: 2, reason: "defect", loss: "Rp 24.000", badgeColor: "bg-red-500" },
-                  { time: "24 Mar, 15:20", product: "Basreng Pedas", qty: 1, reason: "expired", loss: "Rp 10.500", badgeColor: "bg-amber-500" },
-                  { time: "22 Mar, 09:12", product: "Makaroni Bantet", qty: 5, reason: "lost", loss: "Rp 60.000", badgeColor: "bg-gray-500" },
-                ].map((item, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
-                    <td className="px-6 py-4 text-xs font-bold text-muted-foreground">{item.time}</td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-foreground">{item.product}</p>
-                    </td>
-                    <td className="px-6 py-4 text-center font-black text-sm">-{item.qty}</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className={cn("h-2 w-2 rounded-full", item.badgeColor)} />
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase">{item.reason}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <p className="text-sm font-black text-red-600">{item.loss}</p>
+                {history.map((item: StockAdjustment) => {
+                  const product = products.find((p: Product) => p.id === item.productId);
+                  const reasonObj = adjustmentReasons.find(r => r.id === item.reason);
+                  return (
+                    <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-muted-foreground">
+                        {new Date(item.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-foreground">{product?.name || "Unknown Product"}</p>
+                      </td>
+                      <td className="px-6 py-4 text-center font-black text-sm">-{item.qty}</td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className={cn("h-2 w-2 rounded-full", reasonObj?.color || "bg-gray-400")} />
+                          <span className="text-[11px] font-bold text-muted-foreground uppercase">{item.reason}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <p className="text-sm font-black text-red-600">Rp {item.totalLoss.toLocaleString('id-ID')}</p>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {history.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground italic text-sm">
+                      Belum ada riwayat penyesuaian.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

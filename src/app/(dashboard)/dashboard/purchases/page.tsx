@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getProductsFromDb } from "@/lib/products-db";
+import { api } from "@/lib/api";
 import { Product } from "@/types/product";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ export default function PurchasesPage() {
         if (updates.productId) {
           const product = products.find(p => p.id === updates.productId);
           updated.productName = product?.name || "";
-          updated.lastCost = product?.hpp || (product?.variants[0]?.price || 0) * 0.7;
+          updated.lastCost = product?.currentHpp || (product?.variants?.[0]?.price || 0) * 0.7;
         }
         if (updated.qty > 0 && updated.totalCost > 0) {
           updated.unitCost = updated.totalCost / updated.qty;
@@ -92,11 +93,23 @@ export default function PurchasesPage() {
     if (items.length === 0 || !supplier) return;
     
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    alert(`Purchase from ${supplier} submitted! Total: Rp ${totalPurchase.toLocaleString('id-ID')}`);
-    setItems([]);
-    setSupplier("");
-    setIsSubmitting(false);
+    try {
+      await api.purchases.create({
+        supplier,
+        items: items.map(item => ({
+          productId: item.productId,
+          qty: item.qty,
+          totalCost: item.totalCost
+        }))
+      });
+      alert(`Purchase from ${supplier} submitted! Total: Rp ${totalPurchase.toLocaleString('id-ID')}`);
+      setItems([]);
+      setSupplier("");
+    } catch (error: unknown) {
+      alert(`Error submitting purchase: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

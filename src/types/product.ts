@@ -13,12 +13,18 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  image_url: string;
+  imageUrl: string;
   taste: EnumTaste[];
   variants: ProductVariant[];
-  hpp?: number;         // Average Cost
-  margin?: number;      // Margin percentage
+  brandId?: string;
+  sellingPrice: number;
+  currentHpp: number;
+  stockQty: number;
+  baseCostPerGram: number;
+  packagingCost: number;
   status?: ProductStatus;
-  lastPurchasePrice?: number;
+  margin?: number;      // Calculated client-side or from API
   priceChangePercentage?: number;
+  createdAt: string;
+  updatedAt: string;
 }

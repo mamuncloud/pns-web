@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { AuthUser } from "@/lib/api";
+import { AuthUser } from "@/types/financial";
 import { 
   Bell, 
   Search, 

@@ -1,3 +1,10 @@
+import { 
+  AuthUser, 
+  PricingRule, 
+  StockAdjustment, 
+  CreatePurchaseDto 
+} from "@/types/financial";
+
 interface ApiResponse<T> {
   success: boolean;
   statusCode: number;
@@ -31,14 +38,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   return result as ApiResponse<T>;
 }
 
-export interface AuthUser {
-  id: string;
-  email: string | null;
-  name: string | null;
-  role: string;
-  type: 'EMPLOYEE' | 'USER';
-}
-
 export const api = {
   get: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'GET' }),
@@ -58,5 +57,22 @@ export const api = {
   auth: {
     requestLogin: (email: string) => api.post<{ message: string }>('/auth/request-login', { email }),
     verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
+  },
+
+  products: {
+    getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),
+  },
+
+  pricingRules: {
+    create: (data: Partial<PricingRule>) => api.post<PricingRule>('/pricing-rules', data),
+  },
+
+  stockAdjustments: {
+    list: (productId?: string) => api.get<StockAdjustment[]>(`/stock-adjustments${productId ? `?productId=${productId}` : ''}`),
+    create: (data: Partial<StockAdjustment>) => api.post<StockAdjustment>('/stock-adjustments', data),
+  },
+
+  purchases: {
+    create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
   }
 };

@@ -51,7 +51,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const avgPrice = product.variants.length > 0 
     ? product.variants.reduce((acc, v) => acc + v.price, 0) / product.variants.length 
     : 0;
-  const hpp = product.hpp || avgPrice * 0.7;
+  const hpp = product.currentHpp || avgPrice * 0.7;
   const marginPerUnit = avgPrice - hpp;
   const marginPercentage = (marginPerUnit / avgPrice) * 100;
 
