@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
+import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,14 +28,17 @@ interface CartItem extends Product {
 
 export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
+      setIsLoading(true);
       const { data } = await getProductsFromDb(1, 100);
       setProducts(data);
+      setIsLoading(false);
     }
     fetchProducts();
   }, []);
@@ -93,41 +97,56 @@ export default function POSPage() {
             <h2 className="text-2xl font-black text-foreground tracking-tight uppercase">Kasir (POS)</h2>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Pilih produk untuk transaksi baru</p>
           </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Cari camilan..." 
-              className="pl-10 h-11 font-bold rounded-xl border-gray-200 dark:border-gray-800 focus:ring-primary/20"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+          {products.length > 0 && (
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Cari camilan..." 
+                className="pl-10 h-11 font-bold rounded-xl border-gray-200 dark:border-gray-800 focus:ring-primary/20"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredProducts.map((p) => (
-              <Card 
-                key={p.id} 
-                className="cursor-pointer hover:border-primary/50 transition-all group active:scale-95 shadow-sm border-gray-100 dark:border-gray-800"
-                onClick={() => addToCart(p)}
-              >
-                <CardContent className="p-3 space-y-3">
-                  <div className="aspect-square bg-gray-50 dark:bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors">
-                     <span className="text-2xl">🍿</span>
-                     {p.margin && p.margin > 40 && (
-                       <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none">High Margin</Badge>
-                     )}
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-black text-foreground leading-tight truncate">{p.name}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Stock: {p.variants[0]?.stock || 0}</p>
-                    <p className="text-sm font-black text-primary">Rp {p.variants[0]?.price.toLocaleString('id-ID')}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-40 rounded-xl bg-gray-100 dark:bg-gray-800" />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <EmptyProductState 
+              title="Camilan Belum Terdaftar"
+              description="Belum ada produk yang bisa dijual. Silakan tambahkan produk pertama Anda di menu Kelola Produk."
+            />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredProducts.map((p) => (
+                <Card 
+                  key={p.id} 
+                  className="cursor-pointer hover:border-primary/50 transition-all group active:scale-95 shadow-sm border-gray-100 dark:border-gray-800"
+                  onClick={() => addToCart(p)}
+                >
+                  <CardContent className="p-3 space-y-3">
+                    <div className="aspect-square bg-gray-50 dark:bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors">
+                       <span className="text-2xl">🍿</span>
+                       {p.margin && p.margin > 40 && (
+                         <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none">High Margin</Badge>
+                       )}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-black text-foreground leading-tight truncate">{p.name}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Stock: {p.variants[0]?.stock || 0}</p>
+                      <p className="text-sm font-black text-primary">Rp {p.variants[0]?.price.toLocaleString('id-ID')}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

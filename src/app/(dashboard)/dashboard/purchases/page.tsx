@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getProductsFromDb } from "@/lib/products-db";
 import { api } from "@/lib/api";
 import { Product } from "@/types/product";
+import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ interface PurchaseItem {
 
 export default function PurchasesPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState<PurchaseItem[]>([]);
   const [supplier, setSupplier] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -41,8 +43,10 @@ export default function PurchasesPage() {
 
   useEffect(() => {
     async function fetchProducts() {
+      setIsLoading(true);
       const { data } = await getProductsFromDb(1, 100);
       setProducts(data);
+      setIsLoading(false);
     }
     fetchProducts();
   }, []);
@@ -125,9 +129,23 @@ export default function PurchasesPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Purchase Header */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="h-40 rounded-xl bg-gray-100 dark:bg-gray-800" />
+            <div className="h-60 rounded-xl bg-gray-100 dark:bg-gray-800" />
+          </div>
+          <div className="h-80 rounded-xl bg-gray-100 dark:bg-gray-800" />
+        </div>
+      ) : products.length === 0 ? (
+        <EmptyProductState 
+          title="Produk Belum Terdaftar"
+          description="Anda tidak dapat melakukan kulakan sebelum mendaftarkan produk. Silakan tambahkan produk di menu Kelola Produk terlebih dahulu."
+        />
+      ) : (
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Purchase Header */}
           <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -331,6 +349,7 @@ export default function PurchasesPage() {
           </div>
         </div>
       </form>
+      )}
     </div>
   );
 }
