@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import StatCards from "@/components/dashboard/StatCards";
+import InsightSection from "@/components/dashboard/InsightSection";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,9 @@ export default function DashboardPage() {
 
       {/* KPI Cards */}
       <StatCards />
+
+      {/* Financial Insights */}
+      <InsightSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity */}

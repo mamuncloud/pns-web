@@ -4,7 +4,10 @@ export type EnumPackage = '250gr' | '500gr' | '1kg' | 'Medium' | 'Small' | 'Groc
 export interface ProductVariant {
   package: EnumPackage;
   price: number;
+  stock?: number;
 }
+
+export type ProductStatus = 'Normal' | 'Warning' | 'Critical';
 
 export interface Product {
   id: string;
@@ -13,4 +16,9 @@ export interface Product {
   image_url: string;
   taste: EnumTaste[];
   variants: ProductVariant[];
+  hpp?: number;         // Average Cost
+  margin?: number;      // Margin percentage
+  status?: ProductStatus;
+  lastPurchasePrice?: number;
+  priceChangePercentage?: number;
 }

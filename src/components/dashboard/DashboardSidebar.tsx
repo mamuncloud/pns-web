@@ -12,7 +12,9 @@ import {
   Users,
   BarChart3,
   Menu,
-  X
+  X,
+  ShoppingBag,
+  RefreshCcw
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +22,9 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Products", href: "/dashboard/products", icon: Package },
-  { name: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
+  { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
+  { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
+  { name: "Adjustments", href: "/dashboard/stock-adjustment", icon: RefreshCcw },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },

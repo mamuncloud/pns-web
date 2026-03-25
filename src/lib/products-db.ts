@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { EnumTaste, EnumPackage, Product } from "@/types/product";
+import { EnumTaste, EnumPackage, Product, ProductStatus } from "@/types/product";
 import { getProductImageUrl } from "./utils";
 
 export interface PaginationMeta {
@@ -22,6 +22,11 @@ interface BackendProduct {
   imageUrl: string | null;
   taste: string[];
   isActive: boolean;
+  hpp?: number;
+  margin?: number;
+  status?: string;
+  lastPurchasePrice?: number;
+  priceChangePercentage?: number;
   variants: Array<{
     id: string;
     label: string;
@@ -45,17 +50,30 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
     }
 
     // Map Backend format to Frontend compatible format
-    const products = response.data.map((p) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description || "",
-      image_url: getProductImageUrl(p.imageUrl || ""),
-      taste: (p.taste || []) as EnumTaste[],
-      variants: (p.variants || []).map((v) => ({
-        package: v.label as EnumPackage,
-        price: v.price
-      }))
-    }));
+    const products = response.data.map((p) => {
+      // Calculate margin if not provided (fallback)
+      const avgPrice = p.variants.length > 0 
+        ? p.variants.reduce((acc, v) => acc + v.price, 0) / p.variants.length 
+        : 0;
+      const calculatedMargin = p.margin ?? (p.hpp && avgPrice > 0 ? ((avgPrice - p.hpp) / avgPrice) * 100 : 0);
+
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description || "",
+        image_url: getProductImageUrl(p.imageUrl || ""),
+        taste: (p.taste || []) as EnumTaste[],
+        variants: (p.variants || []).map((v) => ({
+          package: v.label as EnumPackage,
+          price: v.price
+        })),
+        hpp: p.hpp,
+        margin: calculatedMargin,
+        status: (p.status || 'Normal') as ProductStatus,
+        lastPurchasePrice: p.lastPurchasePrice,
+        priceChangePercentage: p.priceChangePercentage,
+      };
+    });
 
     const meta = response.meta as unknown as PaginationMeta;
 

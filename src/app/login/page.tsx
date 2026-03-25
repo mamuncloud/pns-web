@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +10,30 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 
 export default function LoginPage() {
+  const { isAuthenticated, isEmployee, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      if (isEmployee) {
+        router.push("/dashboard");
+      } else {
+        router.push("/order");
+      }
+    }
+  }, [isAuthLoading, isAuthenticated, isEmployee, router]);
+
+  if (isAuthLoading || isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50/50 dark:bg-gray-950">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
