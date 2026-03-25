@@ -30,17 +30,13 @@ function VerifyContent() {
         
         // Redirect after a short delay
         setTimeout(() => {
-          const { type, role } = response.data.user;
+          const { type } = response.data.user;
           
           if (type === "EMPLOYEE") {
-            if (role === "MANAGER") {
-              router.push("/dashboard/manager");
-            } else {
-              router.push("/dashboard/cashier");
-            }
+            router.push("/dashboard")
           } else {
             // Consumer redirect
-            router.push("/profile");
+            router.push("/order");
           }
         }, 1500);
       } catch (err) {

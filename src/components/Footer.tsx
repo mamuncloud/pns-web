@@ -56,12 +56,12 @@ export default function Footer() {
           {/* Navigation Links */}
           <div className="lg:col-span-3">
             <h4 className="font-headline font-black mb-8 uppercase tracking-widest text-sm opacity-60">
-              {/* Navigasi */}
+              Navigasi
             </h4>
             <ul className="space-y-4 font-semibold">
               <li>
-                <Link className="hover:text-accent transition-colors" href="#">
-                  {/* Tentang Kami */}
+                <Link className="hover:text-accent transition-colors" href="/login">
+                  Staff
                 </Link>
               </li>
               <li>
