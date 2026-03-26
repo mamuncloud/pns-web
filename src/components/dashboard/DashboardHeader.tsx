@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { AuthUser } from "@/types/financial";
 import { 
   Bell, 
-  Search, 
   User, 
   LogOut,
   ChevronDown,
@@ -43,14 +42,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           {getPageTitle()}
         </h1>
         
-        <div className="relative hidden md:block w-64 lg:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search products, orders..."
-            className="w-full h-10 bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all dark:bg-gray-800 dark:border-gray-700"
-          />
-        </div>
+        {/* Search removed as per user request */}
       </div>
 
       {/* Actions */}
