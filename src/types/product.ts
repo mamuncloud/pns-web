@@ -1,5 +1,5 @@
 export type EnumTaste = 'Pedas' | 'Gurih' | 'Manis';
-export type EnumPackage = '250gr' | '500gr' | '1kg' | 'Medium' | 'Small' | 'Grocery';
+export type EnumPackage = 'ES3' | 'ES4' | '250gr' | '500gr' | '1kg' | 'bal';
 
 export interface ProductVariant {
   package: EnumPackage;

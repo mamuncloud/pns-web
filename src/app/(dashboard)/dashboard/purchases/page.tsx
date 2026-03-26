@@ -121,7 +121,9 @@ export default function PurchasesPage() {
           const product = products.find(p => p.id === updates.productId);
           updated.productName = product?.name || "";
           updated.brandName = product?.brand?.name || "";
-          updated.variantLabel = product?.variants?.[0]?.package || "Standard";
+          // Backend uses 'label', map it correctly to the frontend's item expectation
+          const defaultVariant = product?.variants?.[0];
+          updated.variantLabel = defaultVariant?.package || "bal"; 
           updated.lastCost = product?.currentHpp || (product?.variants?.[0]?.price || 0) * 0.7;
           updated.sellingPrice = product?.sellingPrice || product?.variants?.[0]?.price || 0;
         }
@@ -373,10 +375,26 @@ export default function PurchasesPage() {
                           </button>
                         </div>
 
-                        {/* 2. Primary Inputs: Qty, Cost, Sell Price */}
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-                          <div className="space-y-2">
-                            <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Jumlah (Qty)</label>
+                        {/* 2. Primary Inputs: Label, Qty, Cost, Sell Price */}
+                        <div className="p-6 flex flex-wrap gap-4 items-end">
+                          <div className="flex-1 min-w-[100px] space-y-2">
+                            <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Label</label>
+                            <select 
+                              value={item.variantLabel || "bal"}
+                              onChange={(e) => updateItem(item.id, { variantLabel: e.target.value })}
+                              className="w-full h-11 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            >
+                              <option value="bal">BAL (Default)</option>
+                              <option value="ES3">ES3</option>
+                              <option value="ES4">ES4</option>
+                              <option value="250gr">250gr</option>
+                              <option value="500gr">500gr</option>
+                              <option value="1kg">1kg</option>
+                            </select>
+                          </div>
+                          
+                          <div className="w-24 space-y-2">
+                            <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Qty</label>
                             <Input 
                               type="number" 
                               min="1" 
@@ -387,7 +405,7 @@ export default function PurchasesPage() {
                             />
                           </div>
                           
-                          <div className="space-y-2">
+                          <div className="flex-1 min-w-[150px] space-y-2">
                             <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Total Dari Supplier</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
@@ -402,7 +420,7 @@ export default function PurchasesPage() {
                             </div>
                           </div>
 
-                          <div className="space-y-2">
+                          <div className="flex-1 min-w-[120px] space-y-2">
                             <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Biaya Ekstra</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
@@ -417,7 +435,7 @@ export default function PurchasesPage() {
                             </div>
                           </div>
 
-                          <div className="space-y-2">
+                          <div className="flex-1 min-w-[150px] space-y-2">
                             <label className="text-[11px] font-black uppercase text-primary tracking-wider px-1">Harga Jual Baru</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-primary/50">Rp</span>
