@@ -20,6 +20,10 @@ interface BackendProduct {
   description: string | null;
   imageUrl: string | null;
   brandId: string | null;
+  brand?: {
+    id: string;
+    name: string;
+  };
   taste: string[];
   isActive: boolean;
   status?: string;
@@ -63,6 +67,7 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
         images: p.images || [],
         taste: (p.taste || []) as EnumTaste[],
         brandId: p.brandId || undefined,
+        brand: p.brand || undefined,
         variants: (p.variants || []).map((v) => ({
           package: v.label as EnumPackage,
           price: v.price,

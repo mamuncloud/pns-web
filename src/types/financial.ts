@@ -26,12 +26,18 @@ export interface StockAdjustment {
 
 export interface PurchaseItem {
   productId: string;
+  variantLabel?: string;
   qty: number;
   totalCost: number;
+  extraCosts?: number;
+  sellingPrice?: number;
+  expiredDate?: string;
 }
 
 export interface CreatePurchaseDto {
-  supplier: string;
+  supplierId: string;
+  date: string;
+  note?: string;
   items: PurchaseItem[];
 }
 

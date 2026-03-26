@@ -45,6 +45,15 @@ export interface Brand {
   name: string;
 }
 
+export interface Supplier {
+  id: string;
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
 export const api = {
   get: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'GET' }),
@@ -103,5 +112,9 @@ export const api = {
         body: formData,
       });
     }
+  },
+
+  suppliers: {
+    list: () => api.get<Supplier[]>('/suppliers'),
   }
 };

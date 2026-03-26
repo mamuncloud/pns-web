@@ -25,6 +25,10 @@ export interface Product {
   taste: EnumTaste[];
   variants: ProductVariant[];
   brandId?: string;
+  brand?: {
+    id: string;
+    name: string;
+  };
   status?: ProductStatus;
   margin?: number;
   currentHpp?: number;
