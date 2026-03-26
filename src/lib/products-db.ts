@@ -37,6 +37,12 @@ interface BackendProduct {
     price: number;
     stock: number;
   }>;
+  images?: Array<{
+    id: string;
+    url: string;
+    isPrimary: boolean;
+    createdAt: string;
+  }>;
 }
 
 export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string): Promise<PaginatedProducts> {
@@ -64,7 +70,8 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
         id: p.id,
         name: p.name,
         description: p.description || "",
-        imageUrl: getProductImageUrl(p.imageUrl || ""),
+        imageUrl: p.imageUrl || "", // Now comes normalized from backend
+        images: p.images || [],
         taste: (p.taste || []) as EnumTaste[],
         brandId: p.brandId || undefined,
         sellingPrice: p.sellingPrice,

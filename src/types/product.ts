@@ -9,11 +9,19 @@ export interface ProductVariant {
 
 export type ProductStatus = 'Normal' | 'Warning' | 'Critical';
 
+export interface ProductImage {
+  id: string;
+  url: string;
+  isPrimary: boolean;
+  createdAt: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   imageUrl: string;
+  images?: ProductImage[];
   taste: EnumTaste[];
   variants: ProductVariant[];
   brandId?: string;

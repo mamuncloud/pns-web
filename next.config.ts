@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "api.planetnyemilsnack.store",
       },
+      {
+        protocol: "https",
+        hostname: "szaprhbdfkxrcoxuaogl.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
     ],
   },
 };

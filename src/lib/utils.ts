@@ -5,7 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getProductImageUrl(path: string): string {
+export function getProductImageUrl(path: string | null | undefined): string {
+  const defaultImage = "https://szaprhbdfkxrcoxuaogl.supabase.co/storage/v1/object/public/products/product_default.png";
+  if (!path) return defaultImage;
   if (path.startsWith("http")) return path;
   return `https://szaprhbdfkxrcoxuaogl.supabase.co/storage/v1/object/public/products/${path}`;
 }

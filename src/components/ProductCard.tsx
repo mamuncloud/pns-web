@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Product } from "@/types/product";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +40,10 @@ export default function ProductCard({
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={(e) => {
+            const img = e.target as HTMLImageElement;
+            img.src = "https://szaprhbdfkxrcoxuaogl.supabase.co/storage/v1/object/public/products/product_default.png";
+          }}
         />
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
           {isBestseller && (
@@ -51,8 +57,8 @@ export default function ProductCard({
               Terlaris
             </div>
           )}
-          {product.taste.map((t) => (
-            <Badge key={t} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0 w-fit`}>
+          {product.taste.map((t, index) => (
+            <Badge key={`${t}-${index}`} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0 w-fit`}>
               {t}
             </Badge>
           ))}
@@ -75,9 +81,9 @@ export default function ProductCard({
         </div>
         
         <div className="flex flex-wrap gap-2 mt-auto">
-          {product.variants.map((v) => (
+          {product.variants.map((v, index) => (
             <span 
-              key={v.package} 
+              key={`${v.package}-${index}`} 
               className="px-3 py-1.5 bg-[#FDF2F2] rounded-full text-[10px] font-bold text-primary"
             >
               {v.package}
