@@ -25,14 +25,11 @@ export interface Product {
   taste: EnumTaste[];
   variants: ProductVariant[];
   brandId?: string;
-  sellingPrice: number;
-  currentHpp: number;
-  stockQty: number;
-  baseCostPerGram: number;
-  packagingCost: number;
   status?: ProductStatus;
-  margin?: number;      // Calculated client-side or from API
-  priceChangePercentage?: number;
+  margin?: number;
+  currentHpp?: number;
+  sellingPrice?: number;
+  stockQty?: number;
   createdAt: string;
   updatedAt: string;
 }

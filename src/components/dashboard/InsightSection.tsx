@@ -73,17 +73,17 @@ export default function InsightSection() {
   }, []);
 
   const topPerformers = [...products]
-    .filter(p => p.sellingPrice > 0)
+    .filter(p => (p.sellingPrice || 0) > 0)
     .sort((a, b) => (b.margin || 0) - (a.margin || 0))
     .slice(0, 2);
 
   const criticalIssues = [...products]
-    .filter(p => (p.margin !== undefined && p.margin < 15) || p.stockQty < 10)
+    .filter(p => (p.margin !== undefined && p.margin < 15) || (p.stockQty || 0) < 10)
     .sort((a, b) => {
       // Prioritize margin danger, then low stock
       if ((a.margin || 0) < 15 && (b.margin || 0) >= 15) return -1;
       if ((a.margin || 0) >= 15 && (b.margin || 0) < 15) return 1;
-      return a.stockQty - b.stockQty;
+      return (a.stockQty || 0) - (b.stockQty || 0);
     })
     .slice(0, 3);
 
@@ -120,7 +120,7 @@ export default function InsightSection() {
                     key={p.id}
                     title={p.name}
                     subtitle="High demand, healthy margin"
-                    value={`Rp ${(p.sellingPrice / 1000).toFixed(1)}k`}
+                    value={`Rp ${((p.sellingPrice || 0) / 1000).toFixed(1)}k`}
                     percentage={Math.min(100, (p.margin || 0) * 2)} // Scaling margin to progress
                     status="success"
                     icon={TrendingUp}
@@ -149,8 +149,8 @@ export default function InsightSection() {
                     <InsightItem 
                       key={p.id}
                       title={p.name}
-                      subtitle={isMarginDanger ? `Margin too low: ${Math.round(p.margin || 0)}%` : `Stock running low: ${p.stockQty} left`}
-                      value={isMarginDanger ? `Margin ${Math.round(p.margin || 0)}%` : `${p.stockQty} units`}
+                      subtitle={isMarginDanger ? `Margin too low: ${Math.round(p.margin || 0)}%` : `Stock running low: ${p.stockQty || 0} left`}
+                      value={isMarginDanger ? `Margin ${Math.round(p.margin || 0)}%` : `${p.stockQty || 0} units`}
                       status={isMarginDanger ? "danger" : "warning"}
                       icon={isMarginDanger ? AlertTriangle : PackageX}
                     />

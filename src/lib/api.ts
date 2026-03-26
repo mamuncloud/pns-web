@@ -20,10 +20,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
+  const isFormData = options.body instanceof FormData;
+
   const response = await fetch(url, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -36,6 +38,11 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   return result as ApiResponse<T>;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
 }
 
 export const api = {
@@ -53,14 +60,16 @@ export const api = {
   
   delete: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'DELETE' }),
-
+ 
   auth: {
     requestLogin: (email: string) => api.post<{ message: string }>('/auth/request-login', { email }),
     verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
   },
-
+ 
   products: {
     getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),
+    getBrands: () => api.get<Brand[]>('/products/brands'),
+    create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
   },
 
   pricingRules: {
@@ -74,5 +83,25 @@ export const api = {
 
   purchases: {
     create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
+  },
+  
+  storage: {
+    uploadMultiple: (files: File[]) => {
+      const formData = new FormData();
+      files.forEach(file => formData.append('files', file));
+      return fetchApi<string[]>('/storage/upload', {
+        method: 'POST',
+        body: formData,
+        headers: {} as Record<string, string>,
+      });
+    },
+    uploadSingle: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return fetchApi<string>('/storage/upload-single', {
+        method: 'POST',
+        body: formData,
+      });
+    }
   }
 };

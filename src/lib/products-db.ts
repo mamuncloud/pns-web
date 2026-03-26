@@ -1,6 +1,5 @@
 import { api } from "./api";
 import { EnumTaste, EnumPackage, Product, ProductStatus } from "@/types/product";
-import { getProductImageUrl } from "./utils";
 
 export interface PaginationMeta {
   page: number;
@@ -23,11 +22,6 @@ interface BackendProduct {
   brandId: string | null;
   taste: string[];
   isActive: boolean;
-  sellingPrice: number;
-  currentHpp: number;
-  stockQty: number;
-  baseCostPerGram: number;
-  packagingCost: number;
   status?: string;
   createdAt: string;
   updatedAt: string;
@@ -61,11 +55,6 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
 
     // Map Backend format to Frontend compatible format
     const products = response.data.map((p): Product => {
-      // Calculate margin based on sellingPrice and currentHpp
-      const margin = p.sellingPrice > 0 
-        ? ((p.sellingPrice - p.currentHpp) / p.sellingPrice) * 100 
-        : 0;
-
       return {
         id: p.id,
         name: p.name,
@@ -74,17 +63,14 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
         images: p.images || [],
         taste: (p.taste || []) as EnumTaste[],
         brandId: p.brandId || undefined,
-        sellingPrice: p.sellingPrice,
-        currentHpp: p.currentHpp,
-        stockQty: p.stockQty,
-        baseCostPerGram: p.baseCostPerGram,
-        packagingCost: p.packagingCost,
         variants: (p.variants || []).map((v) => ({
           package: v.label as EnumPackage,
           price: v.price,
           stock: v.stock
         })),
-        margin: margin,
+        sellingPrice: p.variants?.[0]?.price || 0,
+        stockQty: (p.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0),
+        margin: 35, // Default margin for now since backend doesn't provide it yet
         status: (p.status || 'Normal') as ProductStatus,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
