@@ -33,10 +33,10 @@ const colorMap = {
 
 function StatCard({ title, value, description, icon: Icon, trend, color }: StatCardProps) {
   return (
-    <Card className="overflow-hidden border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className={cn("p-3 rounded-xl border transition-colors", colorMap[color])}>
+    <Card className="overflow-hidden border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-2xl transition-all duration-300 rounded-3xl group">
+      <CardContent className="p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className={cn("h-14 w-14 flex items-center justify-center rounded-2xl border transition-colors shadow-inner group-hover:scale-110 duration-500", colorMap[color])}>
             <Icon className="h-6 w-6" />
           </div>
           {trend && (

@@ -126,17 +126,17 @@ export default function POSPage() {
     <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6 animate-in fade-in duration-500">
       {/* Left Side: Product Selection */}
       <div className="flex-1 flex flex-col gap-6 overflow-hidden">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-black text-foreground tracking-tight uppercase">Kasir (POS)</h2>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Pilih produk untuk transaksi baru</p>
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-2 shrink-0">
+          <div className="space-y-1">
+            <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Kasir (POS)</h2>
+            <p className="text-sm text-muted-foreground font-medium">Pilih produk untuk transaksi baru.</p>
           </div>
           {products.length > 0 && (
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative w-full xl:w-80 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input 
                 placeholder="Cari camilan..." 
-                className="pl-10 h-11 font-bold rounded-xl border-gray-200 dark:border-gray-800 focus:ring-primary/20"
+                className="pl-12 h-14 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all text-base font-medium"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -161,20 +161,22 @@ export default function POSPage() {
               {filteredProducts.map((p) => (
                 <Card 
                   key={p.id} 
-                  className="cursor-pointer hover:border-primary/50 transition-all group active:scale-95 shadow-sm border-gray-100 dark:border-gray-800"
+                  className="cursor-pointer hover:border-primary/50 transition-all duration-300 group active:scale-95 shadow-sm border-gray-200/50 dark:border-gray-800/50 rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-xl hover:shadow-primary/5 min-h-[140px]"
                   onClick={() => addToCart(p)}
                 >
-                  <CardContent className="p-3 space-y-3">
-                    <div className="aspect-square bg-gray-50 dark:bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors">
-                       <span className="text-2xl">🍿</span>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="aspect-square bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors border border-gray-100 dark:border-gray-800/50">
+                       <span className="text-4xl">🍿</span>
                        {p.margin && p.margin > 40 && (
-                         <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none">High Margin</Badge>
+                         <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none shadow-sm">High Margin</Badge>
                        )}
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-black text-foreground leading-tight truncate">{p.name}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Stock: {p.variants[0]?.stock || 0}</p>
-                      <p className="text-sm font-black text-primary">Rp {p.variants[0]?.price.toLocaleString('id-ID')}</p>
+                    <div className="space-y-1.5 mt-2">
+                      <p className="text-sm font-black text-foreground leading-tight truncate">{p.name}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">Stock: {p.variants[0]?.stock || 0}</p>
+                        <p className="text-sm font-black text-primary">Rp {p.variants[0]?.price.toLocaleString('id-ID')}</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -185,8 +187,8 @@ export default function POSPage() {
       </div>
 
       {/* Right Side: Cart & Intelligence */}
-      <div className="w-full lg:w-[400px] flex flex-col bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-xl shadow-black/5">
-        <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 flex items-center justify-between">
+      <div className="w-full lg:w-[400px] flex flex-col bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 rounded-3xl overflow-hidden shadow-2xl shadow-gray-200/50 dark:shadow-none shrink-0">
+        <div className="p-5 border-b border-gray-100/50 dark:border-gray-800/50 bg-gray-50/30 dark:bg-gray-900/10 flex items-center justify-between">
           <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-primary" />
             Keranjang Belanja
@@ -231,7 +233,7 @@ export default function POSPage() {
         </div>
 
         {/* Intelligence Layer: Profit & Margin Monitor */}
-        <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 space-y-6">
+        <div className="p-6 bg-gray-50/50 dark:bg-gray-900/10 border-t border-gray-100/50 dark:border-gray-800/50 space-y-6">
           <div className="space-y-4">
              {/* Margin Meter */}
              <div className="space-y-2">

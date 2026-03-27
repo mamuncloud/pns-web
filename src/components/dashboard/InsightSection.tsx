@@ -88,8 +88,8 @@ export default function InsightSection() {
     .slice(0, 3);
 
   return (
-    <Card className="border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-      <CardHeader className="border-b border-gray-50 dark:border-gray-800/50 bg-gray-50/30 dark:bg-gray-900/10">
+    <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+      <CardHeader className="border-b border-gray-100/50 dark:border-gray-800/50 bg-gray-50/30 dark:bg-gray-900/10 py-6 px-8">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-2">
@@ -104,9 +104,9 @@ export default function InsightSection() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-gray-100 dark:border-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-gray-100/50 dark:border-gray-800/50">
           {/* Top Performance */}
-          <div className="p-6 space-y-4">
+          <div className="p-6 sm:p-8 space-y-5">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-green-600" />
               <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Top Profit Performance</h4>
@@ -133,7 +133,7 @@ export default function InsightSection() {
           </div>
 
           {/* Critical Alerts */}
-          <div className="p-6 space-y-4 bg-red-50/10 dark:bg-red-900/5">
+          <div className="p-6 sm:p-8 space-y-5 bg-red-50/10 dark:bg-red-900/5">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Critical Margin & Health</h4>
@@ -163,10 +163,10 @@ export default function InsightSection() {
           </div>
         </div>
       </CardContent>
-      <div className="p-4 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800">
+      <div className="p-6 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100/50 dark:border-gray-800/50">
         <Link 
           href="/dashboard/reports" 
-          className="flex items-center justify-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
+          className="flex items-center justify-center gap-2 text-sm font-black uppercase tracking-widest text-primary hover:gap-3 transition-all"
         >
           Lihat Analisis Mendalam
           <ArrowRight className="h-4 w-4" />

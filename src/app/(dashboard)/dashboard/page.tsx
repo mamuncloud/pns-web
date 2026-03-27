@@ -26,15 +26,15 @@ export default function DashboardPage() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 pb-10">
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-foreground tracking-tight">
-            Selamat Datang, {user?.name || "Staff"}! 👋
+          <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">
+            Dashboard Overview
           </h2>
-          <p className="text-muted-foreground">
-            Inilah ringkasan aktivitas toko hari ini.
+          <p className="text-sm text-muted-foreground font-medium">
+            Selamat Datang, {user?.name || "Staff"}! 👋 Inilah ringkasan aktivitas toko hari ini.
           </p>
         </div>
         <div className="flex gap-3">
@@ -56,7 +56,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="lg:col-span-2 border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div className="space-y-1">
               <CardTitle className="text-xl font-bold">Aktivitas Terkini</CardTitle>
@@ -95,20 +95,20 @@ export default function DashboardPage() {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Aksi Cepat</CardTitle>
             <CardDescription>Shortcut ke fitur yang sering digunakan.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-between h-12 bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
+          <CardContent className="space-y-3 pb-8">
+            <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
               <span className="flex items-center gap-3">
                 <Package className="h-5 w-5 text-primary" />
                 Tambah Produk
               </span>
               <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </Button>
-            <Button variant="outline" className="w-full justify-between h-12 bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
+            <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
               <span className="flex items-center gap-3">
                 <ShoppingCart className="h-5 w-5 text-primary" />
                 Input Penjualan
@@ -116,7 +116,7 @@ export default function DashboardPage() {
               <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </Button>
             <Link href="/partner" className="block">
-              <Button variant="outline" className="w-full justify-between h-12 bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
+              <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
                 <span className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-primary" />
                   Persetujuan Partner
