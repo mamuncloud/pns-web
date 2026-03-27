@@ -27,7 +27,6 @@ export default function ProductCard({
   // Sort variants by price to find lowest price
   const sortedVariants = [...product.variants].sort((a, b) => a.price - b.price);
   const lowestPrice = sortedVariants[0]?.price || 0;
-  const isMultipleVariants = sortedVariants.length > 1;
 
   return (
     <Card className="rounded-[2rem] overflow-hidden border border-transparent dark:border-zinc-800/50 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full bg-card p-0 gap-0">

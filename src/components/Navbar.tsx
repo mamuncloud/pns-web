@@ -2,13 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { StoreStatusBadge } from "@/components/store-status-badge";
 
 export default function Navbar() {
-  const pathname = usePathname();
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-transparent dark:border-zinc-800/60 flex justify-between items-center px-6 md:px-12 py-4 max-w-full">
