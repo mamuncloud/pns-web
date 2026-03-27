@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   ShoppingBag,
-  RefreshCcw
+  RefreshCcw,
+  Box
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Package },
+  { name: "Inventory", href: "/dashboard/inventory", icon: Box },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
   { name: "Adjustments", href: "/dashboard/stock-adjustment", icon: RefreshCcw },
 ];

@@ -34,6 +34,10 @@ export interface Product {
   currentHpp?: number;
   sellingPrice?: number;
   stockQty?: number;
+  latestSupplier?: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

@@ -38,6 +38,16 @@ export interface PurchaseItem {
   product?: {
     id: string;
     name: string;
+    brandId?: string;
+    brand?: {
+      id: string;
+      name: string;
+    };
+    variants: {
+      package: string;
+      price: number;
+      stock?: number;
+    }[];
   };
 }
 

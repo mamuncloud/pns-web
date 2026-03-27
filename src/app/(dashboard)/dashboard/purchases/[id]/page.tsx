@@ -137,7 +137,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           productId: item.productId,
           variantLabel: item.variantLabel,
           productName: item.product?.name || "",
-          brandName: "",
+          brandName: item.product?.brand?.name || "",
           qty: item.qty,
           totalCost: item.totalCost,
           extraCosts: item.extraCosts,
@@ -815,15 +815,30 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                 <FileText className="h-4 w-4" /> Summary Analitik
              </p>
              <div className="space-y-4 relative z-10 pt-2">
-               <div className="flex items-center justify-between">
+               <div className="flex items-center justify-between border-b border-indigo-500/10 pb-2">
                   <span className="text-[11px] font-bold opacity-70">Total Item</span>
                   <span className="text-xs font-black">{purchase.items?.length || 0} Produk</span>
                </div>
-               <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold opacity-70">Unit Terbanyak</span>
+               <div className="flex items-center justify-between border-b border-indigo-500/10 pb-2">
+                  <span className="text-[11px] font-bold opacity-70">Rata-rata Margin</span>
                   <span className="text-xs font-black">
-                    {purchase.items?.reduce((prev, curr) => (prev.qty > curr.qty ? prev : curr)).product?.name || "N/A"}
+                    {Math.round(
+                      (purchase.items?.reduce((acc, item) => acc + ((item.sellingPrice - item.unitCost) / item.sellingPrice), 0) || 0) / 
+                      (purchase.items?.length || 1) * 100
+                    )}%
                   </span>
+               </div>
+               <div className="flex items-center justify-between border-b border-indigo-500/10 pb-2">
+                  <span className="text-[11px] font-bold opacity-70">Biaya Ekstra</span>
+                  <span className="text-xs font-black">
+                    {formatCurrency(purchase.items?.reduce((acc, item) => acc + item.extraCosts, 0) || 0)}
+                  </span>
+               </div>
+               <div className="space-y-1">
+                  <span className="text-[10px] font-bold opacity-70 uppercase tracking-tighter">Unit Terbanyak</span>
+                  <p className="text-xs font-black truncate max-w-full">
+                    {purchase.items?.length ? purchase.items.reduce((prev, curr) => (prev.qty > curr.qty ? prev : curr)).product?.name : "N/A"}
+                  </p>
                </div>
              </div>
           </div>
@@ -850,38 +865,105 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                 </TableHeader>
                 <TableBody>
                   {purchase.items?.map((item) => (
-                    <TableRow key={item.id} className="group hover:bg-white dark:hover:bg-gray-900 transition-all duration-300">
-                      <TableCell className="pl-8 py-5">
+                    <TableRow key={item.id} className="group hover:bg-white dark:hover:bg-gray-900/50 transition-all duration-300 align-top">
+                      <TableCell className="pl-8 py-6">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black text-foreground group-hover:text-primary transition-colors">{item.product?.name}</span>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary" className="px-1.5 py-0 text-[8px] font-black uppercase tracking-tighter bg-gray-100 dark:bg-gray-800 text-muted-foreground border-none">
-                              {item.variantLabel}
-                            </Badge>
-                            {item.expiredDate && (
-                              <span className="text-[9px] font-bold text-red-500 flex items-center gap-1">
-                                <TrendingUp className="h-2.5 w-2.5 rotate-180" /> EXP: {format(new Date(item.expiredDate), "dd/MM/yy")}
-                              </span>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            {item.product?.brand?.name && (
+                              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-black text-[9px] uppercase tracking-[0.15em] px-2 py-0.5 rounded-md">
+                                {item.product.brand.name}
+                              </Badge>
                             )}
+                            <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">
+                              Supplier: {purchase.supplier?.name}
+                            </span>
                           </div>
+                          
+                          <span className="text-base font-black text-foreground group-hover:text-primary transition-colors leading-tight mb-4">
+                            {item.product?.name}
+                          </span>
+                          
+                          <div className="space-y-2">
+                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">All Product Children (Variants)</span>
+                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {item.product?.variants?.map((v, vIdx) => (
+                                  <div 
+                                    key={vIdx} 
+                                    className={cn(
+                                      "flex flex-col p-2 rounded-xl border transition-all",
+                                      v.package === item.variantLabel
+                                        ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20 shadow-sm"
+                                        : "bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 opacity-60 hover:opacity-100"
+                                    )}
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className={cn("text-[10px] font-black uppercase tracking-tighter", v.package === item.variantLabel ? "text-primary" : "text-muted-foreground")}>
+                                        {v.package}
+                                      </span>
+                                      {v.package === item.variantLabel && (
+                                        <Badge className="h-3.5 px-1 text-[7px] font-black bg-primary text-white border-none">PURCHASED</Badge>
+                                      )}
+                                    </div>
+                                    <div className="flex items-baseline justify-between gap-2">
+                                      <span className="text-[9px] font-bold text-muted-foreground/60">Stock:</span>
+                                      <span className={cn("text-[11px] font-black", v.stock && v.stock < 10 ? "text-red-500" : "text-foreground")}>
+                                        {v.stock || 0}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-baseline justify-between gap-1 mt-1 border-t border-gray-100 dark:border-gray-800 pt-1">
+                                      <span className="text-[8px] font-bold text-muted-foreground/40">Price:</span>
+                                      <span className="text-[9px] font-black text-foreground">Rp {v.price.toLocaleString('id-ID')}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+
+                          {item.expiredDate && (
+                            <div className="mt-4 flex items-center gap-1.5 py-1.5 px-3 bg-red-50 dark:bg-red-950/30 rounded-xl w-fit border border-red-100 dark:border-red-900/20">
+                              <AlertCircle className="h-3 w-3 text-red-500" />
+                              <span className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-tighter">
+                                Expired: {format(new Date(item.expiredDate), "dd MMM yyyy", { locale: localeId })}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-black text-sm">
-                        {item.qty}
-                      </TableCell>
-                      <TableCell className="text-right font-bold text-gray-600 dark:text-gray-400">
-                        {formatCurrency(item.unitCost)}
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-black text-base py-6">
                         <div className="flex flex-col items-end">
-                           <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(item.sellingPrice)}</span>
-                           <span className="text-[8px] font-black text-muted-foreground uppercase opacity-50">Margin: {Math.round(((item.sellingPrice - item.unitCost) / item.sellingPrice) * 100)}%</span>
+                          <span className="text-xl">{item.qty}</span>
+                          <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1 bg-primary/5 px-2 py-0.5 rounded-full">{item.variantLabel}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="pr-8 text-right">
-                        <span className="text-sm font-black text-foreground">
-                          {formatCurrency(item.totalCost + item.extraCosts)}
-                        </span>
+                      <TableCell className="text-right py-6">
+                        <div className="flex flex-col items-end">
+                          <span className="font-black text-sm text-foreground">{formatCurrency(item.unitCost)}</span>
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-50">HPP per unit</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right py-6">
+                        <div className="flex flex-col items-end">
+                           <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(item.sellingPrice)}</span>
+                           <span className={cn(
+                             "text-[9px] font-black uppercase px-2 py-1 rounded-lg mt-2 shadow-sm",
+                             ((item.sellingPrice - item.unitCost) / item.sellingPrice) >= 0.2 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30" : "bg-orange-50 text-orange-600 dark:bg-orange-950/30"
+                           )}>
+                             Margin: {Math.round(((item.sellingPrice - item.unitCost) / item.sellingPrice) * 100)}%
+                           </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="pr-8 text-right py-6">
+                        <div className="flex flex-col items-end">
+                          <span className="text-lg font-black text-foreground">
+                            {formatCurrency(item.totalCost + item.extraCosts)}
+                          </span>
+                          {item.extraCosts > 0 && (
+                            <div className="flex flex-col items-end mt-1">
+                              <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Cost: {formatCurrency(item.totalCost)}</span>
+                              <span className="text-[9px] font-bold text-primary/60 uppercase">Extra: {formatCurrency(item.extraCosts)}</span>
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

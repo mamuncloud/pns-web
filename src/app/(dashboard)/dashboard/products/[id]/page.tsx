@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { getProductsFromDb } from "@/lib/products-db";
-import { Product } from "@/types/product";
+import { getProductById } from "@/lib/products-db";
+import { Product, EnumTaste } from "@/types/product";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   ArrowLeft, 
   TrendingUp, 
-  History, 
   Lightbulb,
   Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
-import { cn, getProductImageUrl } from "@/lib/utils";
+import { cn, getProductImageUrl, formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 import {
   Carousel,
@@ -32,16 +31,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     async function fetchProduct() {
       setIsLoading(true);
-      const { data } = await getProductsFromDb(1, 100);
-      const p = data.find(item => item.id === resolvedParams.id);
-      setProduct(p || null);
+      const p = await getProductById(resolvedParams.id);
+      setProduct(p);
       setIsLoading(false);
     }
     fetchProduct();
   }, [resolvedParams.id]);
 
   if (isLoading) {
-    return <div className="p-10 text-center font-bold animate-pulse text-muted-foreground uppercase tracking-widest">Memuat detail produk...</div>;
+    return <div className="p-10 text-center font-bold animate-pulse text-muted-foreground uppercase tracking-widest text-sm">Memuat detail produk...</div>;
   }
 
   if (!product) {
@@ -60,20 +58,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     : [{ url: product.imageUrl || getProductImageUrl(null), id: 'default', isPrimary: true }];
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div className="flex items-center gap-4">
         <Link href="/dashboard/products">
           <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight">{product.name}</h2>
-          <p className="text-muted-foreground flex items-center gap-2">
-            ID: <span className="font-mono text-xs font-bold bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">{product.id}</span>
-            <span className="h-1 w-1 rounded-full bg-gray-300" />
-            {product.taste.join(', ')}
-          </p>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-md">
+               {product.brand?.name || "No Brand"}
+             </Badge>
+             <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
+               ID: {product.id.split('-')[0]}...
+             </span>
+          </div>
+          <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic">{product.name}</h2>
+          <div className="flex items-center gap-2 mt-1">
+             <div className="flex gap-2">
+               {product.taste.map((t: EnumTaste, i: number) => (
+                 <span key={i} className="text-[10px] font-bold text-muted-foreground/60 uppercase">#{t}</span>
+               ))}
+             </div>
+          </div>
         </div>
       </div>
 
@@ -82,30 +90,59 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <div className="lg:col-span-2 space-y-8">
 
           {/* Variants Table */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-sm">
-            <CardHeader className="border-b border-gray-50 dark:border-gray-800">
-              <CardTitle className="text-lg font-black uppercase tracking-wider">Varian Produk</CardTitle>
-              <CardDescription>Rincian harga per kemasan.</CardDescription>
+          <Card className="border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-3xl">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-900/50 dark:to-transparent border-b border-gray-100 dark:border-gray-800 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl font-black uppercase tracking-tight">Varian Produk</CardTitle>
+                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Rincian stok dan harga jual.</CardDescription>
+                </div>
+                <Button className="rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Tambah Varian</Button>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-gray-50/80 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
-                    <tr>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Packaging</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Harga Jual</th>
+                  <thead>
+                    <tr className="bg-gray-50/50 dark:bg-gray-900/30">
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Packaging</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Qty Stok</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Harga Jual</th>
                       <th className="px-6 py-4 text-right"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                    {product.variants.map((v, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all duration-200">
-                        <td className="px-6 py-4">
-                          <Badge variant="outline" className="font-bold border-gray-200 text-xs py-1 transition-colors hover:border-primary hover:text-primary">{v.package}</Badge>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
+                    {product.variants.map((v, idx: number) => (
+                      <tr key={idx} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black text-foreground uppercase tracking-tight">{v.package}</span>
+                            <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">SKU-PN-{v.package.toUpperCase()}</span>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 font-black text-base">Rp {v.price.toLocaleString('id-ID')}</td>
-                        <td className="px-6 py-4 text-right">
-                          <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:text-primary">Edit Harga</Button>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-2">
+                             <div className={cn(
+                               "h-2 w-2 rounded-full animate-pulse",
+                               (v.stock || 0) > 10 ? "bg-emerald-500" : (v.stock || 0) > 0 ? "bg-amber-500" : "bg-red-500"
+                             )} />
+                             <span className={cn(
+                               "text-lg font-black tracking-tight",
+                               (v.stock || 0) <= 5 ? "text-red-500" : "text-foreground"
+                             )}>{v.stock || 0}</span>
+                             <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">Unit</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col">
+                            <span className="text-lg font-black text-primary">{formatCurrency(v.price)}</span>
+                            <span className="text-[9px] font-bold text-muted-foreground/50 uppercase">Per {v.package}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl px-4 transition-all group-hover:translate-x-[-4px]">
+                            Edit Harga
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -114,51 +151,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </CardContent>
           </Card>
-
-          {/* History Panel */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-sm bg-white/50 dark:bg-black/20 backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 dark:border-gray-800">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg font-black flex items-center gap-2 uppercase tracking-wider">
-                    <History className="h-5 w-5 text-muted-foreground" />
-                    Activity History
-                  </CardTitle>
-                  <CardDescription>Catatan perubahan produk.</CardDescription>
-                </div>
-              </CardHeader>
-             <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {[
-                    { date: "24 Mar 2026", type: "HPP", old: "Rp 12.000", new: "Rp 13.500", change: "+12.5%", isUp: true },
-                    { date: "15 Feb 2026", type: "Sell Price", old: "Rp 18.000", new: "Rp 20.000", change: "+11.1%", isUp: true },
-                    { date: "10 Jan 2026", type: "HPP", old: "Rp 11.500", new: "Rp 12.000", change: "+4.3%", isUp: true },
-                  ].map((log, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-gray-100 dark:border-gray-800 transition-all hover:translate-x-1 duration-300">
-                      <div className="flex items-center gap-4">
-                        <div className="text-[10px] font-black text-muted-foreground uppercase leading-tight bg-white dark:bg-gray-900 px-2 py-1.5 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
-                          {log.date.split(' ').map((s, i) => <div key={i}>{s}</div>)}
-                        </div>
-                        <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">{log.type}</p>
-                          <p className="text-sm font-bold text-foreground">{log.old} → {log.new}</p>
-                        </div>
-                      </div>
-                      <div className={cn("flex items-center gap-1 font-black text-sm px-2.5 py-1 rounded-full", log.isUp ? "text-red-600 bg-red-50 dark:bg-red-900/20" : "text-green-600 bg-green-50 dark:bg-green-900/20")}>
-                        {log.isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingUp className="h-3 w-3 rotate-180" />}
-                        {log.change}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-             </CardContent>
-          </Card>
         </div>
 
         {/* Sidebar Info */}
         <div className="space-y-8">
           {/* Image Display */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-md overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-sm group">
+          <Card className="border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden bg-white dark:bg-gray-950 rounded-3xl group">
             <CardContent className="p-0">
               {images.length > 1 ? (
                 <Carousel className="w-full">
@@ -170,7 +168,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             src={image.url}
                             alt={`${product.name} - image ${index + 1}`}
                             fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="object-cover transition-transform duration-1000 group-hover:scale-110"
                             sizes="(max-width: 768px) 100vw, 33vw"
                           />
                         </div>
@@ -178,13 +176,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     ))}
                   </CarouselContent>
                   <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <CarouselPrevious className="relative left-0 translate-y-0 h-9 w-9 bg-white/80 dark:bg-black/50 backdrop-blur-md border-none shadow-lg hover:bg-white dark:hover:bg-black" />
-                    <CarouselNext className="relative right-0 translate-y-0 h-9 w-9 bg-white/80 dark:bg-black/50 backdrop-blur-md border-none shadow-lg hover:bg-white dark:hover:bg-black" />
-                  </div>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md">
-                    {images.map((_, i) => (
-                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/50" />
-                    ))}
+                    <CarouselPrevious className="relative left-0 translate-y-0 h-10 w-10 bg-white/90 dark:bg-black/70 backdrop-blur-xl border-none shadow-2xl hover:bg-white dark:hover:bg-black cursor-pointer" />
+                    <CarouselNext className="relative right-0 translate-y-0 h-10 w-10 bg-white/90 dark:bg-black/70 backdrop-blur-xl border-none shadow-2xl hover:bg-white dark:hover:bg-black cursor-pointer" />
                   </div>
                 </Carousel>
               ) : (
@@ -193,7 +186,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     src={images[0].url}
                     alt={product.name}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
                   {!product.imageUrl && (
@@ -208,24 +201,38 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </Card>
 
           {/* Insight Panel */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-sm">
-            <CardHeader className="border-b border-gray-50 dark:border-gray-800">
-              <CardTitle className="text-sm font-black flex items-center gap-2 text-foreground uppercase tracking-widest">
-                <Lightbulb className="h-4 w-4 text-primary animate-pulse" />
+          <Card className="border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-3xl flex flex-col">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800 p-6 bg-gray-50/30 dark:bg-gray-900/10">
+              <CardTitle className="text-sm font-black flex items-center gap-2 text-foreground uppercase tracking-[0.2em]">
+                <Lightbulb className="h-4 w-4 text-amber-500 animate-pulse" />
                 Informasi Produk
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Deskripsi</p>
-                <p className="text-sm text-foreground/80 leading-relaxed font-medium">{product.description || 'Tidak ada deskripsi.'}</p>
+            <CardContent className="p-6 space-y-8 flex-grow">
+              <div className="space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                   <TrendingUp className="h-3 w-3" /> Sumber Supplier
+                </p>
+                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 group cursor-default">
+                   <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1 opacity-70">Latest Purchase From:</p>
+                   <p className="text-base font-black text-foreground group-hover:text-primary transition-colors">
+                     {product.latestSupplier?.name || "Belum Ada Pembelian"}
+                   </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Deskripsi Produk</p>
+                <p className="text-sm text-foreground/70 leading-relaxed font-semibold italic">
+                  &quot;{product.description || 'Tidak ada deskripsi tersedia untuk produk ini.'}&quot;
+                </p>
               </div>
               
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Taste Profile</p>
+              <div className="space-y-3 pt-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Profile Rasa</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.taste.map((t, idx) => (
-                    <Badge key={idx} variant="secondary" className="font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-none">
+                  {product.taste.map((t: EnumTaste, idx: number) => (
+                    <Badge key={idx} variant="secondary" className="font-black text-[9px] uppercase tracking-widest px-3 py-1 bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-none rounded-lg">
                       {t}
                     </Badge>
                   ))}
@@ -234,15 +241,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
+          {/* Quick Analytics */}
           <div className="grid grid-cols-1 gap-4">
-             <Card className="border-gray-200 dark:border-gray-800 shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-black/40 dark:to-gray-900/20 backdrop-blur-sm">
-                <CardContent className="p-5 flex items-center justify-between">
+             <Card className="border-indigo-100 dark:border-indigo-900/30 shadow-xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 backdrop-blur-md rounded-3xl overflow-hidden relative group">
+                <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                   <TrendingUp className="h-16 w-16 text-indigo-500" />
+                </div>
+                <CardContent className="p-6 flex items-center justify-between relative z-10">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total Variants</p>
-                    <p className="text-xl font-black text-foreground tracking-tight">{product.variants.length} Varian</p>
+                    <p className="text-[10px] font-black text-indigo-500/70 uppercase tracking-[0.2em]">Total Inventory</p>
+                    <p className="text-3xl font-black text-indigo-700 dark:text-indigo-300 tracking-tighter">
+                      {product.stockQty?.toLocaleString('id-ID') || 0}
+                      <span className="text-xs ml-1 opacity-50 uppercase tracking-widest">Pcs</span>
+                    </p>
                   </div>
-                  <Badge className="font-black text-[10px] uppercase tracking-widest bg-green-500/10 text-green-600 border-green-200 dark:border-green-900/30 px-3 py-1">Active</Badge>
+                  <Badge className="font-black text-[10px] uppercase tracking-widest bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 px-4 py-1.5 rounded-xl border-none">
+                    Inventory Status
+                  </Badge>
                 </CardContent>
              </Card>
           </div>
