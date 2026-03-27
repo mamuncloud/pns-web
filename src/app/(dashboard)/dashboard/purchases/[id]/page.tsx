@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api, Supplier } from "@/lib/api";
 import { Product } from "@/types/product";
@@ -90,7 +90,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   const [editStatus, setEditStatus] = useState<'DRAFT' | 'COMPLETED'>('DRAFT');
   const [editItems, setEditItems] = useState<EditableItem[]>([]);
 
-  const fetchPurchase = async () => {
+  const fetchPurchase = useCallback(async () => {
     try {
       const response = await api.purchases.get(id);
       if (response.success) {
@@ -101,11 +101,11 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchPurchase();
-  }, [id]);
+  }, [id, fetchPurchase]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -145,7 +145,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           lastCost: item.unitCost,
           priceChange: 0,
           sellingPrice: item.sellingPrice,
-          marginPct: Math.round(((item.sellingPrice - item.unitCost) / item.sellingPrice) * 100),
+          marginPct: Math.round(item.unitCost > 0 ? ((item.sellingPrice - item.unitCost) / item.unitCost) * 100 : 0),
           marginAmount: item.sellingPrice - item.unitCost,
           avgCostPreview: item.unitCost,
           expiredDate: item.expiredDate?.split('T')[0] || ""
@@ -225,7 +225,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     
     setActionLoading(true);
     try {
-      const response = await api.purchases.confirm(id);
+      const response = await api.purchases.update(id, { status: 'COMPLETED' });
       if (response.success) {
         setPurchase(response.data);
         setIsEditing(false);

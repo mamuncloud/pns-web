@@ -8,9 +8,6 @@ import {
   LayoutDashboard, 
   Package, 
   ShoppingCart, 
-  Settings, 
-  Users,
-  BarChart3,
   Menu,
   X,
   ShoppingBag,
@@ -21,13 +18,10 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
+  { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
   { name: "Adjustments", href: "/dashboard/stock-adjustment", icon: RefreshCcw },
-  { name: "Customers", href: "/dashboard/customers", icon: Users },
-  { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardSidebar() {
