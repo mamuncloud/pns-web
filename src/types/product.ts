@@ -7,6 +7,7 @@ export interface ProductVariant {
   price: number;
   stock?: number;
   sku?: string;
+  sizeInGram?: number;
   expiredDate?: string | null;
   purchaseItem?: {
     purchase?: {

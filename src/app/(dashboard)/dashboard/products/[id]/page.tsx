@@ -132,6 +132,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           Harga Jual
                         </div>
                       </th>
+                      <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-3 w-3 text-primary/50" />
+                          Ukuran
+                        </div>
+                      </th>
                       <th className="px-8 py-5"></th>
                     </tr>
                   </thead>
@@ -167,6 +173,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             <span className="text-xl font-black text-foreground tracking-tighter bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{formatCurrency(v.price)}</span>
                             <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest pl-0.5">Price Per {v.package}</span>
                           </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          {v.sizeInGram ? (
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50">
+                              <span className="text-base font-black text-amber-600 dark:text-amber-400 tracking-tighter">{v.sizeInGram}</span>
+                              <span className="text-[9px] font-black text-amber-500/70 uppercase tracking-widest">gram</span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground/30 font-bold uppercase tracking-widest">—</span>
+                          )}
                         </td>
                         <td className="px-8 py-6 text-right">
                           <Button variant="outline" size="sm" className="h-9 px-5 rounded-xl font-black text-[10px] uppercase tracking-widest border-gray-100 dark:border-gray-800 text-muted-foreground/60 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0">

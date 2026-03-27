@@ -46,7 +46,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
   const [brandSearch, setBrandSearch] = useState("");
   const [tastes, setTastes] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
-  const [variants, setVariants] = useState<{ label: string; price: number; sku?: string }[]>([]);
+  const [variants, setVariants] = useState<{ label: string; price: number; sku?: string; sizeInGram?: number }[]>([]);
 
   useEffect(() => {
     async function fetchBrands() {
@@ -177,7 +177,8 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
         variants: variants.map(v => ({
           label: v.label,
           price: v.price,
-          sku: v.sku
+          sku: v.sku,
+          sizeInGram: v.sizeInGram,
         }))
       });
       
@@ -443,6 +444,21 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
                       onChange={(e) => {
                         const newVariants = [...variants];
                         newVariants[index].price = Number(e.target.value);
+                        setVariants(newVariants);
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Ukuran (gram)</Label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      min={1}
+                      className="h-10 rounded-xl bg-gray-50 dark:bg-gray-900 border-transparent focus:border-primary/50 font-bold"
+                      value={variant.sizeInGram || ""}
+                      onChange={(e) => {
+                        const newVariants = [...variants];
+                        newVariants[index].sizeInGram = e.target.value ? Number(e.target.value) : undefined;
                         setVariants(newVariants);
                       }}
                     />

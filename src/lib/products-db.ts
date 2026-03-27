@@ -35,6 +35,7 @@ interface BackendProduct {
     price: number;
     stock: number;
     sku?: string;
+    sizeInGram?: number;
     expiredDate?: string;
     purchaseItem?: ProductVariant['purchaseItem'];
   }>;
@@ -77,6 +78,7 @@ export async function getProductById(id: string): Promise<Product | null> {
         price: v.price,
         stock: v.stock,
         sku: v.sku,
+        sizeInGram: v.sizeInGram,
         expiredDate: v.expiredDate,
         purchaseItem: v.purchaseItem,
       })),
@@ -125,6 +127,7 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
           price: v.price,
           stock: v.stock,
           sku: v.sku,
+          sizeInGram: v.sizeInGram,
           expiredDate: v.expiredDate,
           purchaseItem: v.purchaseItem,
         })),
