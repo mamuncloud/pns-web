@@ -11,6 +11,8 @@ PNS Web is the frontend web application for the PNS online ordering and product 
   3. Pick up at the nearest store.
 - **Responsive Layout**: Designed to be rich, visually appealing, and work seamlessly on mobile, tablet, and desktop devices.
 - **WhatsApp Integration**: Fast customer support via a floating WhatsApp button for quick inquiries.
+- **Admin Dashboard**: Comprehensive dashboard for managing products, suppliers, and purchase history.
+- **Purchase Management**: Streamlined "Kulakan Barang" flow with draft saving, real-time HPP impact analysis, and safe deletion of draft records.
 
 ## 🛠 Tech Stack
 
