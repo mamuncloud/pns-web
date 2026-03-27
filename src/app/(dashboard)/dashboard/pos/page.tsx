@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
@@ -32,6 +34,8 @@ export default function POSPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const isInternalReload = useRef(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -42,6 +46,21 @@ export default function POSPage() {
     }
     fetchProducts();
   }, []);
+
+  // Prevent accidental page reload if there are items in cart or checkout is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isInternalReload.current) return;
+      if (isProcessing || cart.length > 0) {
+        e.preventDefault();
+        e.returnValue = ""; 
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isProcessing, cart.length]);
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -79,13 +98,28 @@ export default function POSPage() {
 
   const isMarginLow = averageMargin > 0 && averageMargin < 20;
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
+  const checkoutAction = async () => {
     setIsProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    alert(`Transaksi Berhasil! Total: Rp ${totalRevenue.toLocaleString('id-ID')}`);
-    setCart([]);
-    setIsProcessing(false);
+    try {
+      // Mock API call or transaction processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast.success(`Transaksi Berhasil! Total: Rp ${totalRevenue.toLocaleString('id-ID')}`);
+      
+      // Clear cart and reload to refresh state
+      setCart([]);
+      isInternalReload.current = true;
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (_error) {
+      toast.error("Terjadi kesalahan saat memproses transaksi.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    setIsConfirmOpen(true);
   };
 
   return (
@@ -264,6 +298,15 @@ export default function POSPage() {
           </p>
         </div>
       </div>
+      <ConfirmationDialog
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        title="Konfirmasi Pembayaran"
+        description="Proses pembayaran untuk transaksi ini? Pastikan stok fisik sesuai."
+        onConfirm={checkoutAction}
+        confirmText="Proses"
+        cancelText="Batal"
+      />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
 import { api, Supplier } from "@/lib/api";
 import { Product } from "@/types/product";
@@ -66,6 +68,13 @@ export default function PurchasesPage() {
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<'DRAFT' | 'COMPLETED'>('COMPLETED');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isInternalReload = useRef(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({ 
+    title: "", 
+    description: "", 
+    targetStatus: 'COMPLETED' as 'DRAFT' | 'COMPLETED' 
+  });
 
   useEffect(() => {
     async function fetchProducts() {
@@ -90,6 +99,21 @@ export default function PurchasesPage() {
     fetchProducts();
     fetchSuppliers();
   }, []);
+
+  // Prevent accidental page reload if there are unsaved items or submission is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isInternalReload.current) return;
+      if (isSubmitting || items.length > 0) {
+        e.preventDefault();
+        e.returnValue = ""; // Standard way to trigger browser confirmation
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSubmitting, items.length]);
 
   const addItem = () => {
     const newItem: PurchaseItem = {
@@ -161,9 +185,11 @@ export default function PurchasesPage() {
 
   const totalPurchase = items.reduce((acc, item) => acc + item.totalCost, 0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (items.length === 0 || !supplier) return;
+  const handleSubmit = async (targetStatus: 'DRAFT' | 'COMPLETED') => {
+    if (items.length === 0 || !supplier) {
+      toast.error("Items and supplier are required");
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -171,7 +197,7 @@ export default function PurchasesPage() {
         supplierId: supplier,
         date: new Date(date).toISOString(),
         note,
-        status,
+        status: targetStatus,
         items: items.map(item => ({
           productId: item.productId,
           variantLabel: item.variantLabel,
@@ -182,16 +208,28 @@ export default function PurchasesPage() {
           expiredDate: item.expiredDate ? new Date(item.expiredDate).toISOString() : undefined
         }))
       });
-      alert(`${status === 'COMPLETED' ? 'Pembelian berhasil dikonfirmasi!' : 'Draft berhasil disimpan!'} Pembelian dari ${suppliers.find(s => s.id === supplier)?.name || supplier} telah dicatat.`);
-      setItems([]);
-      setSupplier("");
-      setNote("");
-      setStatus('COMPLETED');
+      
+      toast.success(targetStatus === 'COMPLETED' ? 'Pembelian berhasil dikonfirmasi!' : 'Draft berhasil disimpan!');
+      
+      // Reload page to refresh all states and history
+      isInternalReload.current = true;
+      setTimeout(() => window.location.reload(), 1000); // Give toast time to be seen
     } catch (error: unknown) {
-      alert(`Error submitting purchase: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(error instanceof Error ? error.message : "Error submitting purchase");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const triggerConfirm = (s: 'DRAFT' | 'COMPLETED') => {
+    setConfirmConfig({
+      targetStatus: s,
+      title: s === 'COMPLETED' ? "Konfirmasi Pembelian" : "Simpan sebagai Draft",
+      description: s === 'COMPLETED' 
+        ? "Stok akan langsung ditambahkan ke inventori. Lanjutkan?" 
+        : "Simpan sebagai draft untuk diedit nanti. Lanjutkan?"
+    });
+    setIsConfirmOpen(true);
   };
 
   return (
@@ -230,7 +268,7 @@ export default function PurchasesPage() {
         />
       ) : (
         <>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <Card className="border-none bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none rounded-2xl overflow-hidden">
                 <CardContent className="p-6">
@@ -618,9 +656,10 @@ export default function PurchasesPage() {
                 </div>
   
                 <Button 
-                  type="submit" 
+                  type="button" 
                   className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0 transition-all bg-primary text-primary-foreground"
                   disabled={isSubmitting || items.length === 0 || !supplier}
+                  onClick={() => triggerConfirm(status)}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
@@ -662,6 +701,16 @@ export default function PurchasesPage() {
         </div>
       </>
     )}
+
+    <ConfirmationDialog
+      open={isConfirmOpen}
+      onOpenChange={setIsConfirmOpen}
+      title={confirmConfig.title}
+      description={confirmConfig.description}
+      onConfirm={() => handleSubmit(confirmConfig.targetStatus)}
+      confirmText="Lanjutkan"
+      cancelText="Batal"
+    />
   </div>
 );
 }

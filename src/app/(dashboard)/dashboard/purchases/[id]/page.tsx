@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, use, useCallback } from "react";
+import { useEffect, useState, use, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { api, Supplier } from "@/lib/api";
 import { Product } from "@/types/product";
 import { Purchase } from "@/types/financial";
@@ -81,6 +83,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const isInternalReload = useRef(false);
   
   const [products, setProducts] = useState<Product[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -90,6 +93,12 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   const [editNote, setEditNote] = useState("");
   const [editStatus, setEditStatus] = useState<'DRAFT' | 'COMPLETED'>('DRAFT');
   const [editItems, setEditItems] = useState<EditableItem[]>([]);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({ 
+    title: "", 
+    description: "", 
+    onConfirm: () => {} 
+  });
 
   const fetchPurchase = useCallback(async () => {
     try {
@@ -107,6 +116,22 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     fetchPurchase();
   }, [id, fetchPurchase]);
+
+  // Prevent accidental page reload if there are unsaved items or submission is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isInternalReload.current) return;
+      // If we are editing a draft and have items, or if we are currently saving/confirming
+      if (actionLoading || (isEditing && editItems.length > 0)) {
+        e.preventDefault();
+        e.returnValue = ""; 
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [actionLoading, isEditing, editItems.length]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -221,29 +246,36 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     setEditItems(prev => prev.filter(item => item.id !== itemId));
   };
 
-  const handleConfirm = async () => {
-    if (!confirm("Konfirmasi pembelian ini? Stok akan ditambahkan ke inventori.")) return;
-    
+  const confirmPurchaseAction = async () => {
     setActionLoading(true);
     try {
       const response = await api.purchases.update(id, { status: 'COMPLETED' });
       if (response.success) {
         setPurchase(response.data);
         setIsEditing(false);
+        toast.success("Pembelian berhasil dikonfirmasi!");
+        // Reload to refresh everything properly
+        isInternalReload.current = true;
+        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
       console.error("Failed to confirm purchase:", error);
+      toast.error("Gagal mengonfirmasi pembelian.");
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleSaveChanges = async () => {
-    if (editItems.length === 0 || !editSupplier) {
-      alert("Minimal harus ada 1 item dan supplier harus dipilih.");
-      return;
-    }
+  const handleConfirm = () => {
+    setConfirmConfig({
+      title: "Konfirmasi Pembelian",
+      description: "Stok akan ditambahkan ke inventori. Lanjutkan?",
+      onConfirm: confirmPurchaseAction
+    });
+    setIsConfirmOpen(true);
+  };
 
+  const saveChangesAction = async () => {
     setActionLoading(true);
     try {
       const response = await api.purchases.update(id, {
@@ -264,14 +296,30 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
       if (response.success) {
         setPurchase(response.data);
         setIsEditing(false);
-        alert("Perubahan berhasil disimpan!");
+        toast.success("Perubahan berhasil disimpan!");
+        isInternalReload.current = true;
+        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
       console.error("Failed to save changes:", error);
-      alert("Gagal menyimpan perubahan.");
+      toast.error("Gagal menyimpan perubahan.");
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const handleSaveChanges = () => {
+    if (editItems.length === 0 || !editSupplier) {
+      toast.error("Minimal harus ada 1 item dan supplier harus dipilih.");
+      return;
+    }
+
+    setConfirmConfig({
+      title: "Simpan Perubahan",
+      description: "Simpan perubahan pada draft ini?",
+      onConfirm: saveChangesAction
+    });
+    setIsConfirmOpen(true);
   };
 
   if (loading) {
@@ -987,6 +1035,15 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           </Card>
         </div>
       </div>
-    </div>
-  );
+    <ConfirmationDialog
+      open={isConfirmOpen}
+      onOpenChange={setIsConfirmOpen}
+      title={confirmConfig.title}
+      description={confirmConfig.description}
+      onConfirm={confirmConfig.onConfirm}
+      confirmText="Lanjutkan"
+      cancelText="Batal"
+    />
+  </div>
+);
 }
