@@ -10,7 +10,8 @@ import {
   ShoppingCart, 
   Menu,
   X,
-  ShoppingBag
+  ShoppingBag,
+  Activity
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ const navItems = [
   { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
+  { name: "Logs", href: "/dashboard/logs", icon: Activity },
 ];
 
 export default function DashboardSidebar() {

@@ -11,15 +11,54 @@ import {
   Clock, 
   ChevronRight,
   ArrowUpRight,
-  ShoppingCart
+  ShoppingCart,
+  FileEdit,
+  Server,
+  ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
 
 const recentActivities = [
-  { id: 1, type: "order", title: "New Order #1245", time: "2 minutes ago", status: "PENDING", amount: "Rp 150.000" },
-  { id: 2, type: "stock", title: "Stock Update: Keripik Singkong", time: "45 minutes ago", status: "UPDATED", amount: "+50 units" },
-  { id: 3, type: "order", title: "Order #1243 Delivered", time: "2 hours ago", status: "COMPLETED", amount: "Rp 75.000" },
-  { id: 4, type: "user", title: "New Partner Approval", time: "5 hours ago", status: "APPROVED", amount: null },
+  { 
+    id: "LOG-1024", 
+    icon: FileEdit,
+    iconColor: "text-emerald-500",
+    title: "Update Stok: Singkong Pedas", 
+    time: "Hari ini, 17:24", 
+    status: "UPDATE", 
+    amount: "+50 Varian 1kg",
+    statusVariant: "secondary"
+  },
+  { 
+    id: "LOG-1023", 
+    icon: Package,
+    iconColor: "text-sky-500",
+    title: "Pesanan Masuk: #ORD-011", 
+    time: "Hari ini, 16:12", 
+    status: "PAID", 
+    amount: "Pembayaran Diterima",
+    statusVariant: "default"
+  },
+  { 
+    id: "LOG-1022",  
+    icon: Server,
+    iconColor: "text-indigo-500",
+    title: "Purchase Order: Sinar Makmur", 
+    time: "Hari ini, 15:45", 
+    status: "DRAFT", 
+    amount: "Rp 2.500.000",
+    statusVariant: "outline"
+  },
+  { 
+    id: "LOG-1021", 
+    icon: ShieldAlert,
+    iconColor: "text-rose-500",
+    title: "Gagal Redeem: USR-8821", 
+    time: "Kemarin, 23:10", 
+    status: "ERROR", 
+    amount: "500 poin",
+    statusVariant: "destructive"
+  },
 ];
 
 export default function DashboardPage() {
@@ -65,27 +104,30 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-6">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center dark:bg-gray-800">
-                      {activity.type === 'order' ? <Package className="h-5 w-5 text-sky-500" /> : <Clock className="h-5 w-5 text-amber-500" />}
+              {recentActivities.map((activity) => {
+                const Icon = activity.icon;
+                return (
+                  <div key={activity.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center dark:bg-gray-800">
+                        <Icon className={`h-5 w-5 ${activity.iconColor}`} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground">{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-foreground">{activity.title}</p>
-                      <p className="text-xs text-muted-foreground">{activity.time}</p>
+                    <div className="text-right">
+                      {activity.amount && (
+                        <p className="text-sm font-bold text-foreground mb-1">{activity.amount}</p>
+                      )}
+                      <Badge variant={activity.statusVariant as "default" | "secondary" | "destructive" | "outline"} className="text-[10px] py-0 px-1.5 h-auto uppercase">
+                        {activity.status}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    {activity.amount && (
-                      <p className="text-sm font-bold text-foreground mb-1">{activity.amount}</p>
-                    )}
-                    <Badge variant={activity.status === 'PENDING' ? 'destructive' : 'secondary'} className="text-[10px] py-0 px-1.5 h-auto uppercase">
-                      {activity.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
