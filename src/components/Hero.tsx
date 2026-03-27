@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ShoppingBag, ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -13,14 +15,33 @@ export default function Hero() {
           <p className="text-on-background/70 dark:text-zinc-400 text-lg md:text-xl max-w-lg leading-relaxed font-medium">
             Kelezatan autentik dengan bumbu melimpah. Dari Basreng hingga Keripik Singkong, semua ada di Planet Nyemil Snack.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 pt-10">
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-4 rounded-full font-headline font-black text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all">
-            Pesan Sekarang
-          </button>
-          <button className="bg-white/10 dark:bg-white/5 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md px-10 py-4 rounded-full font-headline font-black text-lg active:scale-95 transition-all">
-            Lihat Produk
-          </button>
-        </div>
+          <div className="flex flex-col sm:flex-row gap-6 pt-10">
+            <Button className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-primary font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:shadow-primary/50 hover:scale-[1.05] active:scale-[0.98] border border-white/10 text-primary-foreground min-w-[200px]">
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <div className="relative flex items-center justify-center gap-3">
+                <div className="relative flex items-center justify-center">
+                  <ShoppingBag className="h-6 w-6 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110" />
+                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-primary-foreground rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 delay-100 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                </div>
+                <span className="relative">
+                  Pesan Sekarang
+                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-foreground/30 transition-all duration-500 group-hover:w-full" />
+                </span>
+              </div>
+            </Button>
+
+            <Button variant="outline" className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:bg-white/10 hover:scale-[1.05] active:scale-[0.98] border border-white/20 text-white min-w-[200px]">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <div className="relative flex items-center justify-center gap-3">
+                <span className="relative">
+                  Lihat Produk
+                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/30 transition-all duration-500 group-hover:w-full" />
+                </span>
+                <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover:translate-x-1" />
+              </div>
+            </Button>
+          </div>
         </div>
         <div className="w-full md:w-1/2">
           <div className="relative rounded-[3rem] overflow-hidden aspect-square">
