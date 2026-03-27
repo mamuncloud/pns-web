@@ -32,8 +32,28 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
   const getPageTitle = () => {
     const segments = pathname.split("/").filter(Boolean);
     if (segments.length <= 1) return "Dashboard Overview";
+    
     const lastSegment = segments[segments.length - 1];
-    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
+    
+    // Improved UUID check
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    
+    if (uuidRegex.test(lastSegment)) {
+      // If it's a UUID, look at the previous segment for context
+      const contextSegment = segments[segments.length - 2];
+      if (contextSegment) {
+        // e.g. /dashboard/products/[id] -> Product Detail
+        const singularName = contextSegment.endsWith('s') 
+          ? contextSegment.slice(0, -1) 
+          : contextSegment;
+        return `${singularName.charAt(0).toUpperCase() + singularName.slice(1)} Detail`;
+      }
+      return "Record Detail";
+    }
+
+    return lastSegment.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   };
 
   return (

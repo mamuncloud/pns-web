@@ -26,6 +26,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -63,30 +64,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/products">
-          <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2 mb-1">
-             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] uppercase tracking-[0.25em] px-3 py-1 rounded-xl shadow-sm">
-               {product.brand?.name || "No Brand"}
-             </Badge>
-             <span className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
-               • ID: {product.id.split('-')[0]}
-             </span>
-          </div>
-          <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/40 bg-clip-text text-transparent leading-[0.9]">
-            {product.name}
-          </h2>
-          <div className="flex items-center gap-3 mt-3">
-             <div className="flex flex-wrap gap-2">
-               {product.taste.map((t: EnumTaste, i: number) => (
-                 <span key={i} className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">#{t}</span>
-               ))}
-             </div>
+      <div className="flex flex-col gap-6">
+        <Breadcrumbs 
+          items={[
+            { label: "Products", href: "/dashboard/products" },
+            { label: product.name }
+          ]} 
+        />
+        
+        <div className="flex items-center gap-6">
+          <Link href="/dashboard/products">
+            <Button variant="ghost" size="icon" className="rounded-full h-12 w-12 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-800">
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+          </Link>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-3 mb-2">
+               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] uppercase tracking-[0.3em] px-4 py-1.5 rounded-full shadow-sm">
+                 {product.brand?.name || "No Brand"}
+               </Badge>
+               <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.25em]">
+                 ID: {product.id.split('-')[0]}
+               </span>
+            </div>
+            <h2 className="text-6xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/40 bg-clip-text text-transparent leading-[0.85]">
+              {product.name}
+            </h2>
+            <div className="flex items-center gap-3 mt-4">
+               <div className="flex flex-wrap gap-2">
+                 {product.taste.map((t: EnumTaste, i: number) => (
+                   <span key={i} className="text-[10px] font-black text-primary/70 uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-lg border border-primary/20 shadow-sm animate-in zoom-in-95 duration-500" style={{ animationDelay: `${i * 100}ms` }}>#{t}</span>
+                 ))}
+               </div>
+            </div>
           </div>
         </div>
       </div>
@@ -100,11 +110,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <CardHeader className="bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-900/50 dark:to-transparent border-b border-gray-100/50 dark:border-gray-800/50 p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <CardTitle className="text-2xl font-black uppercase tracking-tighter italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Varian Produk</CardTitle>
-                  <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Rincian stok dan harga jual secara realtime.</CardDescription>
+                  <CardTitle className="text-3xl font-black uppercase tracking-tighter italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Varian Produk</CardTitle>
+                  <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Rincian stok dan harga jual secara realtime.</CardDescription>
                 </div>
-                <Button className="h-12 px-6 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] border-none">
-                  <Plus className="h-4 w-4 mr-2 stroke-[3]" />
+                <Button className="h-14 px-8 rounded-2xl font-black text-[12px] uppercase tracking-widest bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-xl shadow-red-500/20 hover:shadow-red-500/40 transition-all hover:scale-[1.05] active:scale-[0.95] border-none group">
+                  <Plus className="h-5 w-5 mr-2 stroke-[4] group-hover:rotate-90 transition-transform duration-300" />
                   Tambah Varian
                 </Button>
               </div>
@@ -176,12 +186,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         </td>
                         <td className="px-8 py-6">
                           {v.sizeInGram ? (
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/[0.08] dark:bg-amber-500/10 border border-amber-500/20">
                               <span className="text-base font-black text-amber-600 dark:text-amber-400 tracking-tighter">{v.sizeInGram}</span>
-                              <span className="text-[9px] font-black text-amber-500/70 uppercase tracking-widest">gram</span>
+                              <span className="text-[9px] font-black text-amber-600/60 dark:text-amber-500/70 uppercase tracking-widest">gram</span>
                             </div>
                           ) : (
-                            <span className="text-[10px] text-muted-foreground/30 font-bold uppercase tracking-widest">—</span>
+                            <span className="text-[10px] text-muted-foreground/20 font-bold uppercase tracking-widest">—</span>
                           )}
                         </td>
                         <td className="px-8 py-6 text-right">
@@ -252,34 +262,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
                   <Lightbulb className="h-4 w-4 text-amber-500 animate-pulse" />
                 </div>
-                Informasi Produk
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-10 flex-grow">
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50 flex items-center gap-2">
                    <TrendingUp className="h-3 w-3" /> Sumber Supplier
                 </p>
-                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 group cursor-default">
-                   <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1 opacity-70">Latest Purchase From:</p>
-                   <p className="text-base font-black text-foreground group-hover:text-primary transition-colors">
+                <div className="p-5 rounded-3xl bg-primary/[0.03] dark:bg-primary/[0.05] border border-primary/10 group cursor-default transition-all hover:bg-primary/[0.06] shadow-sm">
+                   <p className="text-[9px] font-black text-primary/60 uppercase tracking-[0.2em] mb-1.5">Latest Purchase From:</p>
+                   <p className="text-lg font-black text-foreground group-hover:text-primary transition-colors tracking-tight">
                      {product.latestSupplier?.name || "Belum Ada Pembelian"}
                    </p>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Deskripsi Produk</p>
-                <p className="text-sm text-foreground/70 leading-relaxed font-semibold italic">
-                  &quot;{product.description || 'Tidak ada deskripsi tersedia untuk produk ini.'}&quot;
-                </p>
+              <div className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Deskripsi Produk</p>
+                <div className="relative">
+                  <div className="absolute -left-3 top-0 h-full w-1 bg-primary/10 rounded-full" />
+                  <p className="text-sm text-foreground/80 leading-relaxed font-semibold italic pl-2">
+                    &quot;{product.description || 'Tidak ada deskripsi tersedia untuk produk ini.'}&quot;
+                  </p>
+                </div>
               </div>
               
-              <div className="space-y-3 pt-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Profile Rasa</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-4 pt-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/50">Profile Rasa</p>
+                <div className="flex flex-wrap gap-2.5">
                   {product.taste.map((t: EnumTaste, idx: number) => (
-                    <Badge key={idx} variant="secondary" className="font-black text-[9px] uppercase tracking-widest px-3 py-1 bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-none rounded-lg">
+                    <Badge key={idx} variant="secondary" className="font-black text-[9px] uppercase tracking-widest px-4 py-1.5 bg-gray-100 dark:bg-gray-800/80 text-foreground/70 border-none rounded-xl shadow-sm hover:scale-105 transition-transform">
                       {t}
                     </Badge>
                   ))}
