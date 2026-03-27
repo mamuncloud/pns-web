@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface DashboardHeaderProps {
   user: AuthUser | null;
@@ -47,6 +48,9 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-6">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Store Status Toggle */}
         <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
           <span className={cn(

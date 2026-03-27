@@ -99,7 +99,7 @@ export default function InsightSection() {
             <CardDescription>Insight otomatis untuk optimalisasi profit.</CardDescription>
           </div>
           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold uppercase tracking-wider text-[10px] px-2">
-            AI Insight
+            Insight
           </Badge>
         </div>
       </CardHeader>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -45,6 +46,7 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="flex items-center gap-5">
+        <ThemeToggle />
         {/* <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
           <span className="material-symbols-outlined">shopping_cart</span>
         </button>

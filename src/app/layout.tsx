@@ -18,6 +18,8 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/sonner";
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,14 +29,22 @@ export default function RootLayout({
     <html
       lang="id"
       className={`${montserrat.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col font-body bg-white text-on-background selection:bg-accent/30 selection:text-dark">
-        {children}
-        <Toaster />
+      <body className="min-h-full flex flex-col font-body selection:bg-accent/30 selection:text-dark">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
