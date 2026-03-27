@@ -237,20 +237,6 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handleSaveDraft = async () => {
-    setActionLoading(true);
-    try {
-      const response = await api.purchases.update(id, { status: 'DRAFT' });
-      if (response.success) {
-        setPurchase(response.data);
-      }
-    } catch (error) {
-      console.error("Failed to save as draft:", error);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   const handleSaveChanges = async () => {
     if (editItems.length === 0 || !editSupplier) {
       alert("Minimal harus ada 1 item dan supplier harus dipilih.");
@@ -756,15 +742,6 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
             >
               <Edit3 className="h-4 w-4 mr-2" />
               Edit Purchase
-            </Button>
-            <Button
-              onClick={handleSaveDraft}
-              disabled={actionLoading}
-              variant="outline"
-              className="flex-1 sm:flex-none rounded-xl font-bold border-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-all"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Simpan Draft
             </Button>
             <Button
               onClick={handleConfirm}
