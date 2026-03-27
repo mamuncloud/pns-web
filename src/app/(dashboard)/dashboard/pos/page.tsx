@@ -110,7 +110,7 @@ export default function POSPage() {
       setCart([]);
       isInternalReload.current = true;
       setTimeout(() => window.location.reload(), 1500);
-    } catch (_error) {
+    } catch {
       toast.error("Terjadi kesalahan saat memproses transaksi.");
     } finally {
       setIsProcessing(false);

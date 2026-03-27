@@ -69,14 +69,14 @@ export default function PurchasesPage() {
   const [isSuppliersLoading, setIsSuppliersLoading] = useState(true);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [note, setNote] = useState("");
-  const [status, setStatus] = useState<'DRAFT' | 'COMPLETED'>('COMPLETED');
+  const [status, setStatus] = useState<'DRAFT' | 'COMPLETED'>('DRAFT');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isInternalReload = useRef(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({ 
     title: "", 
     description: "", 
-    targetStatus: 'COMPLETED' as 'DRAFT' | 'COMPLETED' 
+    targetStatus: 'DRAFT' as 'DRAFT' | 'COMPLETED' 
   });
 
   useEffect(() => {
@@ -333,47 +333,55 @@ export default function PurchasesPage() {
                   </div>
                 </div>
               </CardContent>
-              <div className="bg-primary/5 dark:bg-primary/950/10 p-6 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">Target Status:</span>
-                  <div className="flex bg-white/50 dark:bg-black/20 p-1.5 rounded-2xl border border-gray-200/50 dark:border-white/5 backdrop-blur-sm shadow-inner">
-                    <button 
-                      type="button"
-                      onClick={() => setStatus('DRAFT')}
-                      className={cn(
-                        "px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
-                        status === 'DRAFT' 
-                          ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" 
-                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-800"
-                      )}
-                    >
-                      Draft
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => setStatus('COMPLETED')}
-                      className={cn(
-                        "px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
-                        status === 'COMPLETED' 
-                          ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" 
-                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-800"
-                      )}
-                    >
-                      Confirm
-                    </button>
+              <div className="bg-white/40 dark:bg-black/10 p-8 border-t border-gray-100 dark:border-gray-800/50 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] px-1 mb-2 opacity-70">Target Status</span>
+                    <div className="flex bg-gray-100/50 dark:bg-gray-900/50 p-1.5 rounded-[1.25rem] border border-gray-200/50 dark:border-white/5 backdrop-blur-md shadow-inner">
+                      <button 
+                        type="button"
+                        onClick={() => setStatus('DRAFT')}
+                        className={cn(
+                          "px-8 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all flex items-center gap-2",
+                          status === 'DRAFT' 
+                            ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 ring-4 ring-indigo-600/10" 
+                            : "text-muted-foreground/60 hover:text-foreground hover:bg-white dark:hover:bg-gray-800"
+                        )}
+                      >
+                        <Receipt className={cn("h-3.5 w-3.5", status === 'DRAFT' ? "opacity-100" : "opacity-40")} />
+                        Draft
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setStatus('COMPLETED')}
+                        className={cn(
+                          "px-8 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all flex items-center gap-2",
+                          status === 'COMPLETED' 
+                            ? "bg-emerald-600 text-white shadow-xl shadow-emerald-600/30 ring-4 ring-emerald-600/10" 
+                            : "text-muted-foreground/60 hover:text-foreground hover:bg-white dark:hover:bg-gray-800"
+                        )}
+                      >
+                        <Check className={cn("h-3.5 w-3.5", status === 'COMPLETED' ? "opacity-100" : "opacity-40")} />
+                        Confirm
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-right">
+                <div className="flex items-center gap-5 bg-white/60 dark:bg-gray-900/40 p-5 rounded-3xl border border-gray-100 dark:border-gray-800/50 shadow-sm grow max-w-md">
+                  <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner", 
+                    status === 'COMPLETED' ? "bg-emerald-50 text-emerald-600" : "bg-indigo-50 text-indigo-600")}>
+                    {status === 'COMPLETED' ? <Package className="h-6 w-6" /> : <Layers className="h-6 w-6" />}
+                  </div>
                   <div className="flex flex-col">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 opacity-50">Operation Type</p>
-                    <p className="text-[11px] font-bold text-foreground italic leading-tight max-w-[200px]">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1.5 opacity-50">Operation Context</p>
+                    <p className="text-[12px] font-bold text-foreground leading-snug tracking-tight">
                       {status === 'COMPLETED' 
                         ? "Warehouse stock and HPP will be updated immediately." 
-                        : "Only records data for later review/editing."}
+                        : "Only records data for later review and editing."}
                     </p>
                   </div>
                   <div className={cn(
-                    "h-10 w-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500",
+                    "h-10 w-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ml-auto",
                     status === 'COMPLETED' ? "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10" : "bg-indigo-500/10 text-indigo-500 shadow-indigo-500/10"
                   )}>
                     {status === 'COMPLETED' ? <Check className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
@@ -381,6 +389,7 @@ export default function PurchasesPage() {
                 </div>
               </div>
             </Card>
+
   
             {/* Items List */}
             <div className="space-y-4">

@@ -11,8 +11,7 @@ import {
   Search, 
   ArrowUpRight, 
   MoreVertical,
-  Filter,
-  Layers
+  Filter
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
