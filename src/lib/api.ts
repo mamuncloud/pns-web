@@ -95,6 +95,8 @@ export const api = {
     list: () => api.get<Purchase[]>('/purchases'),
     get: (id: string) => api.get<Purchase>(`/purchases/${id}`),
     create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
+    update: (id: string, data: Partial<CreatePurchaseDto>) => api.patch<Purchase>(`/purchases/${id}`, data),
+    confirm: (id: string) => api.patch<Purchase>(`/purchases/${id}/confirm`, {}),
   },
   
   storage: {

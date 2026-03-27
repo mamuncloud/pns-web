@@ -26,7 +26,10 @@ import {
   Receipt,
   FileText,
   TrendingUp,
-  Tag
+  Tag,
+  Check,
+  Save,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,23 +38,54 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   const router = useRouter();
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const fetchPurchase = async () => {
+    try {
+      const response = await api.purchases.get(id);
+      if (response.success) {
+        setPurchase(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch purchase details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPurchase = async () => {
-      try {
-        const response = await api.purchases.get(id);
-        if (response.success) {
-          setPurchase(response.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch purchase details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPurchase();
   }, [id]);
+
+  const handleConfirm = async () => {
+    if (!confirm("Konfirmasi pembelian ini? Stok akan ditambahkan ke inventori.")) return;
+    
+    setActionLoading(true);
+    try {
+      const response = await api.purchases.confirm(id);
+      if (response.success) {
+        setPurchase(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to confirm purchase:", error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    setActionLoading(true);
+    try {
+      const response = await api.purchases.update(id, { status: 'DRAFT' });
+      if (response.success) {
+        setPurchase(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to save as draft:", error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -125,6 +159,43 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           </span>
         </Card>
       </div>
+
+      {purchase.status === 'DRAFT' && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-amber-50 dark:bg-amber-950/20 rounded-3xl border border-amber-200 dark:border-amber-900/30 shadow-lg shadow-amber-500/5">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-amber-800 dark:text-amber-200">Purchase Ini Belum Dikonfirmasi</p>
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400/70">Stok belum masuk ke inventori</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button
+              onClick={handleSaveDraft}
+              disabled={actionLoading}
+              variant="outline"
+              className="flex-1 sm:flex-none rounded-xl font-bold border-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-all"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Simpan Draft
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={actionLoading}
+              className="flex-1 sm:flex-none rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all"
+            >
+              {actionLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4 mr-2" />
+              )}
+              Konfirmasi Purchase
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Basic Info Column */}
