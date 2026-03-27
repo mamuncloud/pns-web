@@ -35,8 +35,8 @@ function VerifyContent() {
           if (type === "EMPLOYEE") {
             router.push("/dashboard")
           } else {
-            // Consumer redirect
-            router.push("/order");
+            // Consumer redirect to products catalog
+            router.push("/products");
           }
         }, 1500);
       } catch (err) {

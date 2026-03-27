@@ -45,12 +45,12 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="flex items-center gap-5">
-        <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
+        {/* <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
           <span className="material-symbols-outlined">shopping_cart</span>
         </button>
         <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
           <span className="material-symbols-outlined">account_circle</span>
-        </button>
+        </button> */}
       </div>
     </nav>
   );

@@ -2,6 +2,7 @@ import {
   AuthUser, 
   PricingRule, 
   StockAdjustment, 
+  Purchase,
   CreatePurchaseDto 
 } from "@/types/financial";
 
@@ -34,7 +35,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || 'API request failed');
+    throw new Error(result.message || `API request failed at ${url}`);
   }
 
   return result as ApiResponse<T>;
@@ -91,6 +92,8 @@ export const api = {
   },
 
   purchases: {
+    list: () => api.get<Purchase[]>('/purchases'),
+    get: (id: string) => api.get<Purchase>(`/purchases/${id}`),
     create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
   },
   

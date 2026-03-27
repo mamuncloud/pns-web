@@ -22,7 +22,8 @@ export default function LoginPage() {
       if (isEmployee) {
         router.push("/dashboard");
       } else {
-        router.push("/order");
+        // Fallback to dashboard if /order doesn't exist or for other user types
+        router.push("/dashboard");
       }
     }
   }, [isAuthLoading, isAuthenticated, isEmployee, router]);

@@ -25,20 +25,52 @@ export interface StockAdjustment {
 }
 
 export interface PurchaseItem {
+  id: string;
+  purchaseId: string;
   productId: string;
-  variantLabel?: string;
+  variantLabel: string;
   qty: number;
   totalCost: number;
-  extraCosts?: number;
-  sellingPrice?: number;
+  extraCosts: number;
+  unitCost: number;
+  sellingPrice: number;
   expiredDate?: string;
+  product?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface Purchase {
+  id: string;
+  supplierId: string;
+  date: string;
+  totalAmount: number;
+  note?: string;
+  status: 'DRAFT' | 'COMPLETED';
+  createdAt: string;
+  updatedAt: string;
+  supplier?: {
+    id: string;
+    name: string;
+  };
+  items?: PurchaseItem[];
 }
 
 export interface CreatePurchaseDto {
   supplierId: string;
   date: string;
   note?: string;
-  items: PurchaseItem[];
+  status: 'DRAFT' | 'COMPLETED';
+  items: {
+    productId: string;
+    variantLabel: string;
+    qty: number;
+    totalCost: number;
+    extraCosts: number;
+    sellingPrice: number;
+    expiredDate?: string;
+  }[];
 }
 
 export interface AuthUser {
