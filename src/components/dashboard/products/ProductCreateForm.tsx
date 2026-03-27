@@ -42,6 +42,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
   const [brandId, setBrandId] = useState("");
   const [tastes, setTastes] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
+  const [variants, setVariants] = useState<{ label: string; price: number; sku?: string }[]>([]);
 
   useEffect(() => {
     async function fetchBrands() {
@@ -146,6 +147,11 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
         images: imageUrls.map((url, index) => ({
           url,
           isPrimary: selectedImages[index].isPrimary
+        })),
+        variants: variants.map(v => ({
+          label: v.label,
+          price: v.price,
+          sku: v.sku
         }))
       });
       
@@ -324,6 +330,75 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
               * Pilih minimal satu profil rasa
             </p>
           )}
+        </div>
+
+        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-black uppercase tracking-widest text-primary">Definisi Varian</Label>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setVariants([...variants, { label: "250gr", price: 0 }])}
+              className="h-8 text-[10px] font-black uppercase tracking-widest border-primary/20 hover:bg-primary/5 rounded-xl"
+            >
+              <Plus className="mr-1 h-3 w-3" /> Tambah Varian
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {variants.length === 0 ? (
+              <div className="text-center p-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl bg-gray-50/30">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest italic leading-relaxed">
+                  Opsional: Belum ada varian didefinisikan.<br />Klik tombol di atas untuk menambah varian (e.g. 250gr, bal).
+                </p>
+              </div>
+            ) : (
+              variants.map((variant, index) => (
+                <div key={index} className="flex items-end gap-3 p-4 rounded-2xl bg-white dark:bg-black/20 border border-gray-100 dark:border-gray-800 shadow-sm animate-in slide-in-from-right-4 duration-300">
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Packaging</Label>
+                    <select
+                      className="w-full h-10 px-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-transparent focus:border-primary/50 text-sm font-bold uppercase transition-all"
+                      value={variant.label}
+                      onChange={(e) => {
+                        const newVariants = [...variants];
+                        newVariants[index].label = e.target.value;
+                        setVariants(newVariants);
+                      }}
+                    >
+                      {["ES3", "ES4", "250gr", "500gr", "1kg", "bal"].map(label => (
+                        <option key={label} value={label}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Harga Jual (Rp)</Label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      className="h-10 rounded-xl bg-gray-50 dark:bg-gray-900 border-transparent focus:border-primary/50 font-bold"
+                      value={variant.price || ""}
+                      onChange={(e) => {
+                        const newVariants = [...variants];
+                        newVariants[index].price = Number(e.target.value);
+                        setVariants(newVariants);
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                    className="h-10 w-10 text-destructive hover:bg-destructive/10 rounded-xl"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 

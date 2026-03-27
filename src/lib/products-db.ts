@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { EnumTaste, EnumPackage, Product, ProductStatus } from "@/types/product";
+import { EnumTaste, EnumPackage, Product, ProductStatus, ProductVariant } from "@/types/product";
 
 export interface PaginationMeta {
   page: number;
@@ -34,6 +34,9 @@ interface BackendProduct {
     label: string;
     price: number;
     stock: number;
+    sku?: string;
+    expiredDate?: string;
+    purchaseItem?: ProductVariant['purchaseItem'];
   }>;
   images?: Array<{
     id: string;
@@ -46,6 +49,8 @@ interface BackendProduct {
     name: string;
   } | null;
 }
+
+type BackendVariant = BackendProduct['variants'][number];
 
 export async function getProductById(id: string): Promise<Product | null> {
   try {
@@ -66,10 +71,14 @@ export async function getProductById(id: string): Promise<Product | null> {
       brandId: p.brandId || undefined,
       brand: p.brand || undefined,
       latestSupplier: p.latestSupplier || undefined,
-      variants: (p.variants || []).map((v) => ({
+      variants: (p.variants || []).map((v: BackendVariant) => ({
+        id: v.id,
         package: v.label as EnumPackage,
         price: v.price,
-        stock: v.stock
+        stock: v.stock,
+        sku: v.sku,
+        expiredDate: v.expiredDate,
+        purchaseItem: v.purchaseItem,
       })),
       sellingPrice: p.variants?.[0]?.price || 0,
       stockQty: (p.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0),
@@ -110,10 +119,14 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
         brandId: p.brandId || undefined,
         brand: p.brand || undefined,
         latestSupplier: p.latestSupplier || undefined,
-        variants: (p.variants || []).map((v) => ({
+        variants: (p.variants || []).map((v: BackendVariant) => ({
+          id: v.id,
           package: v.label as EnumPackage,
           price: v.price,
-          stock: v.stock
+          stock: v.stock,
+          sku: v.sku,
+          expiredDate: v.expiredDate,
+          purchaseItem: v.purchaseItem,
         })),
         sellingPrice: p.variants?.[0]?.price || 0,
         stockQty: (p.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0),

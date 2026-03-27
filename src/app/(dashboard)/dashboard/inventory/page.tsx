@@ -53,8 +53,8 @@ export default function DashboardInventoryPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight">Inventaris & Stok</h2>
-          <p className="text-muted-foreground">Pantau level stok dan ketersediaan varian produk.</p>
+          <h2 className="text-3xl font-black text-foreground tracking-tight uppercase italic text-primary">Operasional Inventaris</h2>
+          <p className="text-muted-foreground font-medium">Pantau level stok, batch pembelian, dan tanggal kadaluarsa varian produk.</p>
         </div>
         <div className="flex items-center gap-2">
            <Link href="/dashboard/stock-adjustment">
@@ -194,7 +194,7 @@ export default function DashboardInventoryPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link href={`/dashboard/products/${product.id}`}>
+                        <Link href={`/dashboard/inventory/${product.id}`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary transition-transform group-hover:scale-110">
                             <ArrowUpRight className="h-4 w-4" />
                           </Button>

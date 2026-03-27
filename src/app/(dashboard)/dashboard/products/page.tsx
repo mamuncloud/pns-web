@@ -41,8 +41,8 @@ export default function DashboardProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight">Kelola Produk</h2>
-          <p className="text-muted-foreground">Monitoring HPP, margin, dan kesehatan stok secara real-time.</p>
+          <h2 className="text-3xl font-black text-foreground tracking-tight uppercase italic">Katalog Produk</h2>
+          <p className="text-muted-foreground">Kelola data master produk, brand, rasa, dan definisi varian.</p>
         </div>
         <ProductCreateDialog />
       </div>
@@ -128,7 +128,7 @@ export default function DashboardProductsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/dashboard/products/${product.id}`}>
+                          <Link href={`/dashboard/inventory/${product.id}`}>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
                               <ArrowUpRight className="h-4 w-4" />
                             </Button>

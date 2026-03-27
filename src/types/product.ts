@@ -2,9 +2,20 @@ export type EnumTaste = 'Pedas' | 'Gurih' | 'Manis';
 export type EnumPackage = 'ES3' | 'ES4' | '250gr' | '500gr' | '1kg' | 'bal';
 
 export interface ProductVariant {
+  id: string;
   package: EnumPackage;
   price: number;
   stock?: number;
+  sku?: string;
+  expiredDate?: string | null;
+  purchaseItem?: {
+    purchase?: {
+      date: string;
+      supplier?: {
+        name: string;
+      };
+    };
+  };
 }
 
 export type ProductStatus = 'Normal' | 'Warning' | 'Critical';
