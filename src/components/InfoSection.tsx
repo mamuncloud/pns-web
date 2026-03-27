@@ -18,26 +18,26 @@ export default function InfoSection() {
 
   return (
     <section className="max-w-7xl mx-auto px-6 mb-6">
-      <div className="w-full bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden flex flex-col shadow-sm">
+      <div className="w-full bg-white dark:bg-zinc-950 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden flex flex-col shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-          <div className="p-8 md:p-12 flex flex-col justify-center bg-[#FEF9EC]/50 border-r border-gray-50">
+          <div className="p-8 md:p-12 flex flex-col justify-center bg-[#FEF9EC]/50 dark:bg-zinc-900/40 border-r border-gray-50 dark:border-zinc-800">
             <div className="mb-6">
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 mb-3 block">
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 dark:text-zinc-400 mb-3 block">
                 Jam Operasional
               </span>
               <p className="text-xl md:text-3xl font-headline font-extrabold text-primary mb-1">
-                09:00 — 22:00
+                10:00 — 22:00
               </p>
-              <p className="text-on-background/60 text-xs md:text-sm font-medium">
+              <p className="text-on-background/60 dark:text-zinc-400 text-xs md:text-sm font-medium">
                 Setiap Hari, Termasuk Libur Nasional
               </p>
             </div>
             
             <div className="mb-8 md:mb-10">
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 mb-3 block">
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 dark:text-zinc-400 mb-3 block">
                 Lokasi Kami
               </span>
-              <p className="text-on-background/70 font-bold text-xs md:text-base leading-relaxed mb-4">
+              <p className="text-on-background dark:text-zinc-200 font-bold text-xs md:text-base leading-relaxed mb-4">
                 Jl. Beringin Raya No.6B, RT.006/RW.002, Karawaci Baru, Kec. Karawaci,
                 Tangerang Kota, Banten 15116
               </p>
@@ -52,26 +52,26 @@ export default function InfoSection() {
                 </span>
               </Link>
 
-              <div className="pt-8 border-t border-gray-100">
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 mb-4 block">
+              <div className="pt-8 border-t border-gray-100 dark:border-zinc-800">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-dark/40 dark:text-zinc-400 mb-4 block">
                   Hubungi Kami
                 </span>
                 <div className="space-y-4">
                   <Input
                     placeholder="Nama Anda"
-                    className="bg-white border-gray-100 rounded-xl px-4 py-6 text-sm h-10"
+                    className="bg-white dark:bg-zinc-900 border-gray-100 dark:border-zinc-800 rounded-xl px-4 py-6 text-sm h-10 ring-offset-transparent focus-visible:ring-primary/20"
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                   />
                   <textarea
                     placeholder="Pesan"
                     rows={3}
-                    className="w-full bg-white border border-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none font-medium"
+                    className="w-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 dark:focus:ring-primary/40 transition-all resize-none font-medium text-foreground"
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
                   ></textarea>
                   <Button 
-                    className="w-full bg-primary text-white font-bold h-12 rounded-xl text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md mt-2"
+                    className="w-full bg-primary text-primary-foreground font-bold h-12 rounded-xl text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-md mt-2"
                     onClick={() => handleWhatsAppRedirect()}
                   >
                     Kirim ke WhatsApp

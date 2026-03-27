@@ -27,7 +27,7 @@ export default async function Categories() {
           <h2 className="font-headline text-4xl font-extrabold text-primary tracking-tight">
             Kategori Populer
           </h2>
-          <p className="text-on-background/60 font-medium mt-2">
+          <p className="text-on-background/60 dark:text-zinc-400 font-medium mt-2">
             Temukan rasa yang sesuai dengan mood kamu hari ini
           </p>
         </div>
@@ -61,7 +61,7 @@ export default async function Categories() {
         </div>
 
         {/* Gurih */}
-        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#E5E0D8] h-[400px] flex items-end p-8 cursor-pointer">
+        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#E5E0D8] dark:bg-stone-800 h-[400px] flex items-end p-8 cursor-pointer">
           <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
             <Image
               alt="Gurih category"
@@ -72,13 +72,13 @@ export default async function Categories() {
             />
           </div>
           <div className="relative z-10">
-            <h3 className="font-headline text-3xl font-extrabold text-dark mb-1">Gurih</h3>
-            <p className="text-dark/60 font-bold">{counts.Gurih} Produk</p>
+            <h3 className="font-headline text-3xl font-extrabold text-dark dark:text-white mb-1">Gurih</h3>
+            <p className="text-dark/60 dark:text-zinc-400 font-bold">{counts.Gurih} Produk</p>
           </div>
         </div>
 
         {/* Manis */}
-        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#F8F6F4] h-[400px] flex items-end p-8 cursor-pointer">
+        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#F8F6F4] dark:bg-zinc-800 h-[400px] flex items-end p-8 cursor-pointer">
           <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
             <Image
               alt="Manis category"
@@ -89,8 +89,8 @@ export default async function Categories() {
             />
           </div>
           <div className="relative z-10">
-            <h3 className="font-headline text-3xl font-extrabold text-dark mb-1">Manis</h3>
-            <p className="text-dark/60 font-bold">{counts.Manis} Produk</p>
+            <h3 className="font-headline text-3xl font-extrabold text-dark dark:text-white mb-1">Manis</h3>
+            <p className="text-dark/60 dark:text-zinc-400 font-bold">{counts.Manis} Produk</p>
           </div>
         </div>
       </div>

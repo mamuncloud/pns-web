@@ -497,7 +497,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          className="min-w-[120px]"
+          className="min-w-[120px] bg-primary text-primary-foreground h-10"
         >
           {isSubmitting ? (
             <>

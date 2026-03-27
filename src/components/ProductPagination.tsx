@@ -73,7 +73,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full border-2 hover:bg-primary hover:text-white hover:border-primary w-12 h-12 shadow-sm transition-all"
+            className="rounded-full border-2 hover:bg-primary hover:text-white dark:hover:text-zinc-950 hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
             disabled={currentPage <= 1}
           >
             <span className="material-symbols-outlined">chevron_left</span>
@@ -81,11 +81,11 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
         </Link>
 
         {/* Page Numbers */}
-        <div className="flex items-center gap-2 bg-[#f6f6f6] p-1.5 rounded-full shadow-inner">
+        <div className="flex items-center gap-2 bg-[#f6f6f6] dark:bg-zinc-900 p-1.5 rounded-full shadow-inner border dark:border-white/5">
           {getPageNumbers().map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? (
-                <span className="px-3 text-dark/30 font-bold">...</span>
+                <span className="px-3 text-dark/30 dark:text-zinc-600 font-bold">...</span>
               ) : (
                 <Link href={createPageURL(page)}>
                   <Button
@@ -93,8 +93,8 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
                     className={cn(
                       "rounded-full px-5 py-2 font-bold transition-all duration-300 min-w-[44px]",
                       currentPage === page 
-                        ? "bg-primary text-white shadow-md transform scale-110" 
-                        : "hover:bg-white hover:text-primary"
+                        ? "bg-primary text-white dark:text-zinc-950 shadow-md transform scale-110" 
+                        : "text-dark/60 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 hover:text-primary"
                     )}
                   >
                     {page}
@@ -116,7 +116,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full border-2 hover:bg-primary hover:text-white hover:border-primary w-12 h-12 shadow-sm transition-all"
+            className="rounded-full border-2 hover:bg-primary hover:text-white dark:hover:text-zinc-950 hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
             disabled={currentPage >= totalPages}
           >
             <span className="material-symbols-outlined">chevron_right</span>
@@ -124,7 +124,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
         </Link>
       </div>
       
-      <p className="text-on-background/40 font-medium text-xs tracking-wider uppercase">
+      <p className="text-on-background/40 dark:text-zinc-500 font-medium text-xs tracking-wider uppercase">
         Halaman {currentPage} dari {totalPages}
       </p>
     </div>

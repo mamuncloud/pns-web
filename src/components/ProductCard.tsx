@@ -20,11 +20,9 @@ const tasteColors = {
 };
 
 export default function ProductCard({ 
-  product, 
-  isBestseller = false 
+  product
 }: { 
   product: Product;
-  isBestseller?: boolean;
 }) {
   // Sort variants by price to find lowest price
   const sortedVariants = [...product.variants].sort((a, b) => a.price - b.price);
@@ -32,8 +30,8 @@ export default function ProductCard({
   const isMultipleVariants = sortedVariants.length > 1;
 
   return (
-    <Card className="rounded-[2rem] overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full bg-white p-0 gap-0">
-      <div className="relative aspect-square w-full bg-[#f8f8f8] overflow-hidden">
+    <Card className="rounded-[2rem] overflow-hidden border border-transparent dark:border-zinc-800/50 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full bg-card p-0 gap-0">
+      <div className="relative aspect-square w-full bg-muted/50 overflow-hidden">
         <Image
           src={product.imageUrl}
           alt={product.name}
@@ -46,17 +44,6 @@ export default function ProductCard({
           }}
         />
         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-          {isBestseller && (
-            <div className="bg-primary text-white font-bold text-[10px] px-3 py-1 rounded-full flex items-center gap-1 shadow-lg w-fit">
-              <span
-                className="material-symbols-outlined text-[12px]"
-                style={{ fontVariationSettings: '"FILL" 1' }}
-              >
-                star
-              </span>
-              Terlaris
-            </div>
-          )}
           {product.taste.map((t, index) => (
             <Badge key={`${t}-${index}`} className={`${tasteColors[t]} font-bold rounded-xl px-3 py-1 shadow-md border-0 w-fit`}>
               {t}
@@ -66,25 +53,29 @@ export default function ProductCard({
       </div>
       
       <CardContent className="p-6 flex flex-col flex-grow">
-        <h3 className="font-headline text-2xl font-bold text-dark mb-2 leading-tight">
+        <h3 className="font-headline font-black text-xl mb-2 text-on-background dark:text-zinc-100 line-clamp-1">
           {product.name}
         </h3>
-        
-        <p className="text-on-background/60 text-sm mb-4 flex-grow line-clamp-2 leading-relaxed">
+        <p className="text-on-background/60 dark:text-zinc-400 text-sm leading-relaxed mb-6 line-clamp-3">
           {product.description}
         </p>
-        
-        <div className="mb-4">
-          <span className="font-bold text-primary text-xl block">
-            {isMultipleVariants ? "Mulai dari " : ""}{formatRupiah(lowestPrice)}
-          </span>
+
+        <div className="mt-auto pt-6 border-t border-on-background/5 dark:border-zinc-800 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-xs uppercase tracking-wider text-on-background/40 dark:text-zinc-500 font-bold mb-1">
+              Mulai dari
+            </span>
+            <span className="font-headline font-black text-2xl text-primary">
+              {formatRupiah(lowestPrice)}
+            </span>
+          </div>
         </div>
         
-        <div className="flex flex-wrap gap-2 mt-auto">
+        <div className="flex flex-wrap gap-2">
           {product.variants.map((v, index) => (
             <span 
               key={`${v.package}-${index}`} 
-              className="px-3 py-1.5 bg-[#FDF2F2] rounded-full text-[10px] font-bold text-primary"
+              className="px-3 py-1.5 bg-primary/10 rounded-full text-[10px] font-bold text-primary dark:text-primary-foreground/90"
             >
               {v.package}
             </span>

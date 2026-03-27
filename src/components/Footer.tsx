@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white pt-16 pb-10 px-6">
+    <footer className="bg-primary dark:bg-zinc-950 text-white pt-16 pb-10 px-6 border-t border-transparent dark:border-zinc-900">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
           {/* Brand Section */}
@@ -60,23 +60,18 @@ export default function Footer() {
             </h4>
             <ul className="space-y-4 font-semibold">
               <li>
+                <Link className="hover:text-accent transition-colors" href="/products">
+                  Product
+                </Link>
+              </li>
+              <li>
+                <Link className="hover:text-accent transition-colors" href="/partner">
+                  Partner with Us
+                </Link>
+              </li>
+              <li>
                 <Link className="hover:text-accent transition-colors" href="/login">
                   Staff
-                </Link>
-              </li>
-              <li>
-                <Link className="hover:text-accent transition-colors" href="#">
-                  {/* Kebijakan Privasi */}
-                </Link>
-              </li>
-              <li>
-                <Link className="hover:text-accent transition-colors" href="#">
-                  {/* Syarat & Ketentuan */}
-                </Link>
-              </li>
-              <li>
-                <Link className="hover:text-accent transition-colors" href="#">
-                  {/* Pusat Bantuan */}
                 </Link>
               </li>
             </ul>

@@ -11,6 +11,7 @@ import {
   HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -76,7 +77,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="text-muted-foreground relative">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-white dark:border-gray-900" />
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full border-2 border-white dark:border-gray-900 shadow-sm" />
         </Button>
 
         {/* User Profile */}
