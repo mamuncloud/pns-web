@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProductsFromDb } from "@/lib/products-db";
-import { Product } from "@/types/product";
+import { getInventorySummary, InventorySummary } from "@/lib/inventory-db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,32 +19,34 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export default function DashboardInventoryPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [inventory, setInventory] = useState<InventorySummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchInventory() {
       setIsLoading(true);
       try {
-        const { data } = await getProductsFromDb(1, 100);
-        setProducts(data);
+        const response = await getInventorySummary();
+        if (response.success && response.data) {
+          setInventory(response.data);
+        }
       } catch (error) {
-        console.error("Failed to fetch products:", error);
+        console.error("Failed to fetch inventory:", error);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchProducts();
+    fetchInventory();
   }, []);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredInventory = inventory.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStockStatus = (qty: number = 0) => {
-    if (qty <= 5) return { label: "Kritis", color: "text-red-600 bg-red-50 dark:bg-red-900/20", icon: AlertTriangle };
-    if (qty <= 20) return { label: "Peringatan", color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20", icon: AlertTriangle };
+  const getStockStatus = (status: string) => {
+    if (status === "CRITICAL") return { label: "Kritis", color: "text-red-600 bg-red-50 dark:bg-red-900/20", icon: AlertTriangle };
+    if (status === "WARNING") return { label: "Peringatan", color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20", icon: AlertTriangle };
     return { label: "Aman", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20", icon: CheckCircle2 };
   };
 
@@ -73,7 +74,7 @@ export default function DashboardInventoryPage() {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Produk</p>
-              <p className="text-2xl font-black text-foreground">{products.length}</p>
+              <p className="text-2xl font-black text-foreground">{inventory.length}</p>
             </div>
           </div>
         </Card>
@@ -86,7 +87,7 @@ export default function DashboardInventoryPage() {
             <div>
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Stok Rendah</p>
               <p className="text-2xl font-black text-foreground">
-                {products.filter(p => (p.stockQty || 0) <= 20).length}
+                {inventory.filter(item => item.status !== 'SAFE').length}
               </p>
             </div>
           </div>
@@ -100,7 +101,7 @@ export default function DashboardInventoryPage() {
             <div>
               <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Stok Aman</p>
               <p className="text-2xl font-black text-foreground">
-                {products.filter(p => (p.stockQty || 0) > 20).length}
+                {inventory.filter(item => item.status === 'SAFE').length}
               </p>
             </div>
           </div>
@@ -130,6 +131,7 @@ export default function DashboardInventoryPage() {
               <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">Produk</th>
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Stok Total</th>
+                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Nilai Est. (HPP)</th>
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Status</th>
                 <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-right flex justify-end"><p className="sr-only">Aksi</p></th>
               </tr>
@@ -141,26 +143,26 @@ export default function DashboardInventoryPage() {
                     <p className="font-bold text-muted-foreground">Memuat data inventaris...</p>
                   </td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              ) : filteredInventory.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-20 text-center">
                     <p className="font-bold text-muted-foreground">Data tidak ditemukan.</p>
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
-                  const status = getStockStatus(product.stockQty || 0);
+                filteredInventory.map((item) => {
+                  const status = getStockStatus(item.status);
                   const StatusIcon = status.icon;
                   
                   return (
-                    <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
+                    <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={cn("h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden")}>
-                            {product.imageUrl ? (
+                            {item.imageUrl ? (
                               <Image 
-                                src={product.imageUrl} 
-                                alt={product.name} 
+                                src={item.imageUrl} 
+                                alt={item.name} 
                                 width={40} 
                                 height={40} 
                                 className="h-full w-full object-cover" 
@@ -171,18 +173,23 @@ export default function DashboardInventoryPage() {
                             )}
                           </div>
                           <div className="space-y-0.5">
-                            <p className="text-sm font-bold text-foreground line-clamp-1">{product.name}</p>
+                            <p className="text-sm font-bold text-foreground line-clamp-1">{item.name}</p>
                             <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">
-                              {product.variants.length} Varian
+                              {item.brand || 'No Brand'} • {item.variantCount} Varian
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <p className={cn("text-lg font-black", 
-                          (product.stockQty || 0) <= 5 ? "text-red-600" : "text-foreground"
+                          item.status === 'CRITICAL' ? "text-red-600" : "text-foreground"
                         )}>
-                          {product.stockQty || 0}
+                          {item.totalStock}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <p className="text-xs font-bold text-muted-foreground uppercase opacity-60">
+                          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.totalValue)}
                         </p>
                       </td>
                       <td className="px-6 py-4">
@@ -194,7 +201,7 @@ export default function DashboardInventoryPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link href={`/dashboard/inventory/${product.id}`}>
+                        <Link href={`/dashboard/inventory/${item.id}`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary transition-transform group-hover:scale-110">
                             <ArrowUpRight className="h-4 w-4" />
                           </Button>

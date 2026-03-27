@@ -92,8 +92,8 @@ export default function DashboardProductsPage() {
                   return (
                     <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={cn("h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden")}>
+                        <Link href={`/dashboard/products/${product.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                          <div className={cn("h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0")}>
                             {product.imageUrl ? (
                               <Image 
                                 src={product.imageUrl} 
@@ -111,7 +111,7 @@ export default function DashboardProductsPage() {
                             <p className="text-sm font-bold text-foreground line-clamp-1">{product.name}</p>
                             <p className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">{product.taste.join(', ')}</p>
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm font-black text-foreground">
@@ -128,7 +128,7 @@ export default function DashboardProductsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/dashboard/inventory/${product.id}`}>
+                          <Link href={`/dashboard/products/${product.id}`}>
                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
                               <ArrowUpRight className="h-4 w-4" />
                             </Button>

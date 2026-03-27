@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { getProductById } from "@/lib/products-db";
-import { Product, EnumTaste } from "@/types/product";
+import { getProductInventory, ProductInventory, InventoryBatch } from "@/lib/inventory-db";
+import { EnumTaste } from "@/types/product";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,24 +25,31 @@ import {
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const [product, setProduct] = useState<Product | null>(null);
+  const [data, setData] = useState<ProductInventory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchInventory() {
       setIsLoading(true);
-      const p = await getProductById(resolvedParams.id);
-      setProduct(p);
-      setIsLoading(false);
+      try {
+        const response = await getProductInventory(resolvedParams.id);
+        if (response.success && response.data) {
+          setData(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch product inventory:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-    fetchProduct();
+    fetchInventory();
   }, [resolvedParams.id]);
 
   if (isLoading) {
     return <div className="p-10 text-center font-bold animate-pulse text-muted-foreground uppercase tracking-widest text-sm">Memuat detail produk...</div>;
   }
 
-  if (!product) {
+  if (!data || !data.product) {
     return (
       <div className="p-10 text-center space-y-4">
         <p className="text-xl font-black text-foreground uppercase">Produk tidak ditemukan</p>
@@ -52,6 +59,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       </div>
     );
   }
+
+  const product = data.product;
+  const batches = data.batches;
 
   const images = product.images && product.images.length > 0 
     ? product.images 
@@ -92,12 +102,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Variants Table Grouping */}
           <div className="space-y-6">
             {Object.entries(
-              product.variants.reduce((acc, v) => {
-                const price = v.price;
+              batches.reduce((acc, b) => {
+                const price = b.price;
                 if (!acc[price]) acc[price] = [];
-                acc[price].push(v);
+                acc[price].push(b);
                 return acc;
-              }, {} as Record<number, typeof product.variants>)
+              }, {} as Record<number, typeof batches>)
             ).sort(([priceA], [priceB]) => Number(priceA) - Number(priceB)).map(([price, variants]) => (
               <Card key={price} className="border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-3xl">
                 <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-900/50 dark:to-transparent border-b border-gray-100 dark:border-gray-800 p-6">
@@ -121,26 +131,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Packaging</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Batch Info</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Expired Date</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Sisa Hari</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Qty Stok</th>
                           <th className="px-6 py-4 text-right"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
-                        {variants.map((v, idx: number) => (
+                        {variants.map((v: InventoryBatch, idx: number) => (
                           <tr key={v.id || idx} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
                             <td className="px-6 py-5">
                               <div className="flex flex-col">
-                                <span className="text-sm font-black text-foreground uppercase tracking-tight">{v.package}</span>
-                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">SKU: {v.sku || `PN-${v.package.toUpperCase()}`}</span>
+                                <span className="text-sm font-black text-foreground uppercase tracking-tight">{v.label}</span>
+                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">BATCH ID: {v.id.split('-')[0]}</span>
                               </div>
                             </td>
                             <td className="px-6 py-5">
                               <div className="flex flex-col">
                                 <span className="text-xs font-black text-foreground uppercase tracking-tight">
-                                  {v.purchaseItem?.purchase?.supplier?.name || "STOCK AWAL"}
+                                  {v.supplierName || "STOK AWAL / MANUAL"}
                                 </span>
                                 <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-                                  Arrived: {v.purchaseItem?.purchase?.date ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(v.purchaseItem.purchase.date)) : "-"}
+                                  Arrived: {v.purchaseDate ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(v.purchaseDate)) : "-"}
                                 </span>
                               </div>
                             </td>
@@ -156,6 +167,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                                   {new Date(v.expiredDate) < new Date() && (
                                     <span className="text-[8px] font-black text-red-500 uppercase tracking-widest">Expired</span>
                                   )}
+                                </div>
+                              ) : (
+                                <span className="text-[10px] font-bold text-muted-foreground/30 uppercase">-</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-5 text-center">
+                              {typeof v.daysUntilExpiry === 'number' ? (
+                                <div className="flex flex-col items-center">
+                                  <span className={cn(
+                                    "text-xs font-black uppercase tracking-tight",
+                                    v.daysUntilExpiry <= 30 && v.daysUntilExpiry > 0 ? "text-amber-500" : 
+                                    v.daysUntilExpiry <= 0 ? "text-red-500" : "text-emerald-500"
+                                  )}>
+                                    {v.daysUntilExpiry <= 0 ? "EXPIRED" : `${v.daysUntilExpiry} Hari`}
+                                  </span>
                                 </div>
                               ) : (
                                 <span className="text-[10px] font-bold text-muted-foreground/30 uppercase">-</span>
@@ -198,7 +224,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {images.length > 1 ? (
                 <Carousel className="w-full">
                   <CarouselContent>
-                    {images.map((image, index) => (
+                    {images.map((image: { url: string; id: string }, index: number) => (
                       <CarouselItem key={image.id || index}>
                         <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-gray-900">
                           <Image
