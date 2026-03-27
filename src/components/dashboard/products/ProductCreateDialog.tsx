@@ -25,8 +25,8 @@ export function ProductCreateDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button className="flex items-center gap-2 font-bold">
-            <Package className="h-4 w-4" />
+          <Button className="h-14 px-8 flex items-center gap-3 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+            <Package className="h-5 w-5" />
             Tambah Produk Baru
           </Button>
         }
