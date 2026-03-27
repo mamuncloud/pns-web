@@ -4,7 +4,7 @@ import { useEffect, useState, use, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
-import { api, Supplier } from "@/lib/api";
+import { api, Supplier, ApiError } from "@/lib/api";
 import { Product } from "@/types/product";
 import { Purchase } from "@/types/financial";
 import { getProductsFromDb } from "@/lib/products-db";
@@ -107,7 +107,12 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
         setPurchase(response.data);
       }
     } catch (error) {
-      console.error("Failed to fetch purchase details:", error);
+      if (error instanceof ApiError && error.statusCode === 404) {
+        // Silently handle 404s since we show a "Not Found" UI
+        setPurchase(null);
+      } else {
+        console.error("Failed to fetch purchase details:", error);
+      }
     } finally {
       setLoading(false);
     }

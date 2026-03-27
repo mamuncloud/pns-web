@@ -16,6 +16,18 @@ interface ApiResponse<T> {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+export class ApiError extends Error {
+  statusCode: number;
+  response?: ApiResponse<unknown>;
+
+  constructor(message: string, statusCode: number, response?: ApiResponse<unknown>) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.response = response;
+  }
+}
+
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -35,7 +47,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || `API request failed at ${url}`);
+    throw new ApiError(result.message || `API request failed at ${url}`, response.status, result);
   }
 
   return result as ApiResponse<T>;
