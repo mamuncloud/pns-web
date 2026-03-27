@@ -24,7 +24,10 @@ import {
   Check,
   AlertCircle,
   ArrowRight,
-  Receipt
+  Receipt,
+  Package,
+  Layers,
+  Sparkles
 } from "lucide-react";
 import { PurchaseHistory } from "@/components/dashboard/purchases/PurchaseHistory";
 import { cn } from "@/lib/utils";
@@ -234,23 +237,12 @@ export default function PurchasesPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20 scroll-smooth">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight">Kulakan Barang</h2>
-          <p className="text-muted-foreground">Input stok masuk dan pantau perubahan harga beli (HPP).</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
+        <div className="space-y-1">
+          <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Kulakan Barang</h2>
+          <p className="text-sm text-muted-foreground font-medium">Input stok masuk dan pantau perubahan harga beli (HPP).</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="font-black text-[10px] uppercase tracking-widest border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 h-11 px-6 rounded-xl hover:bg-indigo-100 transition-all flex items-center gap-2 group">
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            Active Drafts
-          </Button>
-          <Button 
-            onClick={() => document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })}
-            className="font-bold h-11 px-6 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-          >
-            Riwayat Pembelian
-          </Button>
-        </div>
+
       </div>
 
       {isLoading ? (
@@ -270,33 +262,33 @@ export default function PurchasesPage() {
         <>
           <form onSubmit={(e) => e.preventDefault()} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
-              <Card className="border-none bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none rounded-2xl overflow-hidden">
-                <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-none bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none rounded-3xl overflow-hidden">
+                <CardContent className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 px-1">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2 px-1">
                       <User className="h-3 w-3 text-primary" /> Supplier
                     </label>
                     <Combobox 
                       value={supplier} 
                       onValueChange={(val) => setSupplier(val ?? "")}
                     >
-                      <ComboboxTrigger className="h-12 font-bold px-4 bg-gray-50/50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 focus:ring-primary/20 transition-all rounded-xl shadow-none">
+                      <ComboboxTrigger className="h-14 font-black px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm">
                         {supplier 
                           ? (suppliers.find(s => s.id === supplier)?.name || supplier) 
                           : "Pilih supplier..."}
                       </ComboboxTrigger>
-                      <ComboboxContent align="start" className="w-(--anchor-width) min-w-[280px] p-2 rounded-xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
+                      <ComboboxContent align="start" className="w-(--anchor-width) min-w-[280px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
                         <ComboboxInput 
                           placeholder="Cari supplier..." 
-                          className="h-10 px-3 bg-gray-50 dark:bg-gray-900 rounded-lg mb-2 border-none focus:ring-0"
+                          className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-0"
                         />
                         <ComboboxList className="max-h-[300px] overflow-y-auto space-y-1">
                           {suppliers.map((s) => (
                             <ComboboxItem 
                               key={s.id} 
                               value={s.id}
-                              className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 cursor-pointer group/item transition-colors"
+                              className="flex items-center justify-between p-3 rounded-xl hover:bg-primary/5 cursor-pointer group/item transition-colors"
                             >
                               <div className="flex flex-col">
                                 <span className="font-bold text-sm group-hover/item:text-primary transition-colors">{s.name}</span>
@@ -315,7 +307,7 @@ export default function PurchasesPage() {
                     </Combobox>
                   </div>
                   <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 px-1">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2 px-1">
                       <Calendar className="h-3 w-3 text-primary" /> Tanggal Pembelian
                     </label>
                     <div className="relative group">
@@ -323,36 +315,36 @@ export default function PurchasesPage() {
                         type="date" 
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="h-12 font-bold px-4 bg-gray-50/50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 focus:ring-primary/20 transition-all rounded-xl"
+                        className="h-14 font-black px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm"
                         required
                       />
                     </div>
                   </div>
                   <div className="md:col-span-2 space-y-3">
-                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 px-1">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2 px-1">
                       Keterangan (Optional)
                     </label>
                     <Input 
                       placeholder="Contoh: Pembelian stok bulanan, diskon supplier, dll."
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
-                      className="h-12 font-bold px-4 bg-gray-50/50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 focus:ring-primary/20 transition-all rounded-xl"
+                      className="h-14 font-black px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm"
                     />
                   </div>
                 </div>
               </CardContent>
-              <div className="bg-primary/5 dark:bg-primary/900/10 p-4 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Target Status:</span>
-                  <div className="flex bg-white/50 dark:bg-gray-950/50 p-1 rounded-xl border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-sm shadow-inner">
+              <div className="bg-primary/5 dark:bg-primary/950/10 p-6 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-1">Target Status:</span>
+                  <div className="flex bg-white/50 dark:bg-black/20 p-1.5 rounded-2xl border border-gray-200/50 dark:border-white/5 backdrop-blur-sm shadow-inner">
                     <button 
                       type="button"
                       onClick={() => setStatus('DRAFT')}
                       className={cn(
-                        "px-5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all",
+                        "px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
                         status === 'DRAFT' 
-                          ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" 
-                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-900"
+                          ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" 
+                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-800"
                       )}
                     >
                       Draft
@@ -361,20 +353,31 @@ export default function PurchasesPage() {
                       type="button"
                       onClick={() => setStatus('COMPLETED')}
                       className={cn(
-                        "px-5 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all",
+                        "px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
                         status === 'COMPLETED' 
-                          ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
-                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-900"
+                          ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" 
+                          : "text-muted-foreground hover:bg-white dark:hover:bg-gray-800"
                       )}
                     >
                       Confirm
                     </button>
                   </div>
                 </div>
-                <div className="text-[10px] font-bold text-muted-foreground italic md:max-w-xs md:text-right leading-tight">
-                  {status === 'COMPLETED' 
-                    ? "Confirm will update warehouse stock and HPP immediately." 
-                    : "Draft will only record the data for later review."}
+                <div className="flex items-center gap-3 text-right">
+                  <div className="flex flex-col">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 opacity-50">Operation Type</p>
+                    <p className="text-[11px] font-bold text-foreground italic leading-tight max-w-[200px]">
+                      {status === 'COMPLETED' 
+                        ? "Warehouse stock and HPP will be updated immediately." 
+                        : "Only records data for later review/editing."}
+                    </p>
+                  </div>
+                  <div className={cn(
+                    "h-10 w-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500",
+                    status === 'COMPLETED' ? "bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10" : "bg-indigo-500/10 text-indigo-500 shadow-indigo-500/10"
+                  )}>
+                    {status === 'COMPLETED' ? <Check className="h-5 w-5" /> : <Receipt className="h-5 w-5" />}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -401,58 +404,68 @@ export default function PurchasesPage() {
               ) : (
                 <div className="space-y-4">
                   {items.map((item, idx) => (
-                    <Card key={item.id} className="border-gray-200/60 dark:border-gray-800/60 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group bg-white/90 dark:bg-gray-950/50 backdrop-blur-sm mt-4">
+                    <Card key={item.id} className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden group bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl mt-6">
                       <CardContent className="p-0">
-                        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
+                        <div className="flex flex-col divide-y divide-gray-100/50 dark:divide-gray-800/50">
                           {/* 1. Header: Product Selection */}
-                          <div className="p-5 bg-gray-50/50 dark:bg-gray-900/20 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-primary/20">
+                          <div className="p-6 bg-gray-50/30 dark:bg-gray-900/10 flex items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-white shadow-lg shadow-primary/30 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                                 {idx + 1}
                               </div>
-                              <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">Pilih Produk</span>
-                                <span className="text-xs font-bold text-muted-foreground truncate max-w-[200px]">
+                              <div className="flex flex-col min-w-[120px]">
+                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] leading-none mb-1.5 flex items-center gap-2">
+                                  <Package className="h-3 w-3" /> SKU SELECTION
+                                </span>
+                                <span className="text-sm font-black text-foreground truncate max-w-[200px] tracking-tight">
                                   {item.productName || "Belum dipilih"}
                                 </span>
                               </div>
                             </div>
   
-                            <div className="flex-1 max-w-md">
+                            <div className="flex-1 max-w-lg">
                               <Combobox 
                                 value={item.productId || ""} 
                                 onValueChange={(val) => updateItem(item.id, { productId: val ?? "" })}
                               >
-                                <ComboboxTrigger className="h-12 font-bold bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl px-4 shadow-sm hover:border-primary/30 transition-all text-left">
+                                <ComboboxTrigger className="h-14 font-black bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left group/trigger">
                                   {item.productId ? (
                                     <div className="flex flex-col items-start truncate">
-                                      <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none mb-0.5">
+                                      <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.15em] leading-none mb-1">
                                         {item.brandName || "Tanpa Brand"}
                                       </span>
-                                      <span className="text-sm truncate w-full">
+                                      <span className="text-sm truncate w-full tracking-tight">
                                         {item.productName}
                                       </span>
                                     </div>
                                   ) : (
-                                    <span className="text-muted-foreground text-sm">Cari barang...</span>
+                                    <span className="text-muted-foreground/60 text-sm font-medium italic">Cari barang by Nama/Brand...</span>
                                   )}
                                 </ComboboxTrigger>
-                                <ComboboxContent align="start" className="w-(--anchor-width) min-w-[320px] p-2 rounded-xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
-                                  <ComboboxInput placeholder="Cari barang atau brand..." className="h-10 px-3 bg-gray-50 dark:bg-gray-900 rounded-lg mb-2 border-none focus:ring-0" />
-                                  <ComboboxEmpty className="py-10 text-xs font-bold text-muted-foreground uppercase tracking-widest">Barang tidak ditemukan.</ComboboxEmpty>
-                                  <ComboboxList className="space-y-1 max-h-60 overflow-y-auto pr-1">
+                                <ComboboxContent align="start" className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90">
+                                  <ComboboxInput placeholder="Tulis nama barang..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
+                                  <ComboboxEmpty className="py-12 text-center">
+                                    <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SKU tidak ditemukan</p>
+                                  </ComboboxEmpty>
+                                  <ComboboxList className="space-y-1 max-h-72 overflow-y-auto pr-1">
                                     {products.map(p => (
                                       <ComboboxItem 
                                         key={p.id} 
                                         value={p.id} 
-                                        className="rounded-lg py-3 px-3 font-bold cursor-pointer hover:bg-primary/5"
+                                        className="rounded-xl py-3 px-4 font-black cursor-pointer hover:bg-primary/5 transition-colors"
                                       >
-                                        <div className="flex flex-col gap-0.5">
-                                          <span className="text-[10px] text-primary font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
-                                          <span className="text-sm">{p.name}</span>
-                                          <span className="text-[10px] text-muted-foreground/70 font-black uppercase tracking-wider">
-                                            Stock: {p.stockQty || 0} • Rp {(p.sellingPrice || 0).toLocaleString('id-ID')}
-                                          </span>
+                                        <div className="flex flex-col gap-1">
+                                          <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
+                                          <span className="text-sm tracking-tight">{p.name}</span>
+                                          <div className="flex items-center gap-3">
+                                            <span className="text-[9px] text-muted-foreground/50 font-black uppercase tracking-wider flex items-center gap-1">
+                                              <Layers className="h-2.5 w-2.5" /> Stock: {p.stockQty || 0}
+                                            </span>
+                                            <span className="text-[9px] text-emerald-600/70 font-black uppercase tracking-wider">
+                                              Rp {(p.sellingPrice || 0).toLocaleString('id-ID')}
+                                            </span>
+                                          </div>
                                         </div>
                                       </ComboboxItem>
                                     ))}
@@ -461,109 +474,114 @@ export default function PurchasesPage() {
                               </Combobox>
                             </div>
   
-                            <button type="button" onClick={() => removeItem(item.id)} className="p-2 text-muted-foreground/30 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                            <button type="button" onClick={() => removeItem(item.id)} className="h-12 w-12 flex items-center justify-center text-muted-foreground/20 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl">
                               <Trash2 className="h-5 w-5" />
                             </button>
                           </div>
   
                           {/* 2. Primary Inputs: Label, Qty, Cost, Sell Price */}
-                          <div className="p-6 flex flex-wrap gap-4 items-end">
-                            <div className="flex-1 min-w-[100px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Label</label>
-                              <select 
-                                value={item.variantLabel || "bal"}
-                                onChange={(e) => updateItem(item.id, { variantLabel: e.target.value })}
-                                className="w-full h-11 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20"
-                              >
-                                <option value="bal">BAL (Default)</option>
-                                <option value="ES3">ES3</option>
-                                <option value="ES4">ES4</option>
-                                <option value="250gr">250gr</option>
-                                <option value="500gr">500gr</option>
-                                <option value="1kg">1kg</option>
-                              </select>
+                          <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-end">
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Label Satuan</label>
+                              <div className="relative group/select">
+                                <select 
+                                  value={item.variantLabel || "bal"}
+                                  onChange={(e) => updateItem(item.id, { variantLabel: e.target.value })}
+                                  className="w-full h-14 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 appearance-none focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer"
+                                >
+                                  <option value="bal">BAL (Default)</option>
+                                  <option value="ES3">ES3</option>
+                                  <option value="ES4">ES4</option>
+                                  <option value="250gr">250gr</option>
+                                  <option value="500gr">500gr</option>
+                                  <option value="1kg">1kg</option>
+                                </select>
+                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 rotate-90 pointer-events-none transition-transform group-focus-within/select:rotate-0" />
+                              </div>
                             </div>
                             
-                            <div className="w-24 space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Qty</label>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Kuantitas</label>
                               <Input 
                                 type="number" 
                                 min="1" 
                                 value={item.qty || ""}
                                 onChange={(e) => updateItem(item.id, { qty: Number(e.target.value) })}
-                                className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl px-4"
+                                className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
                                 required
                               />
                             </div>
                             
-                            <div className="flex-1 min-w-[150px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Total Dari Supplier</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Total Biaya (Supplier)</label>
+                              <div className="relative group-within:scale-[1.02] transition-transform duration-300">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
                                 <Input 
                                   type="number" 
                                   min="0"
                                   value={item.totalCost || ""}
                                   onChange={(e) => updateItem(item.id, { totalCost: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl pl-9"
+                                  className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
                                   required
                                 />
                               </div>
                             </div>
   
-                            <div className="flex-1 min-w-[120px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Biaya Ekstra</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Biaya Ekstra Item</label>
+                              <div className="relative group-within:scale-[1.02] transition-transform duration-300">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
                                 <Input 
                                   type="number" 
                                   min="0"
                                   value={item.extraCosts || ""}
                                   onChange={(e) => updateItem(item.id, { extraCosts: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl pl-9"
+                                  className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
                                   placeholder="0"
                                 />
                               </div>
                             </div>
   
-                            <div className="flex-1 min-w-[150px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-primary tracking-wider px-1">Harga Jual Baru</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-primary/50">Rp</span>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-1 flex items-center gap-1.5 focus-within:text-primary transition-colors">
+                                <TrendingUp className="h-3 w-3" /> Harga Jual Baru
+                              </label>
+                              <div className="relative group-within:scale-[1.05] transition-transform duration-500">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-primary/30 group-focus-within:text-primary/50 transition-colors">Rp</span>
                                 <Input 
                                   type="number" 
                                   min="0"
                                   value={item.sellingPrice || ""}
                                   onChange={(e) => updateItem(item.id, { sellingPrice: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30 text-primary rounded-xl pl-9 focus:ring-primary/20"
+                                  className="h-14 font-black text-xl bg-primary/[0.03] dark:bg-primary/[0.05] border-primary/20 dark:border-primary/30 text-primary rounded-2xl pl-11 pr-5 focus:ring-8 focus:ring-primary/5 shadow-lg shadow-primary/5 transition-all"
                                   required
                                 />
                               </div>
                             </div>
                           </div>
                           {/* 3. Footer: Intelligence & Stats */}
-                          <div className="p-4 bg-gray-50/30 dark:bg-gray-900/10 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                          <div className="p-6 bg-gray-50/50 dark:bg-gray-900/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
                             {/* Expired Date */}
-                            <div className="space-y-1.5 px-2">
-                               <label className="text-[9px] font-black uppercase text-muted-foreground tracking-[0.2em] flex items-center gap-1.5">
+                            <div className="space-y-2 px-1">
+                               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
                                  <AlertCircle className="h-3 w-3 text-orange-500" /> Kadaluwarsa
                                </label>
                                <Input 
                                  type="date" 
                                  value={item.expiredDate || ""}
                                  onChange={(e) => updateItem(item.id, { expiredDate: e.target.value })}
-                                 className="h-9 font-bold bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl"
+                                 className="h-11 font-black bg-white/80 dark:bg-gray-950/80 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm px-4 focus:ring-4 focus:ring-orange-500/5 transition-all overflow-hidden"
                                />
                             </div>
   
                             {/* Unit Cost Stat */}
-                            <div className="bg-white/50 dark:bg-gray-950/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center text-center">
-                               <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">HPP Item Ini</span>
+                            <div className="bg-white dark:bg-gray-900/80 p-4 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm flex flex-col items-center text-center group/stat hover:border-primary/20 transition-all">
+                               <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-1.5 leading-none">Net Unit Cost</span>
                                <div className="flex items-baseline gap-2">
-                                 <span className="text-sm font-black text-foreground">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
+                                 <span className="text-base font-black text-foreground tracking-tight">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
                                  {item.priceChange !== 0 && (
-                                   <span className={cn("text-[10px] font-black flex items-center gap-0.5", 
-                                     item.priceChange > 0 ? "text-red-500" : "text-green-500")}>
+                                   <span className={cn("text-[10px] font-black flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg", 
+                                     item.priceChange > 0 ? "text-red-600 bg-red-50 dark:bg-red-950/20" : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20")}>
                                      {item.priceChange > 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
                                      {Math.abs(item.priceChange).toFixed(1)}%
                                    </span>
@@ -572,24 +590,24 @@ export default function PurchasesPage() {
                             </div>
   
                             {/* Margin Stat */}
-                            <div className="bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center">
-                               <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Margin Kotor</span>
+                            <div className="bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] p-4 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-emerald-500/[0.06] transition-all">
+                               <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-1.5 leading-none">Profit Margin %</span>
                                <div className="flex items-baseline gap-2">
-                                 <span className="text-sm font-black text-emerald-700 dark:text-emerald-300">{Math.round(item.marginPct)}%</span>
-                                 <span className="text-[10px] font-bold text-emerald-600/70">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
+                                 <span className="text-base font-black text-emerald-700 dark:text-emerald-300 tracking-tight">{Math.round(item.marginPct)}%</span>
+                                 <span className="text-[10px] font-bold text-emerald-600/50 italic leading-none">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
                                </div>
                             </div>
   
                             {/* HPP Preview (Weighted Average) */}
-                            <div className="bg-blue-500/5 dark:bg-blue-500/10 p-3 rounded-2xl border border-blue-500/20 shadow-sm flex flex-col items-center text-center">
-                               <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                 <ArrowRight className="h-2.5 w-2.5 text-blue-500" /> Estimasi HPP Baru
+                            <div className="bg-primary/[0.03] dark:bg-primary/[0.05] p-4 rounded-2xl border border-primary/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-primary/[0.06] transition-all">
+                               <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-1.5 leading-none flex items-center gap-1.5">
+                                 <ArrowRight className="h-3 w-3 animate-pulse" /> New HPP Est.
                                </span>
                                <div className="flex flex-col items-center">
-                                 <span className="text-sm font-black text-blue-700 dark:text-blue-300">
+                                 <span className="text-base font-black text-primary tracking-tight">
                                    Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}
                                  </span>
-                                 <span className="text-[8px] font-bold text-blue-600/50 uppercase tracking-tighter">Preview hpp gudang</span>
+                                 <span className="text-[8px] font-black text-primary/40 uppercase tracking-widest leading-none mt-1">Weighted Warehouse Avg</span>
                                </div>
                             </div>
                           </div>
@@ -602,51 +620,56 @@ export default function PurchasesPage() {
             </div>
           </div>
   
-          <div className="lg:sticky lg:top-8 h-fit space-y-6">
-            <Card className="border-none bg-primary/5 dark:bg-primary/900/10 backdrop-blur-xl shadow-2xl shadow-primary/10 rounded-3xl overflow-hidden">
-              <CardHeader className="pb-4 pt-8 px-8">
-                <CardTitle className="text-sm font-black flex items-center gap-2 text-primary uppercase tracking-[0.2em]">
+          <div className="lg:sticky lg:top-8 h-fit space-y-8">
+            <Card className="border-none bg-primary/[0.03] dark:bg-primary/[0.05] backdrop-blur-2xl shadow-2xl shadow-primary/5 rounded-3xl overflow-hidden">
+              <CardHeader className="pb-4 pt-10 px-10">
+                <CardTitle className="text-[11px] font-black flex items-center gap-2.5 text-primary uppercase tracking-[0.3em] opacity-70">
                   <Calculator className="h-4 w-4" />
                   Purchase Intelligence
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-8 p-8 pt-0">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total Pembelian</p>
-                  <p className="text-4xl font-black text-foreground tracking-tighter">
-                    <span className="text-lg mr-1 text-primary">Rp</span>
+              <CardContent className="space-y-10 p-10 pt-0">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] px-1">Total Pembelian</p>
+                  <p className="text-5xl font-black text-foreground tracking-tighter flex items-baseline gap-2 italic">
+                    <span className="text-xl text-primary not-italic">Rp</span>
                     {totalPurchase.toLocaleString('id-ID')}
                   </p>
                 </div>
   
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between border-b border-primary/10 pb-3">
-                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Dampak ke HPP & Margin</h4>
-                    <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b border-primary/10 pb-4">
+                    <h4 className="text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">HPP & Margin Impact</h4>
+                    <Sparkles className="h-3 w-3 text-primary animate-pulse" />
                   </div>
                   {items.length === 0 ? (
-                    <div className="py-8 text-center bg-white/50 dark:bg-black/20 rounded-2xl border border-dashed border-primary/10">
-                      <p className="text-xs text-muted-foreground italic font-medium px-4 leading-relaxed">Masukkan item untuk melihat analisis dampak harga...</p>
+                    <div className="py-12 text-center bg-white/40 dark:bg-black/20 rounded-3xl border border-dashed border-primary/10">
+                      <p className="text-xs text-muted-foreground/50 italic font-bold px-6 leading-relaxed">Masukkan item untuk melihat analisis dampak harga...</p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       {items.filter(i => i.productId).map(item => (
-                        <div key={item.id} className="group/item space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-foreground/80 truncate max-w-[140px] uppercase tracking-tighter">{item.productName}</span>
-                            <span className="text-[9px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded italic">HPP PREVIEW</span>
-                          </div>
-                          <div className="p-3 bg-white/60 dark:bg-gray-900/60 rounded-2xl border border-primary/5 group-hover/item:border-primary/20 transition-all flex items-center justify-between shadow-sm">
-                            <div>
-                              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-0.5">HPP Baru (Est)</p>
-                              <p className="text-sm font-black text-foreground">Rp {Math.round((item.lastCost + item.unitCost) / 2).toLocaleString('id-ID')}</p>
+                        <div key={item.id} className="group/item space-y-2.5">
+                          <div className="flex items-center justify-between px-1">
+                            <span className="text-[10px] font-black text-foreground truncate max-w-[160px] uppercase tracking-tight">{item.productName}</span>
+                            <div className={cn("text-[9px] font-black px-2 py-0.5 rounded-lg border", 
+                              item.priceChange > 0 ? "bg-red-50 text-red-600 border-red-100 dark:bg-red-950/20 dark:border-red-900/30" : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-900/30")}>
+                               {item.priceChange > 0 ? "COST UP" : "COST DOWN"}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover/item:translate-x-1 transition-transform" />
+                          </div>
+                          <div className="p-4 bg-white/80 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-800 group-hover/item:border-primary/30 transition-all flex items-center justify-between shadow-sm group-hover/item:shadow-md">
+                            <div>
+                               <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mb-1 leading-none">Estimate HPP</p>
+                               <p className="text-base font-black text-foreground tracking-tight">Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}</p>
+                            </div>
                             <div className="text-right">
-                              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider mb-0.5">Impact</p>
-                              <p className={cn("text-[10px] font-black px-2 py-0.5 rounded-full inline-block", item.priceChange > 0 ? "bg-red-50 text-red-600 dark:bg-red-950/30" : "bg-green-50 text-green-600 dark:bg-green-950/30")}>
-                                 {item.priceChange > 0 ? "Margin ↓" : "Margin ↑"}
-                              </p>
+                               <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mb-1 leading-none">Net Impact</p>
+                               <div className="flex items-center gap-1.5 justify-end">
+                                 {item.priceChange > 0 ? <TrendingUp className="h-3 w-3 text-red-500" /> : <TrendingDown className="h-3 w-3 text-emerald-500" />}
+                                 <span className={cn("text-xs font-black", item.priceChange > 0 ? "text-red-600" : "text-emerald-600")}>
+                                   {Math.abs(item.priceChange).toFixed(1)}%
+                                 </span>
+                               </div>
                             </div>
                           </div>
                         </div>
@@ -657,24 +680,24 @@ export default function PurchasesPage() {
   
                 <Button 
                   type="button" 
-                  className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0 transition-all bg-primary text-primary-foreground"
+                  className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 active:translate-y-0 transition-all bg-primary text-primary-foreground focus:ring-8 focus:ring-primary/5"
                   disabled={isSubmitting || items.length === 0 || !supplier}
                   onClick={() => triggerConfirm(status)}
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
+                    <div className="flex items-center gap-3">
+                      <div className="h-4 w-4 border-[3px] border-white/30 border-t-white rounded-full animate-spin" />
+                      Processing
                     </div>
                   ) : (
                     status === 'COMPLETED' ? (
                       <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4" />
+                        <Check className="h-5 w-5" />
                         Confirm Purchase
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <Receipt className="h-4 w-4" />
+                        <ShoppingBag className="h-5 w-5" />
                         Save as Draft
                       </div>
                     )
@@ -683,19 +706,24 @@ export default function PurchasesPage() {
               </CardContent>
             </Card>
   
-            <div className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-3xl border border-amber-100 dark:border-amber-900/30 text-amber-800 dark:text-amber-200 space-y-3 shadow-lg shadow-amber-900/5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" /> Tips Kulakan
+            <div className="p-8 bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/10 rounded-3xl border border-amber-200/50 dark:border-amber-900/30 text-amber-900 dark:text-amber-200 space-y-4 shadow-xl shadow-amber-900/5 backdrop-blur-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Sparkles className="h-12 w-12 text-amber-600" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 text-amber-600/70">
+                <AlertTriangle className="h-4 w-4 text-amber-500" /> Tips Kulakan
               </p>
-              <p className="text-[11px] leading-relaxed font-bold opacity-80 uppercase tracking-tight"> Jika harga unit naik lebih dari 10%, sistem merekomendasikan untuk menghitung ulang harga jual agar margin tetap sehat (&gt;30%).</p>
+              <p className="text-[12px] leading-relaxed font-black uppercase tracking-tight opacity-90">
+                Jika harga unit naik &gt;10%, segera sesuaikan harga jual untuk menjaga margin &gt;30%.
+              </p>
             </div>
           </div>
         </form>
 
-        <div id="history" className="mt-20 pt-16 border-t border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-8 w-1.5 bg-primary rounded-full" />
-            <h3 className="text-2xl font-black text-foreground tracking-tight uppercase tracking-widest">Riwayat Pembelian</h3>
+        <div id="history" className="mt-28 pt-20 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="h-10 w-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
+            <h3 className="text-3xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/40 bg-clip-text text-transparent">Riwayat Pembelian</h3>
           </div>
           <PurchaseHistory />
         </div>

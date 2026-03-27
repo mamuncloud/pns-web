@@ -71,9 +71,8 @@ export function PurchaseHistory() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Riwayat Pembelian</h2>
-        <Badge variant="outline" className="px-3 py-1 font-medium bg-white/50 backdrop-blur-sm">
+      <div className="flex items-center justify-end">
+        <Badge variant="outline" className="px-3 py-1 font-black text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20 backdrop-blur-sm">
           Total: {purchases.length} Transaksi
         </Badge>
       </div>
