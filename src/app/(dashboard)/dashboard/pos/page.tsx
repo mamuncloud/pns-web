@@ -22,7 +22,8 @@ import {
   Banknote,
   Percent
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getProductImageUrl } from "@/lib/utils";
+import Image from "next/image";
 
 interface CartItem extends Product {
   quantity: number;
@@ -166,7 +167,14 @@ export default function POSPage() {
                 >
                   <CardContent className="p-4 space-y-4">
                     <div className="aspect-square bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors border border-gray-100 dark:border-gray-800/50">
-                       <span className="text-4xl">🍿</span>
+                       <Image
+                         src={p.imageUrl || getProductImageUrl(null)}
+                         alt={p.name}
+                         fill
+                         className="object-cover"
+                         sizes="(max-width: 768px) 50vw, 25vw"
+                         unoptimized
+                       />
                        {p.margin && p.margin > 40 && (
                          <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none shadow-sm">High Margin</Badge>
                        )}
@@ -205,7 +213,16 @@ export default function POSPage() {
           ) : (
             cart.map((item) => (
               <div key={item.id} className="flex gap-3 group animate-in slide-in-from-right duration-300">
-                <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-lg">🍟</div>
+                <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-lg overflow-hidden relative">
+                  <Image
+                    src={item.imageUrl || getProductImageUrl(null)}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                    unoptimized
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-foreground truncate">{item.name}</p>
                   <div className="flex items-center gap-2 mt-1">
