@@ -20,6 +20,7 @@ import { ImagePlus, Loader2, Plus, Star, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import NextImage from "next/image";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Brand {
   id: string;
@@ -34,13 +35,15 @@ interface ProductCreateFormProps {
 export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProps) {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState(true);
+  const [isCreatingBrand, setIsCreatingBrand] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [brandId, setBrandId] = useState("");
+  const [brandId, setBrandId] = useState<string | null>(null);
+  const [brandSearch, setBrandSearch] = useState("");
   const [tastes, setTastes] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
   const [variants, setVariants] = useState<{ label: string; price: number; sku?: string }[]>([]);
@@ -59,7 +62,29 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
     fetchBrands();
   }, []);
 
-  
+  const handleCreateBrand = async (brandName: string) => {
+    if (!brandName.trim()) return;
+    
+    setIsCreatingBrand(true);
+    try {
+      const response = await api.products.createBrand(brandName.trim());
+      const newBrand = response.data;
+      
+      // Update local brands list
+      setBrands((prev) => [...prev, newBrand].sort((a, b) => a.name.localeCompare(b.name)));
+      
+      // Select the new brand
+      setBrandId(newBrand.id);
+      
+      toast.success(`Brand "${newBrand.name}" berhasil dibuat`);
+      setBrandSearch("");
+    } catch (err) {
+      console.error("Failed to create brand", err);
+      toast.error("Gagal membuat brand baru. Silakan coba lagi.");
+    } finally {
+      setIsCreatingBrand(false);
+    }
+  };
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -198,7 +223,9 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
           <Label htmlFor="brand">Brand <span className="text-destructive">*</span></Label>
           <Combobox
             value={brandId}
-            onValueChange={(val: string | null) => setBrandId(val || "")}
+            onValueChange={setBrandId}
+            inputValue={brandSearch}
+            onInputValueChange={setBrandSearch}
             itemToStringLabel={(id: string) => brands.find(b => b.id === id)?.name || ""}
             disabled={isSubmitting || isLoadingBrands}
           >
@@ -209,16 +236,47 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
               />
             </ComboboxTrigger>
             <ComboboxContent>
-              {brands.length === 0 ? (
-                <ComboboxEmpty>Brand tidak ditemukan.</ComboboxEmpty>
+              {brands.length === 0 && !isLoadingBrands ? (
+                <div className="p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-3">Belum ada brand terdaftar.</p>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full text-[10px] font-bold uppercase tracking-widest gap-2"
+                    onClick={() => handleCreateBrand(brandSearch)}
+                    disabled={isCreatingBrand || !brandSearch.trim()}
+                  >
+                    {isCreatingBrand ? <Loader2 className="size-3 animate-spin"/> : <Plus className="size-3"/>}
+                    Tambah Brand &quot;{brandSearch || 'Baru'}&quot;
+                  </Button>
+                </div>
               ) : (
-                <ComboboxList className="max-h-60 overflow-y-auto p-1 space-y-0.5">
-                  {brands.map((brand) => (
-                    <ComboboxItem key={brand.id} value={brand.id} className="rounded-lg py-2 px-3 text-sm font-medium cursor-pointer hover:bg-primary/5">
-                      {brand.name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxList>
+                <>
+                  <ComboboxList className="max-h-60 overflow-y-auto p-1 space-y-0.5">
+                    {brands.map((brand) => (
+                      <ComboboxItem key={brand.id} value={brand.id} className="rounded-lg py-2 px-3 text-sm font-medium cursor-pointer hover:bg-primary/5">
+                        {brand.name}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxList>
+                  <ComboboxEmpty className="p-0 border-t border-gray-100 dark:border-gray-800">
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-muted-foreground mb-3">Brand &quot;{brandSearch}&quot; tidak ditemukan.</p>
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline"
+                        className="w-full text-[10px] font-bold uppercase tracking-widest gap-2"
+                        onClick={() => handleCreateBrand(brandSearch)}
+                        disabled={isCreatingBrand || !brandSearch.trim()}
+                      >
+                        {isCreatingBrand ? <Loader2 className="size-3 animate-spin"/> : <Plus className="size-3"/>}
+                        Tambah Brand &quot;{brandSearch}&quot;
+                      </Button>
+                    </div>
+                  </ComboboxEmpty>
+                </>
               )}
             </ComboboxContent>
           </Combobox>

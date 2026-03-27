@@ -79,6 +79,7 @@ export const api = {
   products: {
     getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),
     getBrands: () => api.get<Brand[]>('/products/brands'),
+    createBrand: (name: string) => api.post<Brand>('/products/brands', { name }),
     create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
   },
 
