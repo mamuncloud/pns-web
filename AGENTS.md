@@ -44,3 +44,66 @@ As a Software Architect, the following rules have been established for this proj
 - **Rich Aesthetics:** Ensure high-quality, modern, and rich designs natively. The application should look premium, leveraging modern web design aesthetics.
 - **Warning on Deprecated APIs:** Since this is Next.js 16+, be extremely cautious about deprecated legacy APIs (like old Middleware conventions). Check Node modules or official docs if unsure.
 - **Clean up after completion:** Every time you finish developing a feature or modifying code, you MUST remove any unused files, unused variables, and dead code to maintain a clean codebase.
+
+## 6. Commit Message Rules
+
+All commit messages **MUST** follow the [Conventional Commits](https://www.conventionalcommits.org/) specification with a **mandatory scope**.
+
+### Format
+```
+<type>(<scope>): <short description>
+
+[optional body]
+
+[optional footer]
+```
+
+### Types
+| Type | Usage |
+|------|-------|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `style` | Formatting, missing semicolons, etc. (no logic change) |
+| `chore` | Maintenance tasks, dependency updates, config changes |
+| `docs` | Documentation changes only |
+| `perf` | Performance improvements |
+| `test` | Adding or updating tests |
+| `revert` | Reverting a previous commit |
+
+### Scopes
+Use one of the following scopes that reflects the area of the codebase changed:
+
+| Scope | Directory / Area |
+|-------|-----------------|
+| `app` | `src/app/` — routing, layouts, pages |
+| `auth` | Authentication flow (`src/app/(auth)/`) |
+| `dashboard` | Dashboard module (`src/app/(dashboard)/`) |
+| `products` | Products feature |
+| `purchases` | Purchases / Kemitraan Supplier feature |
+| `pos` | Point of Sale module |
+| `store` | Store settings / store status |
+| `ui` | `src/components/ui/` — atomic UI primitives (shadcn) |
+| `components` | `src/components/` — domain-specific components |
+| `lib` | `src/lib/` — utilities and shared logic |
+| `hooks` | `src/hooks/` — custom React hooks |
+| `api` | API client utilities or route handlers |
+| `config` | Project configuration files (Next.js, Tailwind, TS, etc.) |
+| `deps` | Dependency updates (`package.json`, `bun.lock`) |
+
+### Examples
+```
+feat(store): add store open/closed toggle in dashboard header
+fix(purchases): resolve product not found on deleted purchase navigation
+refactor(ui): extract ComboBox into reusable atomic component
+chore(deps): upgrade next to 16.2.0
+docs(config): update AGENTS.md with commit message rules
+style(dashboard): apply consistent card shadow utility classes
+```
+
+### Rules
+- The **scope is mandatory** — never omit it.
+- The `<short description>` must be **lowercase** and **imperative mood** (e.g., "add", "fix", "update").
+- Keep the subject line under **72 characters**.
+- Do not end the subject line with a period.
+- Use the body to explain *why*, not *what*, if additional context is needed.
