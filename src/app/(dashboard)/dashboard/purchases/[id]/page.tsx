@@ -470,8 +470,23 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
             <div className="space-y-4">
               <div className="flex items-center justify-between px-2">
                 <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground">Daftar Barang</h3>
-                <Button type="button" onClick={addEditItem} size="sm" className="h-8 font-bold gap-1 px-3">
-                  <Plus className="h-3.5 w-3.5" /> Tambah Item
+                <Button 
+                  type="button" 
+                  onClick={addEditItem} 
+                  className="group relative h-12 px-6 overflow-hidden rounded-2xl bg-primary font-black uppercase tracking-widest text-[10px] italic transition-all duration-500 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] border border-white/10 text-primary-foreground"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="relative flex items-center gap-2">
+                    <div className="relative flex items-center justify-center">
+                      <Plus className="h-4 w-4 transition-all duration-500 group-hover:rotate-90 group-hover:scale-110" />
+                      <div className="absolute -top-1 -right-1 h-1.5 w-1.5 bg-primary-foreground rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 delay-100 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                    </div>
+                    <span className="relative">
+                      Tambah Item
+                      <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-foreground/30 transition-all duration-500 group-hover:w-full" />
+                    </span>
+                  </div>
                 </Button>
               </div>
 
