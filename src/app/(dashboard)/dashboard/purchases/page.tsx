@@ -27,12 +27,13 @@ import {
 import { PurchaseHistory } from "@/components/dashboard/purchases/PurchaseHistory";
 import { cn } from "@/lib/utils";
 import { 
-  Combobox, 
-  ComboboxTrigger, 
-  ComboboxInput, 
+  Combobox,
+  ComboboxTrigger,
+  ComboboxInput,
   ComboboxContent, 
   ComboboxItem, 
-  ComboboxEmpty 
+  ComboboxEmpty,
+  ComboboxList
 } from "@/components/ui/combobox";
 
 interface PurchaseItem {
@@ -252,7 +253,7 @@ export default function PurchasesPage() {
                           placeholder="Cari supplier..." 
                           className="h-10 px-3 bg-gray-50 dark:bg-gray-900 rounded-lg mb-2 border-none focus:ring-0"
                         />
-                        <div className="max-h-[300px] overflow-y-auto space-y-1">
+                        <ComboboxList className="max-h-[300px] overflow-y-auto space-y-1">
                           {suppliers.map((s) => (
                             <ComboboxItem 
                               key={s.id} 
@@ -271,7 +272,7 @@ export default function PurchasesPage() {
                               Supplier tidak ditemukan
                             </ComboboxEmpty>
                           )}
-                        </div>
+                        </ComboboxList>
                       </ComboboxContent>
                     </Combobox>
                   </div>
@@ -401,9 +402,13 @@ export default function PurchasesPage() {
                                 <ComboboxContent align="start" className="w-(--anchor-width) min-w-[320px] p-2 rounded-xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
                                   <ComboboxInput placeholder="Cari barang atau brand..." className="h-10 px-3 bg-gray-50 dark:bg-gray-900 rounded-lg mb-2 border-none focus:ring-0" />
                                   <ComboboxEmpty className="py-10 text-xs font-bold text-muted-foreground uppercase tracking-widest">Barang tidak ditemukan.</ComboboxEmpty>
-                                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
+                                  <ComboboxList className="space-y-1 max-h-60 overflow-y-auto pr-1">
                                     {products.map(p => (
-                                      <ComboboxItem key={p.id} value={p.id} className="rounded-lg py-3 px-3 font-bold cursor-pointer hover:bg-primary/5">
+                                      <ComboboxItem 
+                                        key={p.id} 
+                                        value={p.id} 
+                                        className="rounded-lg py-3 px-3 font-bold cursor-pointer hover:bg-primary/5"
+                                      >
                                         <div className="flex flex-col gap-0.5">
                                           <span className="text-[10px] text-primary font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
                                           <span className="text-sm">{p.name}</span>
@@ -413,7 +418,7 @@ export default function PurchasesPage() {
                                         </div>
                                       </ComboboxItem>
                                     ))}
-                                  </div>
+                                  </ComboboxList>
                                 </ComboboxContent>
                               </Combobox>
                             </div>

@@ -65,14 +65,12 @@ function ComboboxContent({
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
           className={cn(
-            "relative z-50 max-h-60 w-(--anchor-width) min-w-32 overflow-hidden rounded-md bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative z-50 w-(--anchor-width) min-w-32 overflow-hidden rounded-md bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className
           )}
           {...props}
         >
-          <ComboboxPrimitive.List className="p-1">
-            {children}
-          </ComboboxPrimitive.List>
+          {children}
         </ComboboxPrimitive.Popup>
       </ComboboxPrimitive.Positioner>
     </ComboboxPrimitive.Portal>
@@ -114,6 +112,15 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
   )
 }
 
+function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+  return (
+    <ComboboxPrimitive.List
+      className={cn("p-1 outline-none", className)}
+      {...props}
+    />
+  )
+}
+
 export {
   Combobox,
   ComboboxTrigger,
@@ -121,4 +128,5 @@ export {
   ComboboxContent,
   ComboboxItem,
   ComboboxEmpty,
+  ComboboxList,
 }

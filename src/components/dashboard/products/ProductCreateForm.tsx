@@ -14,6 +14,7 @@ import {
   ComboboxTrigger,
   ComboboxInput,
   ComboboxEmpty,
+  ComboboxList
 } from "@/components/ui/combobox";
 import { ImagePlus, Loader2, Plus, Star, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -211,11 +212,13 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
               {brands.length === 0 ? (
                 <ComboboxEmpty>Brand tidak ditemukan.</ComboboxEmpty>
               ) : (
-                brands.map((brand) => (
-                  <ComboboxItem key={brand.id} value={brand.id}>
-                    {brand.name}
-                  </ComboboxItem>
-                ))
+                <ComboboxList className="max-h-60 overflow-y-auto p-1 space-y-0.5">
+                  {brands.map((brand) => (
+                    <ComboboxItem key={brand.id} value={brand.id} className="rounded-lg py-2 px-3 text-sm font-medium cursor-pointer hover:bg-primary/5">
+                      {brand.name}
+                    </ComboboxItem>
+                  ))}
+                </ComboboxList>
               )}
             </ComboboxContent>
           </Combobox>
