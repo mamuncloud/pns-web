@@ -266,11 +266,36 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
+  const deletePurchaseAction = async () => {
+    setActionLoading(true);
+    try {
+      const response = await api.purchases.delete(id);
+      if (response.success) {
+        toast.success("Pembelian berhasil dihapus!");
+        router.push("/dashboard/purchases");
+      }
+    } catch (error) {
+      console.error("Failed to delete purchase:", error);
+      toast.error("Gagal menghapus pembelian.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleConfirm = () => {
     setConfirmConfig({
       title: "Konfirmasi Pembelian",
       description: "Stok akan ditambahkan ke inventori. Lanjutkan?",
       onConfirm: confirmPurchaseAction
+    });
+    setIsConfirmOpen(true);
+  };
+
+  const handleDelete = () => {
+    setConfirmConfig({
+      title: "Hapus Pembelian",
+      description: "Draft pembelian ini akan dihapus secara permanen. Lanjutkan?",
+      onConfirm: deletePurchaseAction
     });
     setIsConfirmOpen(true);
   };
@@ -783,7 +808,16 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
               <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400/70">Stok belum masuk ke inventori</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <Button
+              onClick={handleDelete}
+              disabled={actionLoading}
+              variant="outline"
+              className="flex-1 sm:flex-none rounded-xl font-bold border-2 border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 transition-all"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Hapus
+            </Button>
             <Button
               onClick={() => setIsEditing(true)}
               variant="outline"

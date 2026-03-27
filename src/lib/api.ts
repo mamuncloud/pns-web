@@ -97,6 +97,7 @@ export const api = {
     get: (id: string) => api.get<Purchase>(`/purchases/${id}`),
     create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
     update: (id: string, data: Partial<CreatePurchaseDto>) => api.put<Purchase>(`/purchases/${id}`, data),
+    delete: (id: string) => api.delete<{ message: string }>(`/purchases/${id}`),
   },
   
   storage: {
