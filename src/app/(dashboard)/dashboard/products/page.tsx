@@ -113,7 +113,12 @@ export default function DashboardProductsPage() {
                             )}
                           </div>
                           <div className="space-y-1">
-                            <p className="text-base font-black text-foreground tracking-tight group-hover/item:text-primary transition-colors">{product.name}</p>
+                            {product.brand && (
+                              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-primary/70 leading-none mb-0.5">
+                                {product.brand.name}
+                              </p>
+                            )}
+                            <p className="text-base font-black text-foreground tracking-tight group-hover/item:text-primary transition-colors leading-tight">{product.name}</p>
                             <div className="flex flex-wrap gap-1.5">
                               {product.taste.map(t => (
                                 <span key={t} className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-muted-foreground border border-gray-200/50 dark:border-gray-700/50">
