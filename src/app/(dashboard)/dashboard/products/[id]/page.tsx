@@ -10,7 +10,11 @@ import {
   ArrowLeft, 
   TrendingUp, 
   Lightbulb,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Package,
+  Layers,
+  Tag,
+  Plus
 } from "lucide-react";
 import Link from "next/link";
 import { cn, getProductImageUrl, formatCurrency } from "@/lib/utils";
@@ -67,18 +71,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         </Link>
         <div className="flex flex-col">
           <div className="flex items-center gap-2 mb-1">
-             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-md">
+             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-black text-[10px] uppercase tracking-[0.25em] px-3 py-1 rounded-xl shadow-sm">
                {product.brand?.name || "No Brand"}
              </Badge>
-             <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
-               ID: {product.id.split('-')[0]}...
+             <span className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">
+               • ID: {product.id.split('-')[0]}
              </span>
           </div>
-          <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic">{product.name}</h2>
-          <div className="flex items-center gap-2 mt-1">
-             <div className="flex gap-2">
+          <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/40 bg-clip-text text-transparent leading-[0.9]">
+            {product.name}
+          </h2>
+          <div className="flex items-center gap-3 mt-3">
+             <div className="flex flex-wrap gap-2">
                {product.taste.map((t: EnumTaste, i: number) => (
-                 <span key={i} className="text-[10px] font-bold text-muted-foreground/60 uppercase">#{t}</span>
+                 <span key={i} className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">#{t}</span>
                ))}
              </div>
           </div>
@@ -90,58 +96,81 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <div className="lg:col-span-2 space-y-8">
 
           {/* Variants Table */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-3xl">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-white dark:from-gray-900/50 dark:to-transparent border-b border-gray-100 dark:border-gray-800 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-xl font-black uppercase tracking-tight">Varian Produk</CardTitle>
-                  <CardDescription className="text-[10px] font-bold uppercase tracking-widest opacity-60">Rincian stok dan harga jual.</CardDescription>
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-2xl overflow-hidden bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl rounded-[2.5rem] border-none shadow-gray-200/50 dark:shadow-none">
+            <CardHeader className="bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-900/50 dark:to-transparent border-b border-gray-100/50 dark:border-gray-800/50 p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-2xl font-black uppercase tracking-tighter italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Varian Produk</CardTitle>
+                  <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Rincian stok dan harga jual secara realtime.</CardDescription>
                 </div>
-                <Button className="rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Tambah Varian</Button>
+                <Button className="h-12 px-6 rounded-2xl font-black text-[11px] uppercase tracking-widest bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] border-none">
+                  <Plus className="h-4 w-4 mr-2 stroke-[3]" />
+                  Tambah Varian
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
+              <div className="overflow-x-auto min-h-[300px]">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-gray-50/50 dark:bg-gray-900/30">
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Packaging</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Qty Stok</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Harga Jual</th>
-                      <th className="px-6 py-4 text-right"></th>
+                    <tr className="bg-gray-50/30 dark:bg-gray-900/10 border-b border-gray-100/50 dark:border-gray-800/50">
+                      <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-3 w-3 text-primary/50" />
+                          Packaging
+                        </div>
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
+                        <div className="flex items-center gap-2">
+                          <Layers className="h-3 w-3 text-primary/50" />
+                          Qty Stok
+                        </div>
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-3 w-3 text-primary/50" />
+                          Harga Jual
+                        </div>
+                      </th>
+                      <th className="px-8 py-5"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
+                  <tbody className="divide-y divide-gray-50/50 dark:divide-gray-900/50">
                     {product.variants.map((v, idx: number) => (
-                      <tr key={idx} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
-                        <td className="px-6 py-5">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-black text-foreground uppercase tracking-tight">{v.package}</span>
-                            <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">SKU-PN-{v.package.toUpperCase()}</span>
+                      <tr key={idx} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-500 group">
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-base font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">{v.package}</span>
+                            <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                              <span className="h-1 w-1 rounded-full bg-primary/20" />
+                              SKU: PN-{v.package.toUpperCase()}
+                            </span>
                           </div>
                         </td>
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-2">
+                        <td className="px-8 py-6">
+                          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100/50 dark:border-gray-800/50 transition-all group-hover:border-primary/20">
                              <div className={cn(
-                               "h-2 w-2 rounded-full animate-pulse",
-                               (v.stock || 0) > 10 ? "bg-emerald-500" : (v.stock || 0) > 0 ? "bg-amber-500" : "bg-red-500"
+                               "h-2.5 w-2.5 rounded-full",
+                               (v.stock || 0) > 10 ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : (v.stock || 0) > 0 ? "bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.4)]" : "bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.4)]"
                              )} />
-                             <span className={cn(
-                               "text-lg font-black tracking-tight",
-                               (v.stock || 0) <= 5 ? "text-red-500" : "text-foreground"
-                             )}>{v.stock || 0}</span>
-                             <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">Unit</span>
+                             <div className="flex flex-col">
+                               <span className={cn(
+                                 "text-xl font-black tracking-tighter leading-none",
+                                 (v.stock || 0) <= 5 ? "text-red-500" : "text-foreground"
+                               )}>{v.stock || 0}</span>
+                               <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40">Qty Unit</span>
+                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-5">
-                          <div className="flex flex-col">
-                            <span className="text-lg font-black text-primary">{formatCurrency(v.price)}</span>
-                            <span className="text-[9px] font-bold text-muted-foreground/50 uppercase">Per {v.package}</span>
+                        <td className="px-8 py-6">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xl font-black text-foreground tracking-tighter bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{formatCurrency(v.price)}</span>
+                            <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest pl-0.5">Price Per {v.package}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-5 text-right">
-                          <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl px-4 transition-all group-hover:translate-x-[-4px]">
-                            Edit Harga
+                        <td className="px-8 py-6 text-right">
+                          <Button variant="outline" size="sm" className="h-9 px-5 rounded-xl font-black text-[10px] uppercase tracking-widest border-gray-100 dark:border-gray-800 text-muted-foreground/60 hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0">
+                            Edit
                           </Button>
                         </td>
                       </tr>
@@ -201,14 +230,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </Card>
 
           {/* Insight Panel */}
-          <Card className="border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-3xl flex flex-col">
-            <CardHeader className="border-b border-gray-100 dark:border-gray-800 p-6 bg-gray-50/30 dark:bg-gray-900/10">
-              <CardTitle className="text-sm font-black flex items-center gap-2 text-foreground uppercase tracking-[0.2em]">
-                <Lightbulb className="h-4 w-4 text-amber-500 animate-pulse" />
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-2xl overflow-hidden bg-white/70 dark:bg-gray-950/70 backdrop-blur-2xl rounded-[2.5rem] border-none">
+            <CardHeader className="border-b border-gray-100/50 dark:border-gray-800/50 p-8 bg-gray-50/20 dark:bg-gray-900/10">
+              <CardTitle className="text-[11px] font-black flex items-center gap-3 text-foreground uppercase tracking-[0.25em]">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                  <Lightbulb className="h-4 w-4 text-amber-500 animate-pulse" />
+                </div>
                 Informasi Produk
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-8 flex-grow">
+            <CardContent className="p-8 space-y-10 flex-grow">
               <div className="space-y-3">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
                    <TrendingUp className="h-3 w-3" /> Sumber Supplier
@@ -243,21 +274,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Quick Analytics */}
           <div className="grid grid-cols-1 gap-4">
-             <Card className="border-indigo-100 dark:border-indigo-900/30 shadow-xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 backdrop-blur-md rounded-3xl overflow-hidden relative group">
-                <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                   <TrendingUp className="h-16 w-16 text-indigo-500" />
+             <Card className="border-none shadow-2xl shadow-indigo-500/10 bg-gradient-to-br from-indigo-500 to-indigo-700 dark:from-indigo-600 dark:to-indigo-900 rounded-[2.5rem] overflow-hidden relative group">
+                <div className="absolute right-[-10%] top-[-10%] p-4 opacity-10 group-hover:scale-125 transition-transform duration-1000">
+                   <TrendingUp className="h-40 w-40 text-white" />
                 </div>
-                <CardContent className="p-6 flex items-center justify-between relative z-10">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-indigo-500/70 uppercase tracking-[0.2em]">Total Inventory</p>
-                    <p className="text-3xl font-black text-indigo-700 dark:text-indigo-300 tracking-tighter">
+                <CardContent className="p-10 flex flex-col justify-between relative z-10 min-h-[180px]">
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-indigo-100/60 uppercase tracking-[0.3em]">Stock Inventory</p>
+                    <p className="text-5xl font-black text-white tracking-tighter">
                       {product.stockQty?.toLocaleString('id-ID') || 0}
-                      <span className="text-xs ml-1 opacity-50 uppercase tracking-widest">Pcs</span>
+                      <span className="text-[10px] ml-2 opacity-60 uppercase tracking-widest font-black">Total Pcs</span>
                     </p>
                   </div>
-                  <Badge className="font-black text-[10px] uppercase tracking-widest bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 px-4 py-1.5 rounded-xl border-none">
-                    Inventory Status
-                  </Badge>
+                  <div className="mt-4">
+                    <Badge className="font-black text-[9px] uppercase tracking-[0.2em] bg-white/20 text-white backdrop-blur-md px-4 py-2 rounded-xl border-none shadow-xl">
+                      Live Inventory Status
+                    </Badge>
+                  </div>
                 </CardContent>
              </Card>
           </div>
