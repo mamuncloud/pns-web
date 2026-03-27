@@ -16,6 +16,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 interface DashboardHeaderProps {
   user: AuthUser | null;
@@ -25,7 +26,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isStoreOpen, setIsStoreOpen] = useState(true);
+  const { isStoreOpen, isLoading, toggleStoreStatus } = useStoreSettings();
 
   // Derive page title from pathname
   const getPageTitle = () => {
@@ -61,7 +62,8 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           </span>
           <Switch 
             checked={isStoreOpen} 
-            onChange={(e) => setIsStoreOpen(e.target.checked)} 
+            disabled={isLoading}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => toggleStoreStatus(e.target.checked)} 
           />
           <span className={cn(
             "text-[10px] font-black uppercase tracking-widest transition-colors",

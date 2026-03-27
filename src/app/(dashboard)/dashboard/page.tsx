@@ -38,10 +38,6 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Badge variant="outline" className="px-3 py-1 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            Store is Open
-          </Badge>
           <Badge variant="outline" className="px-3 py-1 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
             {new Date().toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </Badge>

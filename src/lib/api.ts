@@ -134,5 +134,10 @@ export const api = {
 
   suppliers: {
     list: () => api.get<Supplier[]>('/suppliers'),
+  },
+  
+  storeSettings: {
+    get: () => api.get<{ isStoreOpen: boolean }>('/store-settings'),
+    update: (isStoreOpen: boolean) => api.patch<{ isStoreOpen: boolean }>('/store-settings', { isStoreOpen }),
   }
 };
