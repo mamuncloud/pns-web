@@ -542,9 +542,6 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                         <div className="flex flex-col gap-0.5">
                                           <span className="text-[10px] text-primary font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
                                           <span className="text-sm">{p.name}</span>
-                                          <span className="text-[10px] text-muted-foreground/70 font-black uppercase tracking-wider">
-                                            Stock: {p.stockQty || 0} • Rp {(p.sellingPrice || 0).toLocaleString('id-ID')}
-                                          </span>
                                         </div>
                                       </ComboboxItem>
                                     ))}

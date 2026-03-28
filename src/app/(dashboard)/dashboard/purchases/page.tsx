@@ -489,14 +489,6 @@ export default function PurchasesPage() {
                                         <div className="flex flex-col gap-1">
                                           <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
                                           <span className="text-sm tracking-tight">{p.name}</span>
-                                          <div className="flex items-center gap-3">
-                                            <span className="text-[9px] text-muted-foreground/50 font-black uppercase tracking-wider flex items-center gap-1">
-                                              <Layers className="h-2.5 w-2.5" /> Stock: {p.stockQty || 0}
-                                            </span>
-                                            <span className="text-[9px] text-emerald-600/70 font-black uppercase tracking-wider">
-                                              Rp {(p.sellingPrice || 0).toLocaleString('id-ID')}
-                                            </span>
-                                          </div>
                                         </div>
                                       </ComboboxItem>
                                     ))}
