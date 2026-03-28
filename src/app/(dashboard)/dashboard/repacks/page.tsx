@@ -50,6 +50,7 @@ interface OutputRow {
   targetVariantLabel: VariantLabel | '';
   qtyProduced: number;
   sellingPrice: number;
+  sizeInGram: number;
 }
 
 function formatIDR(amount: number): string {
@@ -90,7 +91,11 @@ function RepackRow({ repack }: { repack: Repack }) {
   const [open, setOpen] = useState(false);
 
   const outputSummary = repack.items
-    .map((item) => `${item.targetVariantLabel} ×${item.qtyProduced}`)
+    .map((item) => {
+      const label = item.targetVariant?.label || item.targetVariantLabel || 'Unknown';
+      const size = item.sizeInGram ? ` (${item.sizeInGram}g)` : '';
+      return `${label}${size} ×${item.qtyProduced}`;
+    })
     .join(', ');
 
   return (
@@ -142,6 +147,7 @@ function RepackRow({ repack }: { repack: Repack }) {
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
                     <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Varian Output</th>
+                    <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Gramasi</th>
                     <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Qty Diproduksi</th>
                     <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Harga Jual / unit</th>
                     <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Total Nilai</th>
@@ -152,8 +158,11 @@ function RepackRow({ repack }: { repack: Repack }) {
                     <tr key={item.id} className="transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
                       <td className="px-5 py-3">
                         <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase">
-                          {item.targetVariantLabel}
+                          {item.targetVariant?.label || item.targetVariantLabel || 'Unknown'}
                         </Badge>
+                      </td>
+                      <td className="px-5 py-3 text-right font-medium text-muted-foreground">
+                        {item.sizeInGram ? `${item.sizeInGram} gr` : '—'}
                       </td>
                       <td className="px-5 py-3 text-right font-black text-foreground">{item.qtyProduced} pcs</td>
                       <td className="px-5 py-3 text-right font-medium text-muted-foreground">{formatIDR(item.sellingPrice)}</td>
@@ -196,7 +205,7 @@ function RepacksContent() {
   const [sourceQtyUsed, setSourceQtyUsed] = useState(1);
   const [note, setNote] = useState('');
   const [outputRows, setOutputRows] = useState<OutputRow[]>([
-    { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0 },
+    { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -268,7 +277,7 @@ function RepacksContent() {
   const addOutputRow = useCallback(() => {
     setOutputRows((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0 },
+      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
     ]);
   }, []);
 
@@ -291,7 +300,7 @@ function RepacksContent() {
     setSourceQtyUsed(1);
     setNote('');
     setOutputRows([
-      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0 },
+      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
     ]);
     setError(null);
   };
@@ -329,6 +338,7 @@ function RepacksContent() {
         targetVariantLabel: row.targetVariantLabel as string,
         qtyProduced: row.qtyProduced,
         sellingPrice: row.sellingPrice,
+        sizeInGram: row.sizeInGram > 0 ? row.sizeInGram : undefined,
       })),
     };
 
@@ -540,7 +550,7 @@ function RepacksContent() {
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 lg:gap-6">
                         <div className="space-y-2">
                           <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Label Varian</label>
                           <Combobox 
@@ -578,6 +588,23 @@ function RepacksContent() {
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
                               PCS
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Gram Output</label>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min={0}
+                              placeholder="0"
+                              value={row.sizeInGram || ''}
+                              onChange={(e) => updateOutputRow(row.id, 'sizeInGram', parseInt(e.target.value) || 0)}
+                              className="h-12 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
+                              GR
                             </div>
                           </div>
                         </div>

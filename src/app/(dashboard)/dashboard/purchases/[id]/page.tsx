@@ -43,7 +43,10 @@ import {
   Calculator,
   ArrowRight,
   ShoppingBag,
-  ChevronRight
+  ChevronRight,
+  Scale,
+  Truck,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -64,6 +67,7 @@ interface EditableItem {
   productName: string;
   brandName: string;
   qty: number;
+  sizeInGram: number;
   totalCost: number;
   extraCosts: number;
   unitCost: number;
@@ -170,6 +174,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           productName: item.product?.name || "",
           brandName: item.product?.brand?.name || "",
           qty: item.qty,
+          sizeInGram: item.sizeInGram || 0,
           totalCost: item.totalCost,
           extraCosts: item.extraCosts,
           unitCost: item.unitCost,
@@ -201,14 +206,27 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
 
         const currentProduct = products.find(p => p.id === updated.productId);
 
-        if (updates.qty !== undefined || updates.totalCost !== undefined || updates.extraCosts !== undefined || updates.sellingPrice !== undefined) {
+        if (updates.qty !== undefined || updates.totalCost !== undefined || updates.extraCosts !== undefined || updates.sellingPrice !== undefined || updates.marginPct !== undefined) {
           if (updated.qty > 0) {
             updated.unitCost = (updated.totalCost + updated.extraCosts) / updated.qty;
             
             if (updated.lastCost > 0) {
               updated.priceChange = ((updated.unitCost - updated.lastCost) / updated.lastCost) * 100;
             }
-            if (updated.sellingPrice > 0) {
+
+            if ('marginPct' in updates) {
+              // If user explicitly updated marginPct
+              const rawSellingPrice = updated.unitCost * (1 + (updated.marginPct / 100));
+              // Round to nearest 100 for psychological pricing if needed, or just leave as is
+              // The user specified "match creation logic" which rounds to 1000 usually
+              updated.sellingPrice = Math.ceil(rawSellingPrice / 1000) * 1000;
+              updated.marginAmount = updated.sellingPrice - updated.unitCost;
+            } else if ('sellingPrice' in updates) {
+              // If user explicitly updated sellingPrice
+              updated.marginAmount = updated.sellingPrice - updated.unitCost;
+              updated.marginPct = updated.unitCost > 0 ? (updated.marginAmount / updated.unitCost) * 100 : 0;
+            } else if (updated.sellingPrice > 0) {
+              // Fallback for Qty/Cost changes
               updated.marginAmount = updated.sellingPrice - updated.unitCost;
               updated.marginPct = updated.unitCost > 0 ? (updated.marginAmount / updated.unitCost) * 100 : 0;
             }
@@ -234,6 +252,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
       productName: "",
       brandName: "",
       qty: 1,
+      sizeInGram: 0,
       totalCost: 0,
       extraCosts: 0,
       unitCost: 0,
@@ -317,6 +336,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           productId: item.productId,
           variantLabel: item.variantLabel,
           qty: item.qty,
+          sizeInGram: item.sizeInGram || undefined,
           totalCost: item.totalCost,
           extraCosts: item.extraCosts,
           sellingPrice: item.sellingPrice,
@@ -503,182 +523,280 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
               ) : (
                 <div className="space-y-4">
                   {editItems.map((item, idx) => (
-                    <Card key={item.id} className="border-gray-200/60 dark:border-gray-800/60 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group bg-white/90 dark:bg-gray-950/50 backdrop-blur-sm">
+                    <Card key={item.id} className="border-gray-200/60 dark:border-gray-800/60 shadow-lg hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group bg-white/90 dark:bg-gray-950/50 backdrop-blur-sm border-l-4 border-l-primary/30">
                       <CardContent className="p-0">
-                        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
-                          <div className="p-5 bg-gray-50/50 dark:bg-gray-900/20 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-primary/20">
+                        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/50">
+                          {/* Header: Product Selection & Delete */}
+                          <div className="p-6 bg-gray-50/50 dark:bg-gray-900/20 flex items-center justify-between gap-6 border-b border-gray-100 dark:border-gray-800/50">
+                            <div className="flex items-center gap-4 flex-1">
+                              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-black text-white shadow-lg shadow-primary/20 shrink-0">
                                 {idx + 1}
                               </div>
-                              <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none mb-1">Pilih Produk</span>
-                                <span className="text-xs font-bold text-muted-foreground truncate max-w-[200px]">
-                                  {item.productName || "Belum dipilih"}
-                                </span>
+                              <div className="flex-1 max-w-xl">
+                                <Combobox value={item.productId || ""} onValueChange={(val) => updateEditItem(item.id, { productId: val ?? "" })}>
+                                  <ComboboxTrigger className="h-14 font-black bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left">
+                                    {item.productId ? (
+                                      <div className="flex flex-col items-start truncate">
+                                        <span className="text-[9px] text-primary font-black uppercase tracking-widest leading-none mb-1">
+                                          {item.brandName || "Tanpa Brand"}
+                                        </span>
+                                        <span className="text-base truncate w-full">{item.productName}</span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-muted-foreground text-sm font-bold opacity-50">Cari & Pilih Barang...</span>
+                                    )}
+                                  </ComboboxTrigger>
+                                  <ComboboxContent align="start" className="w-(--anchor-width) min-w-[320px] p-2 rounded-2xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
+                                    <ComboboxInput placeholder="Cari barang atau brand..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-0 font-bold" />
+                                    <ComboboxEmpty className="py-10 text-xs font-black text-muted-foreground uppercase tracking-widest text-center">Barang tidak ditemukan.</ComboboxEmpty>
+                                    <ComboboxList className="space-y-1 max-h-60 overflow-y-auto pr-1">
+                                      {products.map(p => (
+                                        <ComboboxItem key={p.id} value={p.id} className="rounded-xl py-3 px-4 font-bold cursor-pointer hover:bg-primary/5 group/p transition-colors">
+                                          <div className="flex flex-col gap-0.5">
+                                            <span className="text-[10px] text-primary font-black uppercase tracking-widest leading-none opacity-0 group-hover/p:opacity-100 transition-opacity">{p.brand?.name || "Tanpa Brand"}</span>
+                                            <span className="text-sm">{p.name}</span>
+                                            <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Current HPP: Rp {p.currentHpp?.toLocaleString()}</span>
+                                          </div>
+                                        </ComboboxItem>
+                                      ))}
+                                    </ComboboxList>
+                                  </ComboboxContent>
+                                </Combobox>
                               </div>
                             </div>
 
-                            <div className="flex-1 max-w-md">
-                              <Combobox value={item.productId || ""} onValueChange={(val) => updateEditItem(item.id, { productId: val ?? "" })}>
-                                <ComboboxTrigger className="h-12 font-bold bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl px-4 shadow-sm hover:border-primary/30 transition-all text-left">
-                                  {item.productId ? (
-                                    <div className="flex flex-col items-start truncate">
-                                      <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none mb-0.5">
-                                        {item.brandName || "Tanpa Brand"}
-                                      </span>
-                                      <span className="text-sm truncate w-full">{item.productName}</span>
-                                    </div>
-                                  ) : (
-                                    <span className="text-muted-foreground text-sm">Cari barang...</span>
-                                  )}
-                                </ComboboxTrigger>
-                                <ComboboxContent align="start" className="w-(--anchor-width) min-w-[320px] p-2 rounded-xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
-                                  <ComboboxInput placeholder="Cari barang atau brand..." className="h-10 px-3 bg-gray-50 dark:bg-gray-900 rounded-lg mb-2 border-none focus:ring-0" />
-                                  <ComboboxEmpty className="py-10 text-xs font-bold text-muted-foreground uppercase tracking-widest">Barang tidak ditemukan.</ComboboxEmpty>
-                                  <ComboboxList className="space-y-1 max-h-60 overflow-y-auto pr-1">
-                                    {products.map(p => (
-                                      <ComboboxItem key={p.id} value={p.id} className="rounded-lg py-3 px-3 font-bold cursor-pointer hover:bg-primary/5">
-                                        <div className="flex flex-col gap-0.5">
-                                          <span className="text-[10px] text-primary font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
-                                          <span className="text-sm">{p.name}</span>
-                                        </div>
-                                      </ComboboxItem>
-                                    ))}
-                                  </ComboboxList>
-                                </ComboboxContent>
-                              </Combobox>
-                            </div>
-
-                            <button type="button" onClick={() => removeEditItem(item.id)} className="p-2 text-muted-foreground/30 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                            <button type="button" onClick={() => removeEditItem(item.id)} className="p-3 text-muted-foreground/20 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-950/30 rounded-2xl border border-transparent hover:border-red-100 flex items-center gap-2 group/del">
+                              <span className="text-[10px] font-black uppercase tracking-widest opacity-0 group-hover/del:opacity-100 transition-opacity">Hapus</span>
                               <Trash2 className="h-5 w-5" />
                             </button>
                           </div>
 
-                          <div className="p-6 flex flex-wrap gap-4 items-end">
-                            <div className="flex-1 min-w-[100px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Label</label>
+                          {/* Row 1: Specifications */}
+                          <div className="px-8 pt-8 pb-4">
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2">
+                                <div className="h-5 w-1 bg-primary rounded-full" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">I. Specifications</span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+                                  <Scale className="h-3 w-3 text-muted-foreground" />
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Weight Tracking</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                                  <Calendar className="h-3 w-3 text-orange-600 dark:text-orange-400" />
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 dark:text-orange-400">Expiry Management</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Tag className="h-3 w-3 text-primary/40" /> Label Varian
+                              </label>
                               <select 
                                 value={item.variantLabel || "bal"}
-                                onChange={(e) => updateEditItem(item.id, { variantLabel: e.target.value })}
-                                className="w-full h-11 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                onChange={(e) => {
+                                  const newLabel = e.target.value;
+                                  const updates: Partial<EditableItem> = { variantLabel: newLabel };
+                                  const weightMatch = newLabel.match(/(\d+)(gr|kg)/i);
+                                  if (weightMatch) {
+                                    const val = parseInt(weightMatch[1]);
+                                    const unit = weightMatch[2].toLowerCase();
+                                    updates.sizeInGram = unit === 'kg' ? val * 1000 : val;
+                                  }
+                                  updateEditItem(item.id, updates);
+                                }}
+                                className="w-full h-14 font-black text-sm bg-gray-50 items-center flex dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-2xl px-5 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/80"
                               >
                                 <option value="bal">BAL (Default)</option>
-                                <option value="ES3">ES3</option>
-                                <option value="ES4">ES4</option>
-                                <option value="250gr">250gr</option>
-                                <option value="500gr">500gr</option>
-                                <option value="1kg">1kg</option>
+                                <option value="ES3">ES3 (Ecer Small 3)</option>
+                                <option value="ES4">ES4 (Ecer Small 4)</option>
+                                <option value="250gr">PACK 250GR</option>
+                                <option value="500gr">PACK 500GR</option>
+                                <option value="1kg">PACK 1KG</option>
                               </select>
                             </div>
-                            
-                            <div className="w-24 space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Qty</label>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                value={item.qty || ""}
-                                onChange={(e) => updateEditItem(item.id, { qty: Number(e.target.value) })}
-                                className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl px-4"
-                                required
-                              />
-                            </div>
-                            
-                            <div className="flex-1 min-w-[150px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Total Dari Supplier</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
-                                <Input 
-                                  type="number" 
-                                  min="0"
-                                  value={item.totalCost || ""}
-                                  onChange={(e) => updateEditItem(item.id, { totalCost: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl pl-9"
-                                  required
-                                />
-                              </div>
-                            </div>
 
-                            <div className="flex-1 min-w-[120px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Biaya Ekstra</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">Rp</span>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Scale className="h-3 w-3" /> Berat Satuan
+                              </label>
+                              <div className="relative group/input">
                                 <Input 
                                   type="number" 
                                   min="0"
-                                  value={item.extraCosts || ""}
-                                  onChange={(e) => updateEditItem(item.id, { extraCosts: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl pl-9"
+                                  value={item.sizeInGram || ""}
+                                  onChange={(e) => updateEditItem(item.id, { sizeInGram: Number(e.target.value) })}
+                                  className="h-14 font-black text-lg bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 pr-12"
                                   placeholder="0"
                                 />
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em] pointer-events-none">GRAM</span>
                               </div>
                             </div>
 
-                            <div className="flex-1 min-w-[150px] space-y-2">
-                              <label className="text-[11px] font-black uppercase text-primary tracking-wider px-1">Harga Jual Baru</label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-primary/50">Rp</span>
-                                <Input 
-                                  type="number" 
-                                  min="0"
-                                  value={item.sellingPrice || ""}
-                                  onChange={(e) => updateEditItem(item.id, { sellingPrice: Number(e.target.value) })}
-                                  className="h-11 font-black text-lg bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30 text-primary rounded-xl pl-9 focus:ring-primary/20"
-                                  required
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="p-4 bg-gray-50/30 dark:bg-gray-900/10 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                            <div className="space-y-1.5 px-2">
-                              <label className="text-[9px] font-black uppercase text-muted-foreground tracking-[0.2em] flex items-center gap-1.5">
-                                <AlertCircle className="h-3 w-3 text-orange-500" /> Kadaluwarsa
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2 text-orange-500/70">
+                                <Calendar className="h-3 w-3" /> Tanggal Kadaluwarsa
                               </label>
                               <Input 
                                 type="date" 
                                 value={item.expiredDate || ""}
                                 onChange={(e) => updateEditItem(item.id, { expiredDate: e.target.value })}
-                                className="h-9 font-bold bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl"
+                                className="h-14 font-black text-sm bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-2xl px-5 focus:ring-4 focus:ring-primary/5 transition-all opacity-80"
                               />
                             </div>
+                          </div>
 
-                            <div className="bg-white/50 dark:bg-gray-950/50 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center text-center">
-                              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">HPP Item Ini</span>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-sm font-black text-foreground">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
-                                {item.priceChange !== 0 && (
-                                  <span className={cn("text-[10px] font-black flex items-center gap-0.5", 
-                                    item.priceChange > 0 ? "text-red-500" : "text-green-500")}>
-                                    {item.priceChange > 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                                    {Math.abs(item.priceChange).toFixed(1)}%
-                                  </span>
-                                )}
+                          </div>
+                          
+                          {/* Row 2: Financials */}
+                          <div className="px-8 pt-6 pb-6 bg-gray-50/30 dark:bg-gray-900/10 border-y border-gray-100 dark:border-gray-800/50">
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2">
+                                <div className="h-5 w-1 bg-primary rounded-full" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">II. Financials</span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+                                  <Receipt className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Cost Basis</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                                  <Truck className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Operations</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Package className="h-3 w-3 text-primary/40" /> Jumlah (Qty)
+                              </label>
+                              <Input 
+                                type="number" 
+                                min="1" 
+                                value={item.qty || ""}
+                                onChange={(e) => updateEditItem(item.id, { qty: Number(e.target.value) })}
+                                className="h-14 font-black text-2xl bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl px-5 focus:ring-4 focus:ring-primary/5"
+                                required
+                              />
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Receipt className="h-3 w-3" /> Total Bayar (Supplier)
+                              </label>
+                              <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground/40 italic">Rp</span>
+                                <Input 
+                                  type="number" 
+                                  min="0"
+                                  value={item.totalCost || ""}
+                                  onChange={(e) => updateEditItem(item.id, { totalCost: Number(e.target.value) })}
+                                  className="h-14 font-black text-2xl bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl pl-12 pr-5 focus:ring-4 focus:ring-primary/5"
+                                  required
+                                />
                               </div>
                             </div>
 
-                            <div className="bg-emerald-500/5 dark:bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center">
-                              <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Margin Kotor</span>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-sm font-black text-emerald-700 dark:text-emerald-300">{Math.round(item.marginPct)}%</span>
-                                <span className="text-[10px] font-bold text-emerald-600/70">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Truck className="h-3 w-3" /> Biaya Operasional / Item
+                              </label>
+                              <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground/40 italic">Rp</span>
+                                <Input 
+                                  type="number" 
+                                  min="0"
+                                  value={item.extraCosts || ""}
+                                  onChange={(e) => updateEditItem(item.id, { extraCosts: Number(e.target.value) })}
+                                  className="h-14 font-black text-2xl bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl pl-12 pr-5 focus:ring-4 focus:ring-primary/5 placeholder:opacity-20"
+                                  placeholder="0"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          </div>
+
+                          {/* Row 3: Pricing Intelligence */}
+                          <div className="p-8 bg-gradient-to-br from-primary/5 via-primary/5 to-transparent dark:from-primary/950/20 dark:via-primary/950/10 dark:to-transparent">
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2">
+                                <div className="h-5 w-1 bg-primary rounded-full" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">III. Pricing & Intelligence</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+                                  <Sparkles className="h-3 w-3 text-primary" />
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-primary">Smart Pricing</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Calculator className="h-3 w-3" /> Harga Jual Baru
+                              </label>
+                              <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-primary/40 italic">Rp</span>
+                                <Input 
+                                  type="number" 
+                                  min="0"
+                                  value={item.sellingPrice || ""}
+                                  onChange={(e) => updateEditItem(item.id, { sellingPrice: Number(e.target.value) })}
+                                  className="h-14 font-black text-2xl bg-white dark:bg-gray-950 border-primary/30 dark:border-primary/50 text-foreground rounded-2xl pl-12 pr-5 shadow-lg shadow-primary/5 focus:ring-4 focus:ring-primary/10"
+                                  required
+                                />
                               </div>
                             </div>
 
-                            <div className="bg-blue-500/5 dark:bg-blue-500/10 p-3 rounded-2xl border border-blue-500/20 shadow-sm flex flex-col items-center text-center">
-                              <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                <ArrowRight className="h-2.5 w-2.5 text-blue-500" /> Estimasi HPP Baru
-                              </span>
-                              <div className="flex flex-col items-center">
-                                <span className="text-sm font-black text-blue-700 dark:text-blue-300">
-                                  Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}
+                            <div className="space-y-3">
+                              <label className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] px-1 flex items-center gap-2">
+                                <TrendingUp className="h-3 w-3 text-emerald-500" /> Profit Margin (%)
+                              </label>
+                              <div className="relative">
+                                <Input 
+                                  type="number" 
+                                  value={Math.round(item.marginPct) || ""}
+                                  onChange={(e) => updateEditItem(item.id, { marginPct: Number(e.target.value) })}
+                                  className="h-14 font-black text-2xl bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl px-5 focus:ring-4 focus:ring-primary/5 pr-12"
+                                />
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-muted-foreground/30">%</span>
+                              </div>
+                            </div>
+
+                            <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4 h-14 mt-auto">
+                              <div className="bg-white/50 dark:bg-gray-950/50 p-3 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm flex flex-col justify-center overflow-hidden">
+                                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1 opacity-60">Net Unit Cost</span>
+                                <div className="flex items-baseline gap-2 truncate">
+                                  <span className="text-sm font-black text-foreground tracking-tighter italic">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
+                                  {item.priceChange !== 0 && (
+                                    <span className={cn("text-[10px] font-black flex items-center gap-0.5", 
+                                      item.priceChange > 0 ? "text-red-500" : "text-green-500")}>
+                                      {item.priceChange > 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+                                      {Math.abs(item.priceChange).toFixed(1)}%
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="bg-blue-500/5 dark:bg-blue-500/10 p-3 rounded-2xl border border-blue-500/20 shadow-sm flex flex-col justify-center overflow-hidden">
+                                <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none mb-1 opacity-80 flex items-center gap-1">
+                                  <ArrowRight className="h-2.5 w-2.5" /> New HPP Preview
                                 </span>
-                                <span className="text-[8px] font-bold text-blue-600/50 uppercase tracking-tighter">Preview hpp gudang</span>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-black text-blue-700 dark:text-blue-300 tracking-tighter">
+                                    Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </CardContent>
+                      </div>
+                    </CardContent>
                     </Card>
                   ))}
                 </div>
@@ -1032,7 +1150,12 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                       <TableCell className="text-right font-black text-base py-6">
                         <div className="flex flex-col items-end">
                           <span className="text-xl">{item.qty}</span>
-                          <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest mt-1 bg-primary/5 px-2 py-0.5 rounded-full">{item.variantLabel}</span>
+                          <div className="flex flex-col items-end gap-1 mt-1">
+                            <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-full">{item.variantLabel}</span>
+                            {(item.sizeInGram ?? 0) > 0 && (
+                              <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-tighter italic">({item.sizeInGram} gr)</span>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right py-6">

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
-import { Product } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,15 @@ import {
 import { cn, getProductImageUrl } from "@/lib/utils";
 import Image from "next/image";
 
-interface CartItem extends Product {
+interface DisplayVariant extends ProductVariant {
+  productName: string;
+  productImageUrl: string;
+  productTaste: string[];
+  productMargin?: number;
+  productCurrentHpp?: number;
+}
+
+interface CartItem extends DisplayVariant {
   quantity: number;
 }
 
@@ -48,6 +56,24 @@ export default function POSPage() {
     fetchProducts();
   }, []);
 
+  // Transform products into a flat list of variants for display
+  const displayVariants = useMemo(() => {
+    const variants: DisplayVariant[] = [];
+    products.forEach(p => {
+      p.variants.forEach(v => {
+        variants.push({
+          ...v,
+          productName: p.name,
+          productImageUrl: p.imageUrl,
+          productTaste: p.taste,
+          productMargin: p.margin,
+          productCurrentHpp: p.currentHpp
+        });
+      });
+    });
+    return variants;
+  }, [products]);
+
   // Prevent accidental page reload if there are items in cart or checkout is in progress
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -63,18 +89,19 @@ export default function POSPage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isProcessing, cart.length]);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredVariants = displayVariants.filter(v => 
+    v.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.package.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const addToCart = (product: Product) => {
-    const existing = cart.find(item => item.id === product.id);
+  const addToCart = (variant: DisplayVariant) => {
+    const existing = cart.find(item => item.id === variant.id);
     if (existing) {
       setCart(cart.map(item => 
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === variant.id ? { ...item, quantity: item.quantity + 1 } : item
       ));
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      setCart([...cart, { ...variant, quantity: 1 }]);
     }
   };
 
@@ -92,8 +119,8 @@ export default function POSPage() {
     setCart(cart.filter(item => item.id !== id));
   };
 
-  const totalRevenue = cart.reduce((acc, item) => acc + (item.variants[0]?.price || 0) * item.quantity, 0);
-  const totalHpp = cart.reduce((acc, item) => acc + (item.currentHpp || (item.variants[0]?.price || 0) * 0.7) * item.quantity, 0);
+  const totalRevenue = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalHpp = cart.reduce((acc, item) => acc + (item.hpp || item.price * 0.7) * item.quantity, 0);
   const totalProfit = totalRevenue - totalHpp;
   const averageMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
@@ -159,7 +186,7 @@ export default function POSPage() {
             />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map((p) => (
+              {filteredVariants.map((p) => (
                 <Card 
                   key={p.id} 
                   className="cursor-pointer hover:border-primary/50 transition-all duration-300 group active:scale-95 shadow-sm border-gray-200/50 dark:border-gray-800/50 rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-xl hover:shadow-primary/5 min-h-[140px]"
@@ -168,22 +195,25 @@ export default function POSPage() {
                   <CardContent className="p-4 space-y-4">
                     <div className="aspect-square bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors border border-gray-100 dark:border-gray-800/50">
                        <Image
-                         src={p.imageUrl || getProductImageUrl(null)}
-                         alt={p.name}
+                         src={p.productImageUrl || getProductImageUrl(null)}
+                         alt={p.productName}
                          fill
                          className="object-cover"
                          sizes="(max-width: 768px) 50vw, 25vw"
                          unoptimized
                        />
-                       {p.margin && p.margin > 40 && (
+                       {p.productMargin && p.productMargin > 40 && (
                          <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none shadow-sm">High Margin</Badge>
                        )}
                     </div>
                     <div className="space-y-1.5 mt-2">
-                      <p className="text-sm font-black text-foreground leading-tight truncate">{p.name}</p>
+                       <div className="flex flex-col">
+                        <p className="text-sm font-black text-foreground leading-tight truncate">{p.productName}</p>
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{p.package}</p>
+                      </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">Stock: {p.variants[0]?.stock || 0}</p>
-                        <p className="text-sm font-black text-primary">Rp {p.variants[0]?.price.toLocaleString('id-ID')}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">Stock: {p.stock || 0}</p>
+                        <p className="text-sm font-black text-primary">Rp {p.price.toLocaleString('id-ID')}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -215,8 +245,8 @@ export default function POSPage() {
               <div key={item.id} className="flex gap-3 group animate-in slide-in-from-right duration-300">
                 <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-lg overflow-hidden relative">
                   <Image
-                    src={item.imageUrl || getProductImageUrl(null)}
-                    alt={item.name}
+                    src={item.productImageUrl || getProductImageUrl(null)}
+                    alt={item.productName}
                     fill
                     className="object-cover"
                     sizes="48px"
@@ -224,18 +254,19 @@ export default function POSPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-black text-foreground truncate">{item.name}</p>
+                  <p className="text-xs font-black text-foreground truncate">{item.productName}</p>
+                  <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{item.package}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex items-center border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-950 px-1">
                       <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:text-primary transition-colors"><Minus className="h-3 w-3" /></button>
                       <span className="w-6 text-center text-xs font-black">{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:text-primary transition-colors"><Plus className="h-3 w-3" /></button>
                     </div>
-                    <span className="text-[11px] font-black text-primary">Rp {((item.variants[0]?.price || 0) * item.quantity).toLocaleString('id-ID')}</span>
+                    <span className="text-[11px] font-black text-primary">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
                   </div>
                   {/* Staff Intelligence: Cost Awareness */}
                   <p className="text-[9px] font-bold text-muted-foreground/60 mt-1 uppercase tracking-tighter">
-                    Est. Profit: <span className="text-green-600/70">Rp {( ((item.variants[0]?.price || 0) - (item.currentHpp || (item.variants[0]?.price || 0) * 0.7)) * item.quantity ).toLocaleString('id-ID')}</span>
+                    Est. Profit: <span className="text-green-600/70">Rp {( (item.price - (item.hpp || item.price * 0.7)) * item.quantity ).toLocaleString('id-ID')}</span>
                   </p>
                 </div>
                 <button 

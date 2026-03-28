@@ -22,12 +22,13 @@ import {
   Calendar,
   User,
   Check,
-  AlertCircle,
   ArrowRight,
   Receipt,
   Package,
   Layers,
-  Sparkles
+  Sparkles,
+  Scale,
+  Tag
 } from "lucide-react";
 import { PurchaseHistory } from "@/components/dashboard/purchases/PurchaseHistory";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ interface PurchaseItem {
   productName: string;
   brandName: string;
   qty: number;
+  sizeInGram: number; // New field
   totalCost: number;
   extraCosts: number;
   unitCost: number;
@@ -126,6 +128,7 @@ export default function PurchasesPage() {
       productName: "",
       brandName: "",
       qty: 1,
+      sizeInGram: 0,
       totalCost: 0,
       extraCosts: 0,
       unitCost: 0,
@@ -212,6 +215,7 @@ export default function PurchasesPage() {
           productId: item.productId,
           variantLabel: item.variantLabel,
           qty: item.qty,
+          sizeInGram: item.sizeInGram || undefined,
           totalCost: item.totalCost,
           extraCosts: item.extraCosts,
           sellingPrice: item.sellingPrice,
@@ -502,146 +506,194 @@ export default function PurchasesPage() {
                             </button>
                           </div>
   
-                          {/* 2. Primary Inputs: Label, Qty, Cost, Sell Price */}
-                          <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-end">
-                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Label Satuan</label>
-                              <div className="relative group/select">
-                                <select 
-                                  value={item.variantLabel || "bal"}
-                                  onChange={(e) => updateItem(item.id, { variantLabel: e.target.value })}
-                                  className="w-full h-14 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 appearance-none focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer"
-                                >
-                                  <option value="bal">BAL (Default)</option>
-                                  <option value="ES3">ES3</option>
-                                  <option value="ES4">ES4</option>
-                                  <option value="250gr">250gr</option>
-                                  <option value="500gr">500gr</option>
-                                  <option value="1kg">1kg</option>
-                                </select>
-                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 rotate-90 pointer-events-none transition-transform group-focus-within/select:rotate-0" />
+                          {/* 2. Structured Resource Inputs (Rows) */}
+                          <div className="p-8 space-y-10 group-hover:bg-white/40 dark:group-hover:bg-gray-900/40 transition-colors duration-500">
+                            {/* Row 1: Specifications (Label, Weight, Expiry) */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1 flex items-center gap-1.5">
+                                  <Tag className="h-3 w-3" /> Label Satuan
+                                </label>
+                                <div className="relative group/select">
+                                  <select 
+                                    value={item.variantLabel || "bal"}
+                                    onChange={(e) => {
+                                      const newLabel = e.target.value;
+                                      const updates: Partial<PurchaseItem> = { variantLabel: newLabel };
+                                      
+                                      // Auto-extract weight from label if it matches certain patterns
+                                      const weightMatch = newLabel.match(/(\d+)(gr|kg)/i);
+                                      if (weightMatch) {
+                                        const val = parseInt(weightMatch[1]);
+                                        const unit = weightMatch[2].toLowerCase();
+                                        updates.sizeInGram = unit === 'kg' ? val * 1000 : val;
+                                      }
+                                      
+                                      updateItem(item.id, updates);
+                                    }}
+                                    className="w-full h-14 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 appearance-none focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer"
+                                  >
+                                    <option value="bal">BAL (Default)</option>
+                                    <option value="ES3">ES3</option>
+                                    <option value="ES4">ES4</option>
+                                    <option value="250gr">250gr</option>
+                                    <option value="500gr">500gr</option>
+                                    <option value="1kg">1kg</option>
+                                  </select>
+                                  <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 rotate-90 pointer-events-none transition-transform group-focus-within/select:rotate-0" />
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1 flex items-center gap-1.5 focus-within:text-primary transition-colors">
+                                  <Scale className="h-3 w-3" /> Berat (Gram)
+                                </label>
+                                <div className="relative group/input shadow-sm rounded-2xl overflow-hidden">
+                                  <Input 
+                                    type="number" 
+                                    min="0"
+                                    value={item.sizeInGram || ""}
+                                    onChange={(e) => updateItem(item.id, { sizeInGram: Number(e.target.value) })}
+                                    className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 border-none"
+                                    placeholder="0"
+                                  />
+                                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">GRAM</span>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2 px-1">
+                                  <Calendar className="h-3 w-3 text-orange-500" /> Kadaluwarsa
+                                </label>
+                                <div className="relative group/input shadow-sm rounded-2xl overflow-hidden">
+                                  <Input 
+                                    type="date" 
+                                    value={item.expiredDate || ""}
+                                    onChange={(e) => updateItem(item.id, { expiredDate: e.target.value })}
+                                    className="h-14 font-black bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-orange-500/5 border-none"
+                                  />
+                                </div>
                               </div>
                             </div>
-                            
-                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Kuantitas</label>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                value={item.qty || ""}
-                                onChange={(e) => updateItem(item.id, { qty: Number(e.target.value) })}
-                                className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
-                                required
-                              />
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Total Biaya (Supplier)</label>
-                              <div className="relative group-within:scale-[1.02] transition-transform duration-300">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
-                                <Input 
-                                  type="number" 
-                                  min="0"
-                                  value={item.totalCost || ""}
-                                  onChange={(e) => updateItem(item.id, { totalCost: Number(e.target.value) })}
-                                  className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
-                                  required
-                                />
+
+                            <div className="h-px bg-gradient-to-r from-transparent via-gray-100 dark:via-gray-800 to-transparent" />
+
+                            {/* Row 2: Financials (Qty, Total Cost, Extra Cost) */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Kuantitas</label>
+                                <div className="relative group/input shadow-sm rounded-2xl overflow-hidden">
+                                  <Input 
+                                    type="number" 
+                                    min="1" 
+                                    value={item.qty || ""}
+                                    onChange={(e) => updateItem(item.id, { qty: Number(e.target.value) })}
+                                    className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-none rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Total Biaya (Supplier)</label>
+                                <div className="relative group-within:scale-[1.02] transition-transform duration-300 shadow-sm rounded-2xl overflow-hidden">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
+                                  <Input 
+                                    type="number" 
+                                    min="0"
+                                    value={item.totalCost || ""}
+                                    onChange={(e) => updateItem(item.id, { totalCost: Number(e.target.value) })}
+                                    className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-none rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5"
+                                    required
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Extra Item Cost</label>
+                                <div className="relative group-within:scale-[1.02] transition-transform duration-300 shadow-sm rounded-2xl overflow-hidden">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
+                                  <Input 
+                                    type="number" 
+                                    min="0"
+                                    value={item.extraCosts || ""}
+                                    onChange={(e) => updateItem(item.id, { extraCosts: Number(e.target.value) })}
+                                    className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-none rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5"
+                                    placeholder="0"
+                                  />
+                                </div>
                               </div>
                             </div>
-  
-                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Biaya Ekstra Item</label>
-                              <div className="relative group-within:scale-[1.02] transition-transform duration-300">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground/40">Rp</span>
-                                <Input 
-                                  type="number" 
-                                  min="0"
-                                  value={item.extraCosts || ""}
-                                  onChange={(e) => updateItem(item.id, { extraCosts: Number(e.target.value) })}
-                                  className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl pl-11 pr-5 transition-all focus:ring-4 focus:ring-primary/5 shadow-sm"
-                                  placeholder="0"
-                                />
+
+                            <div className="h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+
+                            {/* Row 3: Pricing & Intelligence */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                              {/* Selling Price - THE PRIMARY TARGET */}
+                              <div className="space-y-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-1 flex items-center gap-1.5 focus-within:text-primary transition-colors">
+                                  <TrendingUp className="h-3 w-3" /> Harga Jual Baru
+                                </label>
+                                <div className="relative group-within:scale-[1.05] transition-transform duration-500 rounded-2xl overflow-hidden shadow-lg shadow-primary/5">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-primary/30 group-focus-within:text-primary/50 transition-colors">Rp</span>
+                                  <Input 
+                                    type="number" 
+                                    min="0"
+                                    value={item.sellingPrice || ""}
+                                    onChange={(e) => updateItem(item.id, { sellingPrice: Number(e.target.value) })}
+                                    className="h-14 font-black text-xl bg-primary/[0.03] dark:bg-primary/[0.05] border-primary/20 dark:border-primary/30 text-primary rounded-2xl pl-11 pr-5 focus:ring-8 focus:ring-primary/5 transition-all"
+                                    required
+                                  />
+                                </div>
                               </div>
-                            </div>
-  
-                            <div className="space-y-3">
-                              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-1 flex items-center gap-1.5 focus-within:text-primary transition-colors">
-                                <TrendingUp className="h-3 w-3" /> Harga Jual Baru
-                              </label>
-                              <div className="relative group-within:scale-[1.05] transition-transform duration-500">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-primary/30 group-focus-within:text-primary/50 transition-colors">Rp</span>
-                                <Input 
-                                  type="number" 
-                                  min="0"
-                                  value={item.sellingPrice || ""}
-                                  onChange={(e) => updateItem(item.id, { sellingPrice: Number(e.target.value) })}
-                                  className="h-14 font-black text-xl bg-primary/[0.03] dark:bg-primary/[0.05] border-primary/20 dark:border-primary/30 text-primary rounded-2xl pl-11 pr-5 focus:ring-8 focus:ring-primary/5 shadow-lg shadow-primary/5 transition-all"
-                                  required
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          {/* 3. Footer: Intelligence & Stats */}
-                          <div className="p-6 bg-gray-50/50 dark:bg-gray-900/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
-                            {/* Expired Date */}
-                            <div className="space-y-2 px-1">
-                               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
-                                 <AlertCircle className="h-3 w-3 text-orange-500" /> Kadaluwarsa
-                               </label>
-                               <Input 
-                                 type="date" 
-                                 value={item.expiredDate || ""}
-                                 onChange={(e) => updateItem(item.id, { expiredDate: e.target.value })}
-                                 className="h-11 font-black bg-white/80 dark:bg-gray-950/80 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm px-4 focus:ring-4 focus:ring-orange-500/5 transition-all overflow-hidden"
-                               />
-                            </div>
-  
-                            {/* Unit Cost Stat */}
-                            <div className="bg-white dark:bg-gray-900/80 p-4 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 shadow-sm flex flex-col items-center text-center group/stat hover:border-primary/20 transition-all">
-                               <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-1.5 leading-none">Net Unit Cost</span>
-                               <div className="flex items-baseline gap-2">
-                                 <span className="text-base font-black text-foreground tracking-tight">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
-                                 {item.priceChange !== 0 && (
-                                   <span className={cn("text-[10px] font-black flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg", 
-                                     item.priceChange > 0 ? "text-red-600 bg-red-50 dark:bg-red-950/20" : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20")}>
-                                     {item.priceChange > 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                                     {Math.abs(item.priceChange).toFixed(1)}%
-                                   </span>
-                                 )}
-                               </div>
-                            </div>
-  
-                            {/* Margin Stat - NOW EDITABLE */}
-                            <div className="bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] p-4 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-emerald-500/[0.06] transition-all relative">
-                               <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-1.5 leading-none">Profit Margin %</span>
-                               <div className="flex flex-col items-center gap-1 w-full scale-[0.9] hover:scale-100 transition-transform duration-300">
-                                 <div className="relative w-24">
-                                   <Input 
-                                      type="number"
-                                      value={Math.round(item.marginPct)}
-                                      onChange={(e) => updateItem(item.id, { marginPct: Number(e.target.value) })}
-                                      className="h-9 w-full bg-transparent border-none text-center font-black text-emerald-700 dark:text-emerald-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-4 focus:ring-emerald-500/10 rounded-lg p-0 text-lg leading-none"
-                                   />
-                                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-base font-black text-emerald-700/30 pointer-events-none">%</span>
+
+                              {/* Unit Cost Preview */}
+                              <div className="bg-white/50 dark:bg-gray-900/50 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center text-center group/stat hover:border-primary/20 transition-all h-24 justify-center">
+                                 <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-1 leading-none">Net Unit Cost</span>
+                                 <div className="flex items-baseline gap-2">
+                                   <span className="text-lg font-black text-foreground tracking-tight">Rp {Math.round(item.unitCost).toLocaleString('id-ID')}</span>
+                                   {item.priceChange !== 0 && (
+                                     <span className={cn("text-[9px] font-black flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg", 
+                                       item.priceChange > 0 ? "text-red-600 bg-red-50 dark:bg-red-950/20" : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20")}>
+                                       {item.priceChange > 0 ? <TrendingUp className="h-2 w-2" /> : <TrendingDown className="h-2 w-2" />}
+                                       {Math.abs(item.priceChange).toFixed(1)}%
+                                     </span>
+                                   )}
                                  </div>
-                                 <span className="text-[9px] font-bold text-emerald-600/50 italic leading-none truncate">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
-                               </div>
-                            </div>
-  
-                            {/* HPP Preview (Weighted Average) */}
-                            <div className="bg-primary/[0.03] dark:bg-primary/[0.05] p-4 rounded-2xl border border-primary/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-primary/[0.06] transition-all">
-                               <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-1.5 leading-none flex items-center gap-1.5">
-                                 <ArrowRight className="h-3 w-3 animate-pulse" /> New HPP Est.
-                               </span>
-                               <div className="flex flex-col items-center">
-                                 <span className="text-base font-black text-primary tracking-tight">
-                                   Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}
+                              </div>
+
+                              {/* Profit Margin - EDITABLE */}
+                              <div className="bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] p-5 rounded-3xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-emerald-500/[0.06] transition-all h-24 justify-center relative group-within:border-emerald-500/50">
+                                 <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-1 leading-none">Profit Margin %</span>
+                                 <div className="flex flex-col items-center gap-0 w-full transition-transform duration-300">
+                                   <div className="relative w-24">
+                                     <Input 
+                                        type="number"
+                                        value={Math.round(item.marginPct)}
+                                        onChange={(e) => updateItem(item.id, { marginPct: Number(e.target.value) })}
+                                        className="h-8 w-full bg-transparent border-none text-center font-black text-emerald-700 dark:text-emerald-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-0 rounded-lg p-0 text-xl leading-none"
+                                     />
+                                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm font-black text-emerald-700/30 pointer-events-none">%</span>
+                                   </div>
+                                   <span className="text-[10px] font-bold text-emerald-600/50 italic leading-none truncate">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
+                                 </div>
+                              </div>
+
+                              {/* HPP Estimate Preview */}
+                              <div className="bg-primary/[0.03] dark:bg-primary/[0.05] p-5 rounded-3xl border border-primary/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-primary/[0.06] transition-all h-24 justify-center">
+                                 <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-1 leading-none flex items-center gap-1.5">
+                                   <ArrowRight className="h-3 w-3 animate-pulse" /> New HPP Est.
                                  </span>
-                                 <span className="text-[8px] font-black text-primary/40 uppercase tracking-widest leading-none mt-1">Weighted Warehouse Avg</span>
-                               </div>
+                                 <div className="flex flex-col items-center">
+                                   <span className="text-lg font-black text-primary tracking-tight">
+                                     Rp {Math.round(item.avgCostPreview).toLocaleString('id-ID')}
+                                   </span>
+                                   <span className="text-[8px] font-black text-primary/40 uppercase tracking-widest leading-none mt-0.5">Warehouse Avg</span>
+                                 </div>
+                              </div>
                             </div>
                           </div>
+
                         </div>
                       </CardContent>
                     </Card>

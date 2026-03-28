@@ -35,6 +35,7 @@ export interface PurchaseItem {
   unitCost: number;
   sellingPrice: number;
   expiredDate?: string;
+  sizeInGram?: number;
   product?: {
     id: string;
     name: string;
@@ -80,6 +81,7 @@ export interface CreatePurchaseDto {
     extraCosts: number;
     sellingPrice: number;
     expiredDate?: string;
+    sizeInGram?: number;
   }[];
 }
 
@@ -94,9 +96,16 @@ export interface AuthUser {
 export interface RepackItem {
   id: string;
   repackId: string;
-  targetVariantLabel: string;
+  targetVariantId: string;
+  targetVariant?: {
+    id: string;
+    label: string;
+    sizeInGram?: number;
+  };
+  targetVariantLabel?: string; // Kept for backward compatibility/temp display if needed
   qtyProduced: number;
   sellingPrice: number;
+  sizeInGram?: number;
   createdAt: string;
 }
 
@@ -129,6 +138,7 @@ export interface CreateRepackDto {
     targetVariantLabel: string;
     qtyProduced: number;
     sellingPrice: number;
+    sizeInGram?: number;
   }[];
 }
 export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL';
