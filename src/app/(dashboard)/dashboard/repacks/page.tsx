@@ -18,7 +18,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Table,
@@ -28,11 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import {
   Combobox,
   ComboboxContent,
@@ -45,7 +39,7 @@ import {
 import { api } from '@/lib/api';
 import { getProductsFromDb } from '@/lib/products-db';
 import { Repack, CreateRepackDto } from '@/types/financial';
-import { Product, ProductVariant } from '@/types/product';
+import { Product } from '@/types/product';
 import Link from 'next/link';
 
 const VARIANT_LABELS = ['ES3', 'ES4', '250gr', '500gr', '1kg', 'bal'] as const;
@@ -529,7 +523,7 @@ function RepacksContent() {
               </div>
             ) : (
               <div className="space-y-4">
-                {outputRows.map((row, index) => {
+                {outputRows.map((row) => {
                   const margin = costPerUnit > 0 && row.sellingPrice > 0
                     ? ((row.sellingPrice - costPerUnit) / costPerUnit) * 100
                     : 0;
