@@ -22,7 +22,7 @@ const navItems = [
   { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
-  { name: "Pecah Produk", href: "/dashboard/repacks", icon: Scissors },
+  { name: "Repacks", href: "/dashboard/repacks", icon: Scissors },
   { name: "Logs", href: "/dashboard/logs", icon: Activity },
 ];
 
