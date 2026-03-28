@@ -11,7 +11,8 @@ import {
   Search, 
   ArrowUpRight, 
   MoreVertical,
-  Filter
+  Filter,
+  Scissors
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -147,8 +148,13 @@ export default function DashboardProductsPage() {
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                          <Link href={`/dashboard/repacks?productId=${product.id}`}>
+                            <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:bg-primary/5 hover:text-primary transition-all" title="Pecah Produk">
+                              <Scissors className="h-4 w-4" />
+                            </Button>
+                          </Link>
                           <Link href={`/dashboard/products/${product.id}`}>
-                            <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:bg-primary/5 hover:text-primary transition-all">
+                            <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:bg-primary/5 hover:text-primary transition-all" title="Detail Produk">
                               <ArrowUpRight className="h-4 w-4" />
                             </Button>
                           </Link>

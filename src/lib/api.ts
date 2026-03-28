@@ -3,7 +3,9 @@ import {
   PricingRule, 
   StockAdjustment, 
   Purchase,
-  CreatePurchaseDto 
+  CreatePurchaseDto,
+  Repack,
+  CreateRepackDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -139,5 +141,12 @@ export const api = {
   storeSettings: {
     get: () => api.get<{ isStoreOpen: boolean }>('/store-settings'),
     update: (isStoreOpen: boolean) => api.patch<{ isStoreOpen: boolean }>('/store-settings', { isStoreOpen }),
-  }
+  },
+
+  repacks: {
+    list: (productId?: string) =>
+      api.get<Repack[]>(`/repacks${productId ? `?productId=${productId}` : ''}`),
+    get: (id: string) => api.get<Repack>(`/repacks/${id}`),
+    create: (data: CreateRepackDto) => api.post<{ id: string; message: string }>('/repacks', data),
+  },
 };

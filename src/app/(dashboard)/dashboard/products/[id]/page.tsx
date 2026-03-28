@@ -14,7 +14,8 @@ import {
   Package,
   Layers,
   Tag,
-  Plus
+  Plus,
+  Scissors
 } from "lucide-react";
 import Link from "next/link";
 import { cn, getProductImageUrl, formatCurrency } from "@/lib/utils";
@@ -97,6 +98,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                  ))}
                </div>
             </div>
+          </div>
+          {/* Action Buttons */}
+          <div className="ml-auto flex items-center gap-3">
+            <Link href={`/dashboard/repacks?productId=${product.id}`}>
+              <Button
+                id="btn-pecah-produk"
+                variant="outline"
+                className="h-14 px-8 rounded-2xl font-black text-[11px] uppercase tracking-widest border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 transition-all gap-3 shadow-sm bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm group"
+              >
+                <Scissors className="h-5 w-5 transition-transform group-hover:rotate-12 duration-300" />
+                Pecah Produk
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

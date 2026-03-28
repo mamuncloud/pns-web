@@ -90,3 +90,44 @@ export interface AuthUser {
   role: string;
   type: 'EMPLOYEE' | 'USER';
 }
+
+export interface RepackItem {
+  id: string;
+  repackId: string;
+  targetVariantLabel: string;
+  qtyProduced: number;
+  sellingPrice: number;
+  createdAt: string;
+}
+
+export interface Repack {
+  id: string;
+  productId: string;
+  product?: {
+    id: string;
+    name: string;
+  };
+  sourceVariantId: string;
+  sourceVariant?: {
+    id: string;
+    label: string;
+    stock: number;
+    price: number;
+  };
+  sourceQtyUsed: number;
+  note?: string;
+  createdAt: string;
+  items: RepackItem[];
+}
+
+export interface CreateRepackDto {
+  productId: string;
+  sourceVariantId: string;
+  sourceQtyUsed: number;
+  note?: string;
+  items: {
+    targetVariantLabel: string;
+    qtyProduced: number;
+    sellingPrice: number;
+  }[];
+}

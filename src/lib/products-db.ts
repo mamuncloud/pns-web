@@ -27,6 +27,7 @@ interface BackendProduct {
   taste: string[];
   isActive: boolean;
   status?: string;
+  currentHpp?: number;
   createdAt: string;
   updatedAt: string;
   variants: Array<{
@@ -83,6 +84,7 @@ export async function getProductById(id: string): Promise<Product | null> {
         purchaseItem: v.purchaseItem,
       })),
       sellingPrice: p.variants?.[0]?.price || 0,
+      currentHpp: p.currentHpp || 0,
       stockQty: (p.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0),
       margin: 35,
       status: (p.status || 'Normal') as ProductStatus,
@@ -132,6 +134,7 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
           purchaseItem: v.purchaseItem,
         })),
         sellingPrice: p.variants?.[0]?.price || 0,
+        currentHpp: p.currentHpp || 0,
         stockQty: (p.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0),
         margin: 35, // Default margin for now since backend doesn't provide it yet
         status: (p.status || 'Normal') as ProductStatus,
