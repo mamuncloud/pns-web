@@ -34,6 +34,7 @@ interface BackendProduct {
     id: string;
     label: string;
     price: number;
+    hpp: number;
     stock: number;
     sku?: string;
     sizeInGram?: number;
@@ -77,6 +78,7 @@ export async function getProductById(id: string): Promise<Product | null> {
         id: v.id,
         package: v.label as EnumPackage,
         price: v.price,
+        hpp: v.hpp || 0,
         stock: v.stock,
         sku: v.sku,
         sizeInGram: v.sizeInGram,
@@ -127,6 +129,7 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
           id: v.id,
           package: v.label as EnumPackage,
           price: v.price,
+          hpp: v.hpp || 0,
           stock: v.stock,
           sku: v.sku,
           sizeInGram: v.sizeInGram,

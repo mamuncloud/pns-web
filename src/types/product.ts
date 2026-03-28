@@ -5,6 +5,7 @@ export interface ProductVariant {
   id: string;
   package: EnumPackage;
   price: number;
+  hpp: number;
   stock?: number;
   sku?: string;
   sizeInGram?: number;
