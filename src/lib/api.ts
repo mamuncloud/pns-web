@@ -97,6 +97,7 @@ export const api = {
   auth: {
     requestLogin: (email: string) => api.post<{ message: string }>('/auth/request-login', { email }),
     verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
+    reissue: () => api.post<{ access_token: string }>('/auth/reissue'),
   },
  
   products: {

@@ -13,6 +13,7 @@ PNS Web is the frontend web application for the PNS online ordering and product 
 - **WhatsApp Integration**: Fast customer support via a floating WhatsApp button for quick inquiries.
 - **Admin Dashboard**: Comprehensive dashboard for managing products, suppliers, and purchase history.
 - **Purchase Management**: Streamlined "Kulakan Barang" flow with draft saving, real-time HPP impact analysis, and safe deletion of draft records.
+- **Silent Session Refresh**: Automatically extends the user session during active dashboard use, preventing unexpected logouts when working.
 
 ## 🛠 Tech Stack
 

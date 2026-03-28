@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { useActivityRefresh } from "@/hooks/use-activity-refresh";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
 }) {
   const { user, isAuthenticated, isEmployee, isLoading } = useAuth();
   const router = useRouter();
+  useActivityRefresh();
 
   useEffect(() => {
     if (!isLoading) {
