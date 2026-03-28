@@ -12,7 +12,8 @@ import {
   X,
   ShoppingBag,
   Activity,
-  Scissors
+  Scissors,
+  ClipboardList
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const navItems = [
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
   { name: "Repacks", href: "/dashboard/repacks", icon: Scissors },
   { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity },
-  { name: "Logs", href: "/dashboard/logs", icon: Activity },
+  { name: "Logs", href: "/dashboard/logs", icon: ClipboardList },
 ];
 
 export default function DashboardSidebar() {
