@@ -131,3 +131,34 @@ export interface CreateRepackDto {
     sellingPrice: number;
   }[];
 }
+export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL';
+
+export interface StockMovement {
+  id: string;
+  productVariantId: string;
+  type: StockMovementType;
+  quantity: number;
+  balanceAfter: number;
+  referenceId?: string;
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+  productVariant?: {
+    id: string;
+    label: string;
+    product?: {
+      id: string;
+      name: string;
+    };
+  };
+  user?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface AdjustStockDto {
+  productVariantId: string;
+  quantity: number;
+  notes?: string;
+}

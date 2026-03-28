@@ -28,6 +28,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StockMovementList } from "@/components/dashboard/stock/StockMovementList";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -119,8 +121,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* Main Info */}
         <div className="lg:col-span-2 space-y-8">
 
-          {/* Variants Table */}
-          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-2xl overflow-hidden bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl rounded-[2.5rem] border-none shadow-gray-200/50 dark:shadow-none">
+          <Tabs defaultValue="variants" className="w-full space-y-6">
+            <TabsList className="h-14 bg-gray-100/50 dark:bg-gray-900/50 p-1.5 rounded-2xl w-full justify-start overflow-x-auto space-x-2">
+              <TabsTrigger value="variants" className="rounded-xl px-8 h-full text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all">
+                Daftar Varian
+              </TabsTrigger>
+              <TabsTrigger value="ledger" className="rounded-xl px-8 h-full text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-white dark:data-[state=active]:bg-gray-950 data-[state=active]:text-primary data-[state=active]:shadow-xl transition-all">
+                Riwayat Stok
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="variants" className="m-0 border-none outline-none">
+              {/* Variants Table */}
+              <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-2xl overflow-hidden bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl rounded-[2.5rem] border-none shadow-gray-200/50 dark:shadow-none">
             <CardHeader className="bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-900/50 dark:to-transparent border-b border-gray-100/50 dark:border-gray-800/50 p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
@@ -220,6 +233,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </CardContent>
           </Card>
+          </TabsContent>
+
+          <TabsContent value="ledger" className="m-0 border-none outline-none">
+            <StockMovementList productId={product.id} className="rounded-[2.5rem] border-none shadow-2xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl" />
+          </TabsContent>
+        </Tabs>
         </div>
 
         {/* Sidebar Info */}

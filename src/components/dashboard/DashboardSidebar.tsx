@@ -19,10 +19,11 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "POS (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
+  { name: "Pos (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
   { name: "Repacks", href: "/dashboard/repacks", icon: Scissors },
+  { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity },
   { name: "Logs", href: "/dashboard/logs", icon: Activity },
 ];
 

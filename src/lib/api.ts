@@ -6,6 +6,8 @@ import {
   CreatePurchaseDto,
   Repack,
   CreateRepackDto,
+  StockMovement,
+  AdjustStockDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -49,6 +51,13 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const result = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
+      // Only redirect if not already on the login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
     throw new ApiError(result.message || `API request failed at ${url}`, response.status, result);
   }
 
@@ -104,6 +113,18 @@ export const api = {
   stockAdjustments: {
     list: (productId?: string) => api.get<StockAdjustment[]>(`/stock-adjustments${productId ? `?productId=${productId}` : ''}`),
     create: (data: Partial<StockAdjustment>) => api.post<StockAdjustment>('/stock-adjustments', data),
+  },
+
+  stock: {
+    movements: (params?: { productVariantId?: string; productId?: string; type?: string; limit?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.productVariantId) qs.append('productVariantId', params.productVariantId);
+      if (params?.productId) qs.append('productId', params.productId);
+      if (params?.type) qs.append('type', params.type);
+      if (params?.limit) qs.append('limit', params.limit.toString());
+      return api.get<StockMovement[]>(`/stock/movements?${qs.toString()}`);
+    },
+    adjust: (data: AdjustStockDto) => api.post<StockMovement>('/stock/adjust', data),
   },
 
   purchases: {
