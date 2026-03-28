@@ -100,77 +100,81 @@ function RepackRow({ repack }: { repack: Repack }) {
     .join(', ');
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <>
-        <TableRow className="group cursor-pointer hover:bg-white/80 dark:hover:bg-gray-950/80 transition-colors border-b border-gray-100 dark:border-gray-800">
-          <TableCell className="w-8">
-            <CollapsibleTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-gray-50 dark:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 hover:bg-primary/10 hover:text-primary transition-all h-8 w-8 shadow-sm">
-              {open ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-            </CollapsibleTrigger>
-          </TableCell>
-          <TableCell className="text-xs font-bold text-muted-foreground whitespace-nowrap">
-            {formatDate(repack.createdAt)}
-          </TableCell>
-          <TableCell className="text-sm font-black">
-            <Link
-              href={`/dashboard/products/${repack.productId}`}
-              className="text-foreground hover:text-primary transition-colors tracking-tight"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {repack.product?.name ?? 'Produk Dihapus'}
-            </Link>
-          </TableCell>
-          <TableCell>
-            <Badge variant="secondary" className="font-black text-[10px] uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
-              {repack.sourceVariant?.label ?? '—'} ×{repack.sourceQtyUsed}
-            </Badge>
-          </TableCell>
-          <TableCell className="text-sm font-bold text-muted-foreground">{outputSummary}</TableCell>
-          <TableCell className="text-xs text-muted-foreground/80 italic font-medium">
-            {repack.note ?? <span className="opacity-50">—</span>}
+    <>
+      <TableRow 
+        className="group cursor-pointer hover:bg-white/80 dark:hover:bg-gray-950/80 transition-colors border-b border-gray-100 dark:border-gray-800"
+        onClick={() => setOpen(!open)}
+      >
+        <TableCell className="w-8">
+          <button 
+            type="button"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-gray-50 dark:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 hover:bg-primary/10 hover:text-primary transition-all h-8 w-8 shadow-sm"
+          >
+            {open ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+        </TableCell>
+        <TableCell className="text-xs font-bold text-muted-foreground whitespace-nowrap">
+          {formatDate(repack.createdAt)}
+        </TableCell>
+        <TableCell className="text-sm font-black text-foreground">
+          <Link
+            href={`/dashboard/products/${repack.productId}`}
+            className="text-foreground hover:text-primary transition-colors tracking-tight"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {repack.product?.name ?? 'Produk Dihapus'}
+          </Link>
+        </TableCell>
+        <TableCell>
+          <Badge variant="secondary" className="font-black text-[10px] uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
+            {repack.sourceVariant?.label ?? '—'} ×{repack.sourceQtyUsed}
+          </Badge>
+        </TableCell>
+        <TableCell className="text-sm font-bold text-muted-foreground">{outputSummary}</TableCell>
+        <TableCell className="text-xs text-muted-foreground/80 italic font-medium">
+          {repack.note ?? <span className="opacity-50">—</span>}
+        </TableCell>
+      </TableRow>
+
+      {open && (
+        <TableRow className="bg-gray-50/30 dark:bg-gray-900/10 hover:bg-gray-50/30 border-0">
+          <TableCell colSpan={6} className="pt-2 pb-6 pl-14 pr-6">
+            <div className="rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-950 shadow-sm overflow-hidden mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+                    <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Varian Output</th>
+                    <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Qty Diproduksi</th>
+                    <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Harga Jual / unit</th>
+                    <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Total Nilai</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-900">
+                  {repack.items.map((item) => (
+                    <tr key={item.id} className="transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
+                      <td className="px-5 py-3">
+                        <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase">
+                          {item.targetVariantLabel}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-3 text-right font-black text-foreground">{item.qtyProduced} pcs</td>
+                      <td className="px-5 py-3 text-right font-medium text-muted-foreground">{formatIDR(item.sellingPrice)}</td>
+                      <td className="px-5 py-3 text-right text-primary font-black">
+                        {formatIDR(item.sellingPrice * item.qtyProduced)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </TableCell>
         </TableRow>
-
-        <CollapsibleContent>
-          <TableRow className="bg-gray-50/30 dark:bg-gray-900/10 hover:bg-gray-50/30 border-0">
-            <TableCell colSpan={6} className="pt-2 pb-6 pl-14 pr-6">
-              <div className="rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-950 shadow-sm overflow-hidden mt-2">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-                      <th className="text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Varian Output</th>
-                      <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Qty Diproduksi</th>
-                      <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Harga Jual / unit</th>
-                      <th className="text-right px-5 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Total Nilai</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 dark:divide-gray-900">
-                    {repack.items.map((item) => (
-                      <tr key={item.id} className="transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
-                        <td className="px-5 py-3">
-                          <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase">
-                            {item.targetVariantLabel}
-                          </Badge>
-                        </td>
-                        <td className="px-5 py-3 text-right font-black text-foreground">{item.qtyProduced} pcs</td>
-                        <td className="px-5 py-3 text-right font-medium text-muted-foreground">{formatIDR(item.sellingPrice)}</td>
-                        <td className="px-5 py-3 text-right text-primary font-black">
-                          {formatIDR(item.sellingPrice * item.qtyProduced)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </TableCell>
-          </TableRow>
-        </CollapsibleContent>
-      </>
-    </Collapsible>
+      )}
+    </>
   );
 }
 
