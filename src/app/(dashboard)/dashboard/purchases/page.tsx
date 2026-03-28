@@ -168,7 +168,14 @@ export default function PurchasesPage() {
           if (updated.lastCost > 0) {
             updated.priceChange = ((updated.unitCost - updated.lastCost) / updated.lastCost) * 100;
           }
-          if (updated.sellingPrice > 0) {
+
+          if ('marginPct' in updates) {
+            // If user explicitly updated marginPct
+            const rawSellingPrice = updated.unitCost * (1 + (updated.marginPct / 100));
+            updated.sellingPrice = Math.ceil(rawSellingPrice / 1000) * 1000;
+            updated.marginAmount = updated.sellingPrice - updated.unitCost;
+          } else if (updated.sellingPrice > 0) {
+            // Otherwise, calculate marginPct from sellingPrice (standard behavior)
             updated.marginAmount = updated.sellingPrice - updated.unitCost;
             updated.marginPct = (updated.marginAmount / updated.unitCost) * 100;
           }
@@ -613,12 +620,20 @@ export default function PurchasesPage() {
                                </div>
                             </div>
   
-                            {/* Margin Stat */}
-                            <div className="bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] p-4 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-emerald-500/[0.06] transition-all">
+                            {/* Margin Stat - NOW EDITABLE */}
+                            <div className="bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] p-4 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col items-center text-center group/stat hover:bg-emerald-500/[0.06] transition-all relative">
                                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-1.5 leading-none">Profit Margin %</span>
-                               <div className="flex items-baseline gap-2">
-                                 <span className="text-base font-black text-emerald-700 dark:text-emerald-300 tracking-tight">{Math.round(item.marginPct)}%</span>
-                                 <span className="text-[10px] font-bold text-emerald-600/50 italic leading-none">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
+                               <div className="flex flex-col items-center gap-1 w-full scale-[0.9] hover:scale-100 transition-transform duration-300">
+                                 <div className="relative w-24">
+                                   <Input 
+                                      type="number"
+                                      value={Math.round(item.marginPct)}
+                                      onChange={(e) => updateItem(item.id, { marginPct: Number(e.target.value) })}
+                                      className="h-9 w-full bg-transparent border-none text-center font-black text-emerald-700 dark:text-emerald-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-4 focus:ring-emerald-500/10 rounded-lg p-0 text-lg leading-none"
+                                   />
+                                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-base font-black text-emerald-700/30 pointer-events-none">%</span>
+                                 </div>
+                                 <span className="text-[9px] font-bold text-emerald-600/50 italic leading-none truncate">Rp {(item.marginAmount).toLocaleString('id-ID')}</span>
                                </div>
                             </div>
   
