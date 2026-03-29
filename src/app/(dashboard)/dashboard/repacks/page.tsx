@@ -15,6 +15,7 @@ import {
   Trash2,
   Layers,
 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -356,7 +357,7 @@ function RepacksContent() {
   };
 
   return (
-    <div className="space-y-6 p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+    <div className="space-y-8 p-0 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
@@ -377,9 +378,10 @@ function RepacksContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Area (Product & Config) */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-8">
           
-          <div className="p-8 rounded-3xl bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none border border-white/50 dark:border-gray-800/50">
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+            <CardContent className="p-8">
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground mb-6 flex items-center gap-3">
               <Package className="w-4 h-4 text-primary" />
               1. Pilih Produk & Sumber
@@ -492,7 +494,7 @@ function RepacksContent() {
                         max={sourceVariant.stock ?? 1}
                         value={sourceQtyUsed}
                         onChange={(e) => setSourceQtyUsed(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="h-16 font-black text-2xl px-6 bg-white dark:bg-gray-950 border-primary/20 rounded-2xl shadow-sm pr-20"
+                        className="h-14 font-black text-2xl px-6 bg-white dark:bg-gray-950 border-primary/20 rounded-2xl shadow-sm pr-20"
                       />
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground/50 uppercase tracking-widest pointer-events-none">
                         PCS
@@ -507,9 +509,11 @@ function RepacksContent() {
                 </div>
               </div>
             )}
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="p-8 rounded-3xl bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none border border-white/50 dark:border-gray-800/50">
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+            <CardContent className="p-8">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
                 <ArrowRight className="w-4 h-4 text-primary" />
@@ -557,7 +561,7 @@ function RepacksContent() {
                             value={row.targetVariantLabel} 
                             onValueChange={(val) => updateOutputRow(row.id, 'targetVariantLabel', val ?? "")}
                           >
-                            <ComboboxTrigger className="h-12 font-black bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl px-4 shadow-sm hover:border-primary/30 transition-all text-left uppercase">
+                            <ComboboxTrigger className="h-14 font-black bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl px-5 shadow-sm hover:border-primary/30 transition-all text-left uppercase">
                               {row.targetVariantLabel || <span className="text-muted-foreground/40 normal-case italic">Pilih Varian...</span>}
                             </ComboboxTrigger>
                             <ComboboxContent align="start" className="w-(--anchor-width) min-w-[200px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90 gap-1 flex flex-col">
@@ -584,7 +588,7 @@ function RepacksContent() {
                               min={1}
                               value={row.qtyProduced}
                               onChange={(e) => updateOutputRow(row.id, 'qtyProduced', Math.max(1, parseInt(e.target.value) || 1))}
-                              className="h-12 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
+                              className="h-14 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
                               PCS
@@ -601,7 +605,7 @@ function RepacksContent() {
                               placeholder="0"
                               value={row.sizeInGram || ''}
                               onChange={(e) => updateOutputRow(row.id, 'sizeInGram', parseInt(e.target.value) || 0)}
-                              className="h-12 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
+                              className="h-14 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
                               GR
@@ -618,7 +622,7 @@ function RepacksContent() {
                               placeholder="0"
                               value={row.sellingPrice || ''}
                               onChange={(e) => updateOutputRow(row.id, 'sellingPrice', parseInt(e.target.value) || 0)}
-                              className="h-12 font-black pl-10 pr-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-right"
+                              className="h-14 font-black pl-10 pr-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-right"
                             />
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground/40 pointer-events-none">
                               Rp
@@ -641,12 +645,14 @@ function RepacksContent() {
                 })}
               </div>
             )}
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right Area (Intelligence & Submit) */}
-        <div className="space-y-6">
-          <div className="sticky top-6 p-8 rounded-3xl bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none border border-white/50 dark:border-gray-800/50 flex flex-col gap-8">
+        <div className="space-y-8">
+          <Card className="sticky top-6 border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+            <CardContent className="p-8 flex flex-col gap-8">
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-3">
               <TrendingUp className="w-4 h-4 text-primary" />
               Intelligence
@@ -703,13 +709,15 @@ function RepacksContent() {
                 </span>
               </div>
             </Button>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
       </div>
 
       {/* History Table below */}
-      <div className="mt-12 rounded-3xl border-none bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl shadow-2xl shadow-gray-200/50 dark:shadow-none overflow-hidden p-6 md:p-8">
+      <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+        <CardContent className="p-6 md:p-8">
         <div className="flex items-center gap-4 mb-8">
           <div className="h-10 w-2 bg-primary rounded-full shadow-lg shadow-primary/20" />
           <div className="flex flex-col">
@@ -727,13 +735,13 @@ function RepacksContent() {
         <div className="overflow-x-auto min-h-[400px]">
           <Table>
             <TableHeader>
-              <TableRow className="bg-transparent hover:bg-transparent border-b border-gray-100 dark:border-gray-800">
+              <TableRow className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
                 <TableHead className="w-8" />
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Waktu</TableHead>
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Produk</TableHead>
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Sumber</TableHead>
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Output</TableHead>
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Catatan</TableHead>
+                <TableHead className="px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Waktu</TableHead>
+                <TableHead className="px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Produk</TableHead>
+                <TableHead className="px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Sumber</TableHead>
+                <TableHead className="px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Output</TableHead>
+                <TableHead className="px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Catatan</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100/50 dark:divide-gray-800/50">
@@ -763,7 +771,8 @@ function RepacksContent() {
             </TableBody>
           </Table>
         </div>
-      </div>
+        </CardContent>
+      </Card>
 
     </div>
   );
