@@ -75,7 +75,7 @@ function VerifyContent() {
             <AlertCircle className="h-12 w-12 text-destructive" />
             <p className="text-center text-destructive font-medium">{error}</p>
             <button 
-              onClick={() => router.push("/login")}
+              onClick={() => router.push("/staff")}
               className="text-sm text-primary hover:underline font-medium"
             >
               Back to login

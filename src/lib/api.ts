@@ -54,8 +54,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     if (response.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
       // Only redirect if not already on the login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/staff') {
+        window.location.href = '/staff';
       }
     }
     throw new ApiError(result.message || `API request failed at ${url}`, response.status, result);

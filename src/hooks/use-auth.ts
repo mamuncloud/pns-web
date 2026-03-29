@@ -15,7 +15,7 @@ export function useAuth() {
     localStorage.removeItem("user");
     setUser(null);
     setToken(null);
-    router.push("/login");
+    router.push("/staff");
   }, [router]);
 
   useEffect(() => {

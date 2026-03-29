@@ -49,7 +49,7 @@ export function useActivityRefresh() {
           localStorage.setItem("auth_token", response.data.access_token);
         } catch {
           // Silently fail — if the token is expired, the next API call will
-          // handle the 401 and redirect to /login via fetchApi()
+          // handle the 401 and redirect to /staff via fetchApi()
         } finally {
           isRefreshing.current = false;
         }

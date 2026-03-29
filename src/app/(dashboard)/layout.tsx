@@ -21,7 +21,7 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated || !isEmployee) {
-        router.push("/login");
+        router.push("/staff");
       }
     }
   }, [isLoading, isAuthenticated, isEmployee, router]);

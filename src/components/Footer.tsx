@@ -70,7 +70,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-accent transition-colors" href="/login">
+                <Link className="hover:text-accent transition-colors" href="/staff">
                   Staff
                 </Link>
               </li>
