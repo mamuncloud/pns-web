@@ -46,7 +46,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
   const [brandSearch, setBrandSearch] = useState("");
   const [tastes, setTastes] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
-  const [variants, setVariants] = useState<{ label: string; price: number; sku?: string; sizeInGram?: number }[]>([]);
+  const [variants, setVariants] = useState<{ package: string; price: number; sku?: string; sizeInGram?: number }[]>([]);
 
   useEffect(() => {
     async function fetchBrands() {
@@ -175,7 +175,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
           isPrimary: selectedImages[index].isPrimary
         })),
         variants: variants.map(v => ({
-          label: v.label,
+          package: v.package,
           price: v.price,
           sku: v.sku,
           sizeInGram: v.sizeInGram,
@@ -401,7 +401,7 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
               type="button" 
               variant="outline" 
               size="sm" 
-              onClick={() => setVariants([...variants, { label: "250gr", price: 0 }])}
+              onClick={() => setVariants([...variants, { package: "250gr", price: 0 }])}
               className="h-8 text-[10px] font-black uppercase tracking-widest border-primary/20 hover:bg-primary/5 rounded-xl"
             >
               <Plus className="mr-1 h-3 w-3" /> Tambah Varian
@@ -419,18 +419,18 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
               variants.map((variant, index) => (
                 <div key={index} className="flex items-end gap-3 p-4 rounded-2xl bg-white dark:bg-black/20 border border-gray-100 dark:border-gray-800 shadow-sm animate-in slide-in-from-right-4 duration-300">
                   <div className="flex-1 space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Packaging</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Package</Label>
                     <select
                       className="w-full h-10 px-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-transparent focus:border-primary/50 text-sm font-bold uppercase transition-all"
-                      value={variant.label}
+                      value={variant.package}
                       onChange={(e) => {
                         const newVariants = [...variants];
-                        newVariants[index].label = e.target.value;
+                        newVariants[index].package = e.target.value;
                         setVariants(newVariants);
                       }}
                     >
-                      {["ES3", "ES4", "250gr", "500gr", "1kg", "bal"].map(label => (
-                        <option key={label} value={label}>{label}</option>
+                      {["Medium", "Small", "250gr", "500gr", "1kg", "bal"].map(pkg => (
+                        <option key={pkg} value={pkg}>{pkg}</option>
                       ))}
                     </select>
                   </div>

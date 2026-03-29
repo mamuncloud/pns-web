@@ -45,7 +45,7 @@ import {
 interface PurchaseItem {
   id: string;
   productId: string;
-  variantLabel: string;
+  package: string;
   productName: string;
   brandName: string;
   qty: number;
@@ -124,7 +124,7 @@ export default function PurchasesPage() {
     const newItem: PurchaseItem = {
       id: Math.random().toString(36).substr(2, 9),
       productId: "",
-      variantLabel: "",
+      package: "",
       productName: "",
       brandName: "",
       qty: 1,
@@ -157,7 +157,7 @@ export default function PurchasesPage() {
           updated.brandName = product?.brand?.name || "";
           // Backend uses 'label', map it correctly to the frontend's item expectation
           const defaultVariant = product?.variants?.[0];
-          updated.variantLabel = defaultVariant?.package || "bal"; 
+          updated.package = defaultVariant?.package || "bal"; 
           updated.lastCost = product?.currentHpp || (product?.variants?.[0]?.price || 0) * 0.7;
           updated.sellingPrice = product?.sellingPrice || product?.variants?.[0]?.price || 0;
         }
@@ -213,7 +213,7 @@ export default function PurchasesPage() {
         status: targetStatus,
         items: items.map(item => ({
           productId: item.productId,
-          variantLabel: item.variantLabel,
+          package: item.package,
           qty: item.qty,
           sizeInGram: item.sizeInGram || undefined,
           totalCost: item.totalCost,
@@ -516,10 +516,10 @@ export default function PurchasesPage() {
                                 </label>
                                 <div className="relative group/select">
                                   <select 
-                                    value={item.variantLabel || "bal"}
+                                    value={item.package || "bal"}
                                     onChange={(e) => {
                                       const newLabel = e.target.value;
-                                      const updates: Partial<PurchaseItem> = { variantLabel: newLabel };
+                                      const updates: Partial<PurchaseItem> = { package: newLabel };
                                       
                                       // Auto-extract weight from label if it matches certain patterns
                                       const weightMatch = newLabel.match(/(\d+)(gr|kg)/i);
@@ -534,8 +534,8 @@ export default function PurchasesPage() {
                                     className="w-full h-14 font-black text-sm bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 appearance-none focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all cursor-pointer"
                                   >
                                     <option value="bal">BAL (Default)</option>
-                                    <option value="ES3">ES3</option>
-                                    <option value="ES4">ES4</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Small">Small</option>
                                     <option value="250gr">250gr</option>
                                     <option value="500gr">500gr</option>
                                     <option value="1kg">1kg</option>

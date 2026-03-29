@@ -43,12 +43,12 @@ import { Repack, CreateRepackDto } from '@/types/financial';
 import { Product } from '@/types/product';
 import Link from 'next/link';
 
-const VARIANT_LABELS = ['ES3', 'ES4', '250gr', '500gr', '1kg', 'bal'] as const;
+const VARIANT_LABELS = ['Medium', 'Small', '250gr', '500gr', '1kg', 'bal'] as const;
 type VariantLabel = (typeof VARIANT_LABELS)[number];
 
 interface OutputRow {
   id: string;
-  targetVariantLabel: VariantLabel | '';
+  targetVariantPackage: VariantLabel | '';
   qtyProduced: number;
   sellingPrice: number;
   sizeInGram: number;
@@ -93,7 +93,7 @@ function RepackRow({ repack }: { repack: Repack }) {
 
   const outputSummary = repack.items
     .map((item) => {
-      const label = item.targetVariant?.label || item.targetVariantLabel || 'Unknown';
+      const label = item.targetVariant?.package || item.targetVariantPackage || 'Unknown';
       const size = item.sizeInGram ? ` (${item.sizeInGram}g)` : '';
       return `${label}${size} ×${item.qtyProduced}`;
     })
@@ -131,7 +131,7 @@ function RepackRow({ repack }: { repack: Repack }) {
         </TableCell>
         <TableCell>
           <Badge variant="secondary" className="font-black text-[10px] uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border-0">
-            {repack.sourceVariant?.label ?? '—'} ×{repack.sourceQtyUsed}
+            {repack.sourceVariant?.package ?? '—'} ×{repack.sourceQtyUsed}
           </Badge>
         </TableCell>
         <TableCell className="text-sm font-bold text-muted-foreground">{outputSummary}</TableCell>
@@ -159,7 +159,7 @@ function RepackRow({ repack }: { repack: Repack }) {
                     <tr key={item.id} className="transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
                       <td className="px-5 py-3">
                         <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase">
-                          {item.targetVariant?.label || item.targetVariantLabel || 'Unknown'}
+                          {item.targetVariant?.package || item.targetVariantPackage || 'Unknown'}
                         </Badge>
                       </td>
                       <td className="px-5 py-3 text-right font-medium text-muted-foreground">
@@ -206,7 +206,7 @@ function RepacksContent() {
   const [sourceQtyUsed, setSourceQtyUsed] = useState(1);
   const [note, setNote] = useState('');
   const [outputRows, setOutputRows] = useState<OutputRow[]>([
-    { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
+    { id: crypto.randomUUID(), targetVariantPackage: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -278,7 +278,7 @@ function RepacksContent() {
   const addOutputRow = useCallback(() => {
     setOutputRows((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
+      { id: crypto.randomUUID(), targetVariantPackage: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
     ]);
   }, []);
 
@@ -301,7 +301,7 @@ function RepacksContent() {
     setSourceQtyUsed(1);
     setNote('');
     setOutputRows([
-      { id: crypto.randomUUID(), targetVariantLabel: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
+      { id: crypto.randomUUID(), targetVariantPackage: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
     ]);
     setError(null);
   };
@@ -323,7 +323,7 @@ function RepacksContent() {
       return;
     }
     const invalidRows = outputRows.filter(
-      (row) => !row.targetVariantLabel || row.qtyProduced < 1 || row.sellingPrice < 0,
+      (row) => !row.targetVariantPackage || row.qtyProduced < 1 || row.sellingPrice < 0,
     );
     if (invalidRows.length > 0) {
       setError('Lengkapi semua baris output terlebih dahulu. Pastikan varian terisi dan harga valid.');
@@ -336,7 +336,7 @@ function RepacksContent() {
       sourceQtyUsed,
       note: note || undefined,
       items: outputRows.map((row) => ({
-        targetVariantLabel: row.targetVariantLabel as string,
+        targetVariantPackage: row.targetVariantPackage as string,
         qtyProduced: row.qtyProduced,
         sellingPrice: row.sellingPrice,
         sizeInGram: row.sizeInGram > 0 ? row.sizeInGram : undefined,
@@ -558,11 +558,11 @@ function RepacksContent() {
                         <div className="space-y-2">
                           <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">Label Varian</label>
                           <Combobox 
-                            value={row.targetVariantLabel} 
-                            onValueChange={(val) => updateOutputRow(row.id, 'targetVariantLabel', val ?? "")}
+                            value={row.targetVariantPackage} 
+                            onValueChange={(val) => updateOutputRow(row.id, 'targetVariantPackage', val ?? "")}
                           >
                             <ComboboxTrigger className="h-14 font-black bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl px-5 shadow-sm hover:border-primary/30 transition-all text-left uppercase">
-                              {row.targetVariantLabel || <span className="text-muted-foreground/40 normal-case italic">Pilih Varian...</span>}
+                              {row.targetVariantPackage || <span className="text-muted-foreground/40 normal-case italic">Pilih Varian...</span>}
                             </ComboboxTrigger>
                             <ComboboxContent align="start" className="w-(--anchor-width) min-w-[200px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90 gap-1 flex flex-col">
                               <ComboboxList className="space-y-1">

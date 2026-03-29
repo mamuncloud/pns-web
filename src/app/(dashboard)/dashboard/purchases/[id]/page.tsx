@@ -63,7 +63,7 @@ interface EditableItem {
   id: string;
   purchaseItemId?: string;
   productId: string;
-  variantLabel: string;
+  package: string;
   productName: string;
   brandName: string;
   qty: number;
@@ -170,7 +170,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           id: item.id,
           purchaseItemId: item.id,
           productId: item.productId,
-          variantLabel: item.variantLabel,
+          package: item.package,
           productName: item.product?.name || "",
           brandName: item.product?.brand?.name || "",
           qty: item.qty,
@@ -199,7 +199,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
           updated.productName = product?.name || "";
           updated.brandName = product?.brand?.name || "";
           const defaultVariant = product?.variants?.[0];
-          updated.variantLabel = defaultVariant?.package || "bal";
+          updated.package = defaultVariant?.package || "bal";
           updated.lastCost = product?.currentHpp || (product?.variants?.[0]?.price || 0) * 0.7;
           updated.sellingPrice = product?.sellingPrice || product?.variants?.[0]?.price || 0;
         }
@@ -248,7 +248,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     setEditItems(prev => [...prev, {
       id: Math.random().toString(36).substr(2, 9),
       productId: "",
-      variantLabel: "bal",
+      package: "bal",
       productName: "",
       brandName: "",
       qty: 1,
@@ -334,7 +334,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
         status: editStatus,
         items: editItems.map(item => ({
           productId: item.productId,
-          variantLabel: item.variantLabel,
+          package: item.package,
           qty: item.qty,
           sizeInGram: item.sizeInGram || undefined,
           totalCost: item.totalCost,
@@ -592,13 +592,13 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-3">
                               <label className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-[0.2em] px-1 flex items-center gap-2">
-                                <Tag className="h-3 w-3 text-primary/40" /> Label Varian
+                                <Tag className="h-3 w-3 text-primary/40" /> Kemasan / Pack
                               </label>
                               <select 
-                                value={item.variantLabel || "bal"}
+                                value={item.package || "bal"}
                                 onChange={(e) => {
                                   const newLabel = e.target.value;
-                                  const updates: Partial<EditableItem> = { variantLabel: newLabel };
+                                  const updates: Partial<EditableItem> = { package: newLabel };
                                   const weightMatch = newLabel.match(/(\d+)(gr|kg)/i);
                                   if (weightMatch) {
                                     const val = parseInt(weightMatch[1]);
@@ -610,8 +610,8 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                 className="w-full h-14 font-black text-sm bg-gray-50 items-center flex dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-2xl px-5 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/80"
                               >
                                 <option value="bal">BAL (Default)</option>
-                                <option value="ES3">ES3 (Ecer Small 3)</option>
-                                <option value="ES4">ES4 (Ecer Small 4)</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Small">Small</option>
                                 <option value="250gr">PACK 250GR</option>
                                 <option value="500gr">PACK 500GR</option>
                                 <option value="1kg">PACK 1KG</option>
@@ -1109,16 +1109,16 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                     key={vIdx} 
                                     className={cn(
                                       "flex flex-col p-2 rounded-xl border transition-all",
-                                      v.package === item.variantLabel
+                                      v.package === item.package
                                         ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20 shadow-sm"
                                         : "bg-gray-50/50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 opacity-60 hover:opacity-100"
                                     )}
                                   >
                                     <div className="flex items-center justify-between mb-1">
-                                      <span className={cn("text-[10px] font-black uppercase tracking-tighter", v.package === item.variantLabel ? "text-primary" : "text-muted-foreground")}>
+                                      <span className={cn("text-[10px] font-black uppercase tracking-tighter", v.package === item.package ? "text-primary" : "text-muted-foreground")}>
                                         {v.package}
                                       </span>
-                                      {v.package === item.variantLabel && (
+                                      {v.package === item.package && (
                                         <Badge className="h-3.5 px-1 text-[7px] font-black bg-primary text-white border-none">PURCHASED</Badge>
                                       )}
                                     </div>
@@ -1151,7 +1151,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                         <div className="flex flex-col items-end">
                           <span className="text-xl">{item.qty}</span>
                           <div className="flex flex-col items-end gap-1 mt-1">
-                            <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-full">{item.variantLabel}</span>
+                            <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-full">{item.package}</span>
                             {(item.sizeInGram ?? 0) > 0 && (
                               <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-tighter italic">({item.sizeInGram} gr)</span>
                             )}

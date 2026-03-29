@@ -28,7 +28,7 @@ export interface PurchaseItem {
   id: string;
   purchaseId: string;
   productId: string;
-  variantLabel: string;
+  package: string;
   qty: number;
   totalCost: number;
   extraCosts: number;
@@ -75,7 +75,7 @@ export interface CreatePurchaseDto {
   status: 'DRAFT' | 'COMPLETED';
   items: {
     productId: string;
-    variantLabel: string;
+    package: string;
     qty: number;
     totalCost: number;
     extraCosts: number;
@@ -99,10 +99,10 @@ export interface RepackItem {
   targetVariantId: string;
   targetVariant?: {
     id: string;
-    label: string;
+    package: string;
     sizeInGram?: number;
   };
-  targetVariantLabel?: string; // Kept for backward compatibility/temp display if needed
+  targetVariantPackage?: string; // Kept for backward compatibility/temp display if needed
   qtyProduced: number;
   sellingPrice: number;
   sizeInGram?: number;
@@ -119,7 +119,7 @@ export interface Repack {
   sourceVariantId: string;
   sourceVariant?: {
     id: string;
-    label: string;
+    package: string;
     stock: number;
     price: number;
   };
@@ -135,7 +135,7 @@ export interface CreateRepackDto {
   sourceQtyUsed: number;
   note?: string;
   items: {
-    targetVariantLabel: string;
+    targetVariantPackage: string;
     qtyProduced: number;
     sellingPrice: number;
     sizeInGram?: number;
@@ -155,7 +155,7 @@ export interface StockMovement {
   createdAt: string;
   productVariant?: {
     id: string;
-    label: string;
+    package: string;
     product?: {
       id: string;
       name: string;

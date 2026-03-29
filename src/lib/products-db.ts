@@ -32,7 +32,7 @@ interface BackendProduct {
   updatedAt: string;
   variants: Array<{
     id: string;
-    label: string;
+    package: string;
     price: number;
     hpp: number;
     stock: number;
@@ -76,7 +76,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       latestSupplier: p.latestSupplier || undefined,
       variants: (p.variants || []).map((v: BackendVariant) => ({
         id: v.id,
-        package: v.label as EnumPackage,
+        package: v.package as EnumPackage,
         price: v.price,
         hpp: v.hpp || 0,
         stock: v.stock,
@@ -127,7 +127,7 @@ export async function getProductsFromDb(page: number = 1, limit: number = 12, ta
         latestSupplier: p.latestSupplier || undefined,
         variants: (p.variants || []).map((v: BackendVariant) => ({
           id: v.id,
-          package: v.label as EnumPackage,
+          package: v.package as EnumPackage,
           price: v.price,
           hpp: v.hpp || 0,
           stock: v.stock,

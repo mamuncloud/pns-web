@@ -148,7 +148,7 @@ export function StockMovementList({ productVariantId, productId, limit = 50, cla
                           {movement.productVariant?.product?.name || 'Unknown Product'}
                         </span>
                         <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.15em] mt-0.5 flex items-center gap-1.5">
-                          SKU ID: {movement.productVariant?.label || '???'}
+                          SKU ID: {movement.productVariant?.package || '???'}
                         </span>
                       </div>
                     </TableCell>
