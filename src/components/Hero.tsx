@@ -31,12 +31,12 @@ export default function Hero() {
               </div>
             </Button>
 
-            <Button variant="outline" className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:bg-white/10 hover:scale-[1.05] active:scale-[0.98] border border-white/20 text-white min-w-[200px]">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <Button variant="outline" className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-primary/5 dark:bg-white/5 backdrop-blur-md font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:bg-primary hover:text-white dark:hover:bg-white/10 hover:scale-[1.05] active:scale-[0.98] border border-primary/30 dark:border-white/20 text-primary dark:text-white min-w-[200px]">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-white/20 to-transparent" />
               <div className="relative flex items-center justify-center gap-3">
                 <span className="relative">
                   Lihat Produk
-                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/30 transition-all duration-500 group-hover:w-full" />
+                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-current transition-all duration-500 group-hover:w-full opacity-30" />
                 </span>
                 <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover:translate-x-1" />
               </div>
