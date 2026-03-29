@@ -8,7 +8,7 @@ export default function StockDashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
         <div className="space-y-1">
           <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">
