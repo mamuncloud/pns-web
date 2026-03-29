@@ -45,8 +45,8 @@ export function useActivityRefresh() {
       if (timeUntilExpiry > 0 && timeUntilExpiry < REFRESH_BEFORE_EXPIRY_MS) {
         isRefreshing.current = true;
         try {
-          const response = await api.auth.reissue();
-          localStorage.setItem("auth_token", response.data.access_token);
+          const { data } = await api.auth.refresh();
+          localStorage.setItem("auth_token", data.access_token);
         } catch {
           // Silently fail — if the token is expired, the next API call will
           // handle the 401 and redirect to /staff via fetchApi()
