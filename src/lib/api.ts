@@ -25,12 +25,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 export class ApiError extends Error {
   statusCode: number;
   response?: ApiResponse<unknown>;
+  url?: string;
 
-  constructor(message: string, statusCode: number, response?: ApiResponse<unknown>) {
+  constructor(message: string, statusCode: number, response?: ApiResponse<unknown>, url?: string) {
     super(message);
     this.name = 'ApiError';
     this.statusCode = statusCode;
     this.response = response;
+    this.url = url;
   }
 }
 
@@ -116,7 +118,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
             const retryResponse = await makeRequest(newToken);
             const result = await retryResponse.json();
             if (!retryResponse.ok) {
-              reject(new ApiError(result.message || 'Retry failed', retryResponse.status, result));
+              const errorMsg = `[${retryResponse.status}] ${options.method || "GET"} ${url}: ${result.message || "Forbidden"}`;
+              console.warn(errorMsg, result);
+              reject(new ApiError(errorMsg, retryResponse.status, result, url));
             } else {
               resolve(result);
             }
@@ -131,7 +135,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const result = await response.json();
 
   if (!response.ok) {
-    throw new ApiError(result.message || `API request failed at ${url}`, response.status, result);
+    const errorMsg = `[${response.status}] ${options.method || 'GET'} ${url}: ${result.message || 'Forbidden'}`;
+    console.warn(errorMsg, result);
+    throw new ApiError(errorMsg, response.status, result, url);
   }
 
   return result as ApiResponse<T>;

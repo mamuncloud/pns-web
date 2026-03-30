@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -16,15 +16,33 @@ export default function DashboardLayout({
 }) {
   const { user, isAuthenticated, isEmployee, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   useActivityRefresh();
 
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated || !isEmployee) {
         router.push("/staff");
+        return;
+      }
+
+      // Route Authorization
+      const userRole = user?.role || "CASHIER";
+      
+      // If user is a CASHIER, restrict their access to specific allowed paths only
+      if (userRole === "CASHIER") {
+        const allowedPaths = ["/dashboard", "/dashboard/pos"];
+        // Allow exact matches or sub-paths like /dashboard/pos/...
+        const isAllowed = allowedPaths.some(
+          allowed => pathname === allowed || pathname.startsWith(`${allowed}/`)
+        );
+        
+        if (!isAllowed) {
+          router.push("/dashboard");
+        }
       }
     }
-  }, [isLoading, isAuthenticated, isEmployee, router]);
+  }, [isLoading, isAuthenticated, isEmployee, router, pathname, user]);
 
   if (isLoading || !isAuthenticated || !isEmployee) {
     return (
