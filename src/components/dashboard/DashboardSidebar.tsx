@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
@@ -19,18 +20,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Pos (Kasir)", href: "/dashboard/pos", icon: ShoppingCart },
-  { name: "Products", href: "/dashboard/products", icon: Package },
-  { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag },
-  { name: "Repacks", href: "/dashboard/repacks", icon: Scissors },
-  { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity },
-  { name: "Logs", href: "/dashboard/logs", icon: ClipboardList },
+  { name: "Overview", href: "/dashboard", icon: LayoutDashboard, roles: ["MANAGER", "CASHIER"] },
+  { name: "Pos (Kasir)", href: "/dashboard/pos", icon: ShoppingCart, roles: ["MANAGER", "CASHIER"] },
+  { name: "Products", href: "/dashboard/products", icon: Package, roles: ["MANAGER"] },
+  { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag, roles: ["MANAGER"] },
+  { name: "Repacks", href: "/dashboard/repacks", icon: Scissors, roles: ["MANAGER"] },
+  { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity, roles: ["MANAGER"] },
+  { name: "Logs", href: "/dashboard/logs", icon: ClipboardList, roles: ["MANAGER"] },
 ];
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
+  
+  const userRole = user?.role || "CASHIER";
+  const filteredNavItems = navItems.filter(item => item.roles.includes(userRole));
 
   return (
     <>
@@ -72,7 +77,7 @@ export default function DashboardSidebar() {
 
           {/* Navigation Links */}
           <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
