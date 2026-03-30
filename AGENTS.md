@@ -24,12 +24,20 @@ As a Software Architect, the following rules have been established for this proj
   - `src/hooks/`: Custom React hooks (if needed).
 - **Data Fetching:** Leverage Next.js App Router native data fetching within Server Components where possible.
 - **Type Safety:** Avoid `any` types. Ensure strong typing with TypeScript interfaces or types for component props, API responses, and function signatures.
+- **Authentication Strategy:** Use a secure Access + Refresh Token flow.
+  - Access Tokens: Short-lived, stored in memory/state.
+  - Refresh Tokens: Long-lived (e.g., 60 days), stored in `httpOnly`, secure, and `SameSite=Strict` cookies.
+  - Silent Refresh: Implement automatic token reissue on activity or just before expiry via axios/fetch interceptors.
 
 ## 3. UI and Styling Guidelines
 - **shadcn/ui Priority:** The use of `shadcn` as the UI component library is highly preferred. Instead of writing bespoke HTML/Tailwind from scratch, use or generate `shadcn` components for uniform and accessible UI.
 - **Tailwind CSS v4:** Utilize Tailwind for all styling. Use utility classes via the `className` prop. 
 - **Style Merging:** Always use `clsx` and `tailwind-merge` (typically merged in a `cn()` utility located in `src/lib/utils.ts`) to compose conditional styles and avoid Tailwind class-name conflicts.
 - **No Raw CSS:** Avoid writing custom CSS in global stylesheets except for baseline `@theme` overrides or global Tailwind setup.
+- **Icons & Visuals:**
+  - **Lucide Icons:** Use Lucide icons consistently for a clean, modern aesthetic. Avoid mixing multiple icon libraries.
+  - **Glassmorphism:** Implement subtle glass effects (background blur + translucent fills) for card containers and dashboard overlays to create a premium feel.
+  - **Standard Cards:** Use `shadcn/ui` Card components with consistent padding and shadows for all dashboard modules.
 
 ## 4. Coding Conventions
 - **Naming Conventions:**
@@ -107,3 +115,20 @@ style(dashboard): apply consistent card shadow utility classes
 - Keep the subject line under **72 characters**.
 - Do not end the subject line with a period.
 - Use the body to explain *why*, not *what*, if additional context is needed.
+
+## 7. Database and State Persistence
+- **Migration Naming Convention:** All Drizzle migrations MUST follow the format `YYYYMMDD-HHMM-{migration_title_scope}` (e.g., `20260330-0730-add_stock_ledger`).
+- **Stock Ledger Pattern:** Every movement of inventory (Purchases, Orders, Repacks, Adjustments) MUST be recorded in the `stock_movements` table. Never update `product_variants.stock` without a corresponding ledger entry.
+- **Centralized Stock Service:** All stock-related logic should be encapsulated in a dedicated `StockService` to ensure atomicity and transactional integrity across modules.
+- **Drizzle Best Practices:**
+  - Use `db.query` for clean, readable data fetching when complex joins aren't required.
+  - Ensure all database migrations are generated with the specified naming convention.
+
+## 8. Domain-Specific Conventions
+- **Product Variant Naming:** Transition all references from `variantLabel` to `package`. Use standardized values: `Small`, `Medium`, `Large`, or specific gram/unit sizes.
+- **Currency & Pricing:** Always store prices as integers (cents/lowest unit) to avoid floating-point errors. Format for UI display using a consistent utility.
+
+## 9. Error Handling and Validation
+- **NestJS Exceptions:** Use standard NestJS built-in HTTP exceptions (`NotFoundException`, `ConflictException`, `BadRequestException`) with descriptive messages.
+- **User-Friendly Errors:** Ensure backend error messages are clear and suitable for direct display in the UI (e.g., "Produk tidak ditemukan" instead of "database error").
+- **DTO Validation:** Strict validation of all input DTOs using `class-validator` and `class-transformer`.
