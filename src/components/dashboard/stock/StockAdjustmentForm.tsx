@@ -24,6 +24,7 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
   const [selectedProductId, setSelectedProductId] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [quantity, setQuantity] = useState<string>("");
+  const [reasonType, setReasonType] = useState<"rusak" | "hilang" | "lainnya">("rusak");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,10 +49,20 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
 
     try {
       setIsSubmitting(true);
+      const finalNote = reasonType === "lainnya" 
+        ? notes 
+        : (reasonType === "rusak" ? "Rusak / Tengik" : "Hilang");
+        
+      if (reasonType === "lainnya" && !notes.trim()) {
+        toast.error("Alasan wajib diisi jika memilih 'Lainnya'.");
+        setIsSubmitting(false);
+        return;
+      }
+      
       await api.stock.adjust({
         productVariantId: selectedVariantId,
         quantity: parseInt(quantity, 10),
-        notes: notes || "Manual Adjustment"
+        note: finalNote || "Manual Adjustment"
       });
       toast.success("Stok berhasil disesuaikan.");
       
@@ -59,6 +70,7 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
       setSelectedProductId("");
       setSelectedVariantId("");
       setQuantity("");
+      setReasonType("rusak");
       setNotes("");
 
       if (onSuccess) onSuccess();
@@ -148,12 +160,53 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
 
             <div className="space-y-3">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2 px-1">Catatan/Alasan</label>
-              <Input
-                placeholder="Contoh: Barang rusak, stock opname selisih, dll."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="h-14 font-medium px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 shadow-sm rounded-2xl focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
-              />
+              
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setReasonType("rusak")}
+                  className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border shadow-sm ${
+                    reasonType === "rusak" 
+                      ? "bg-rose-500 text-white border-rose-600 shadow-md scale-105 dark:bg-rose-600" 
+                      : "bg-white/50 border-gray-200/50 text-muted-foreground hover:bg-white/80 dark:bg-gray-900/50 dark:border-gray-800 hover:-translate-y-0.5"
+                  }`}
+                >
+                  Rusak / Tengik
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReasonType("hilang")}
+                  className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border shadow-sm ${
+                    reasonType === "hilang" 
+                      ? "bg-amber-500 text-white border-amber-600 shadow-md scale-105 dark:bg-amber-600" 
+                      : "bg-white/50 border-gray-200/50 text-muted-foreground hover:bg-white/80 dark:bg-gray-900/50 dark:border-gray-800 hover:-translate-y-0.5"
+                  }`}
+                >
+                  Hilang
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReasonType("lainnya")}
+                  className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all border shadow-sm ${
+                    reasonType === "lainnya" 
+                      ? "bg-primary text-primary-foreground border-primary shadow-md scale-105" 
+                      : "bg-white/50 border-gray-200/50 text-muted-foreground hover:bg-white/80 dark:bg-gray-900/50 dark:border-gray-800 hover:-translate-y-0.5"
+                  }`}
+                >
+                  Lainnya
+                </button>
+              </div>
+
+              {reasonType === "lainnya" && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200 pt-2">
+                  <Input
+                    placeholder="Contoh: Salah input dari sistem, stock opname selisih..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="h-14 font-medium px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 shadow-sm rounded-2xl focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

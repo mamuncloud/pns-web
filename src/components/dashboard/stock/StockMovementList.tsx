@@ -192,9 +192,9 @@ export function StockMovementList({ productVariantId, productId, limit = 50, cla
                            ref: {movement.referenceId.slice(0, 8)}
                          </span>
                        )}
-                       {movement.notes ? (
-                         <span className="text-xs text-muted-foreground truncate" title={movement.notes}>
-                           {movement.notes}
+                       {movement.note ? (
+                         <span className="text-xs text-muted-foreground truncate" title={movement.note}>
+                           {movement.note}
                          </span>
                        ) : (
                          <span className="text-[10px] italic text-muted-foreground/40">-</span>

@@ -150,7 +150,7 @@ export interface StockMovement {
   quantity: number;
   balanceAfter: number;
   referenceId?: string;
-  notes?: string;
+  note?: string;
   createdBy: string;
   createdAt: string;
   productVariant?: {
@@ -170,7 +170,7 @@ export interface StockMovement {
 export interface AdjustStockDto {
   productVariantId: string;
   quantity: number;
-  notes?: string;
+  note?: string;
 }
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'COMPLETED';
