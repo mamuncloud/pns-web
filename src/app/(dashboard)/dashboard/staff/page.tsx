@@ -1,0 +1,196 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Users, 
+  Search, 
+  MoreVertical,
+  Edit2,
+  Trash2
+} from "lucide-react";
+import { api } from "@/lib/api";
+import { Employee } from "@/types/financial";
+import { StaffDialog } from "@/components/dashboard/staff/StaffDialog";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale/id";
+
+export default function DashboardStaffPage() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Deletion state
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+
+  const fetchEmployees = async () => {
+    try {
+      setIsLoading(true);
+      const { data } = await api.employees.list();
+      setEmployees(data);
+    } catch {
+      toast.error("Gagal memuat data pegawai");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!employeeToDelete) return;
+    try {
+      await api.employees.delete(employeeToDelete.id);
+      toast.success("Pegawai berhasil dihapus");
+      setEmployeeToDelete(null);
+      fetchEmployees();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal menghapus pegawai";
+      toast.error(message);
+    }
+  };
+
+  const filteredEmployees = employees.filter(e => 
+    e.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    e.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8 pb-10 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
+        <div className="space-y-1">
+          <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Manajemen Pegawai</h2>
+          <p className="text-sm text-muted-foreground font-medium">Kelola akses, role, dan data staf Planet Nyemil Snack.</p>
+        </div>
+        <StaffDialog onSuccess={fetchEmployees} />
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input 
+            placeholder="Cari nama atau email..." 
+            className="pl-12 h-14 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all text-base font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+        <div className="overflow-x-auto min-h-[400px]">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Nama & Email</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-center">Role Akses</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-right">Tanggal Bergabung</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-900">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="px-8 py-32 text-center animate-pulse">
+                    <p className="text-sm font-black uppercase tracking-widest text-muted-foreground/30">Memuat data pegawai...</p>
+                  </td>
+                </tr>
+              ) : filteredEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-8 py-32 text-center">
+                    <Users className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
+                    <p className="text-sm font-black uppercase tracking-widest text-muted-foreground/40">Pegawai tidak ditemukan</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredEmployees.map((employee) => {
+                  const isManager = employee.role === "MANAGER";
+                  return (
+                    <tr key={employee.id} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
+                      <td className="px-8 py-6">
+                         <div className="flex items-center gap-4 group/item">
+                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                            <span className="text-lg font-black text-primary capitalize">{employee.name.charAt(0)}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-base font-black text-foreground tracking-tight">{employee.name}</p>
+                            <p className="text-sm text-muted-foreground italic font-medium">{employee.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <Badge variant="outline" className={isManager ? "border-amber-500/50 text-amber-600 bg-amber-50 dark:bg-amber-950/30" : "border-slate-500/50 text-slate-600 bg-slate-50 dark:bg-slate-900/30"}>
+                          {employee.role}
+                        </Badge>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <p className="text-sm text-muted-foreground font-medium">
+                          {format(new Date(employee.createdAt), 'dd MMM yyyy', { locale: idLocale })}
+                        </p>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Buka menu</span>
+                                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                            }
+                          />
+                          <DropdownMenuContent align="end">
+                            {/* We use a little trick to trigger the StaffDialog in Edit mode */}
+                            <StaffDialog 
+                              employee={employee} 
+                              onSuccess={fetchEmployees}
+                              trigger={
+                                <button className="w-full flex items-center px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-sm cursor-pointer outline-none transition-colors">
+                                  <Edit2 className="h-4 w-4 mr-2" /> Edit Pegawai
+                                </button>
+                              }
+                            />
+                            
+                            <DropdownMenuItem 
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50 focus:bg-red-50 focus:text-red-600 dark:hover:bg-red-950/50 dark:focus:bg-red-950/50"
+                              onClick={() => setEmployeeToDelete(employee)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Hapus Pegawai
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <ConfirmationDialog
+        open={!!employeeToDelete}
+        onOpenChange={(open) => !open && setEmployeeToDelete(null)}
+        title="Hapus Pegawai"
+        description={`Apakah Anda yakin ingin menghapus data pegawai ${employeeToDelete?.name}? Tindakan ini tidak dapat dibatalkan.`}
+        onConfirm={handleDelete}
+        confirmText="Hapus"
+        cancelText="Batal"
+        variant="destructive"
+      />
+    </div>
+  );
+}

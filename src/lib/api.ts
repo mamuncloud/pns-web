@@ -10,6 +10,9 @@ import {
   AdjustStockDto,
   Order,
   CreateOrderDto,
+  Employee,
+  CreateEmployeeDto,
+  UpdateEmployeeDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -179,6 +182,14 @@ export const api = {
     refresh: () => api.post<{ access_token: string }>('/auth/refresh'),
     logout: () => api.post<{ success: boolean }>('/auth/logout'),
   },
+
+  employees: {
+    list: () => api.get<Employee[]>('/employees'),
+    create: (data: CreateEmployeeDto) => api.post<Employee>('/employees', data),
+    update: (id: string, data: UpdateEmployeeDto) => api.patch<Employee>(`/employees/${id}`, data),
+    delete: (id: string) => api.delete<{ message: string; id: string }>(`/employees/${id}`),
+  },
+
  
   products: {
     getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),

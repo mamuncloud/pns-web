@@ -93,6 +93,22 @@ export interface AuthUser {
   type: 'EMPLOYEE' | 'USER';
 }
 
+export interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  role: 'MANAGER' | 'CASHIER';
+  createdAt: string;
+}
+
+export interface CreateEmployeeDto {
+  name: string;
+  email: string;
+  role: 'MANAGER' | 'CASHIER';
+}
+
+export type UpdateEmployeeDto = Partial<CreateEmployeeDto>;
+
 export interface RepackItem {
   id: string;
   repackId: string;
