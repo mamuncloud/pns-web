@@ -19,6 +19,10 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
+interface DashboardSidebarProps {
+  isCollapsed: boolean;
+}
+
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard, roles: ["MANAGER", "CASHIER"] },
   { name: "Pos (Kasir)", href: "/dashboard/pos", icon: ShoppingCart, roles: ["MANAGER", "CASHIER"] },
@@ -29,7 +33,7 @@ const navItems = [
   { name: "Logs", href: "/dashboard/logs", icon: ClipboardList, roles: ["MANAGER"] },
 ];
 
-export default function DashboardSidebar() {
+export default function DashboardSidebar({ isCollapsed }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
@@ -52,14 +56,21 @@ export default function DashboardSidebar() {
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 transform bg-white border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0 dark:bg-gray-900 dark:border-gray-800",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 transform bg-white border-r border-gray-200 transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 dark:bg-gray-900 dark:border-gray-800",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          isCollapsed ? "w-64 lg:w-20" : "w-64"
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Logo Section */}
-          <Link href="/dashboard" className="flex items-center gap-3 px-6 h-16 border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-            <div className="relative h-9 w-9 bg-white rounded-lg p-1 border border-gray-100 dark:border-gray-800">
+          <Link 
+            href="/dashboard" 
+            className={cn(
+              "flex items-center h-16 border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors whitespace-nowrap",
+              isCollapsed ? "lg:justify-center px-6 lg:px-0 gap-3 lg:gap-0" : "px-6 gap-3"
+            )}
+          >
+            <div className="relative h-9 w-9 bg-white rounded-lg p-1 border border-gray-100 dark:border-gray-800 shrink-0">
               <Image
                 alt="Planet Nyemil Snack Logo"
                 className="object-contain"
@@ -68,7 +79,10 @@ export default function DashboardSidebar() {
                 sizes="36px"
               />
             </div>
-            <span className="font-headline font-black text-primary text-sm leading-[1.1] uppercase tracking-tighter">
+            <span className={cn(
+              "font-headline font-black text-primary text-sm leading-[1.1] uppercase tracking-tighter",
+              isCollapsed ? "lg:hidden" : "block"
+            )}>
               Planet Nyemil
               <br />
               Snack
@@ -76,7 +90,10 @@ export default function DashboardSidebar() {
           </Link>
 
           {/* Navigation Links */}
-          <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+          <nav className={cn(
+            "flex-1 overflow-y-auto overflow-x-hidden py-6 space-y-1",
+            isCollapsed ? "px-4 lg:px-2" : "px-4"
+          )}>
             {filteredNavItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -84,23 +101,31 @@ export default function DashboardSidebar() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
+                    isCollapsed ? "px-3 py-2 lg:p-3 lg:justify-center" : "px-3 py-2",
                     isActive
                       ? "bg-primary/10 text-primary dark:text-primary-foreground"
                       : "text-muted-foreground hover:bg-gray-100 hover:text-foreground dark:hover:bg-gray-800"
                   )}
+                  title={isCollapsed ? item.name : undefined}
                   onClick={() => setIsOpen(false)}
                 >
-                  <item.icon className={cn("h-5 w-5", isActive ? "text-primary dark:text-primary-foreground" : "text-muted-foreground")} />
-                  {item.name}
+                  <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-primary dark:text-primary-foreground" : "text-muted-foreground")} />
+                  <span className={cn(isCollapsed ? "lg:hidden" : "block")}>{item.name}</span>
                 </Link>
               );
             })}
           </nav>
 
           {/* Bottom Section */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-            <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50">
+          <div className={cn(
+            "border-t border-gray-200 dark:border-gray-800 flex flex-col",
+            isCollapsed ? "p-4 lg:p-2" : "p-4"
+          )}>
+            <div className={cn(
+              "rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50",
+              isCollapsed ? "lg:hidden block" : "block mt-2"
+            )}>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Support</p>
               <Link
                 href="/dashboard/help"
