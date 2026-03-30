@@ -26,7 +26,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { isStoreOpen, isLoading, toggleStoreStatus } = useStoreSettings();
+  const { isStoreOpen, isLoading, isUpdating, toggleStoreStatus } = useStoreSettings();
 
   // Derive page title from pathname
   const getPageTitle = () => {
@@ -82,8 +82,8 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           </span>
           <Switch 
             checked={isStoreOpen} 
-            disabled={isLoading}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => toggleStoreStatus(e.target.checked)} 
+            disabled={isLoading || isUpdating}
+            onChange={(e) => toggleStoreStatus(e.target.checked)} 
           />
           <span className={cn(
             "text-[10px] font-black uppercase tracking-widest transition-colors",
@@ -105,7 +105,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-gray-100 transition-all dark:hover:bg-gray-800"
           >
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary dark:text-primary-foreground font-bold text-sm">
               {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
             </div>
             <div className="hidden sm:block text-left">

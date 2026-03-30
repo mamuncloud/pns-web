@@ -72,7 +72,7 @@ export function PurchaseHistory() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        <Badge variant="outline" className="px-3 py-1 font-black text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20 backdrop-blur-sm">
+        <Badge variant="outline" className="px-3 py-1 font-black text-[10px] uppercase tracking-widest bg-primary/5 text-primary dark:text-primary-foreground border-primary/20 backdrop-blur-sm">
           Total: {purchases.length} Transaksi
         </Badge>
       </div>
@@ -132,7 +132,7 @@ export function PurchaseHistory() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    <Badge variant="secondary" className="font-black text-[10px] uppercase tracking-tighter bg-primary/5 text-primary border-primary/10 group-hover:bg-primary group-hover:text-white transition-all duration-300 rounded-lg">
+                    <Badge variant="secondary" className="font-black text-[10px] uppercase tracking-tighter bg-primary/5 text-primary border-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 rounded-lg">
                       {purchase.items?.length || 0} Prod
                     </Badge>
                   </TableCell>
