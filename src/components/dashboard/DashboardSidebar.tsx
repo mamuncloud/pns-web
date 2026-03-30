@@ -14,7 +14,8 @@ import {
   ShoppingBag,
   Activity,
   Scissors,
-  ClipboardList
+  ClipboardList,
+  Users
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const navItems = [
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag, roles: ["MANAGER"] },
   { name: "Repacks", href: "/dashboard/repacks", icon: Scissors, roles: ["MANAGER"] },
   { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity, roles: ["MANAGER"] },
+  { name: "Staff", href: "/dashboard/staff", icon: Users, roles: ["MANAGER"] },
   { name: "Logs", href: "/dashboard/logs", icon: ClipboardList, roles: ["MANAGER"] },
 ];
 
