@@ -172,3 +172,45 @@ export interface AdjustStockDto {
   quantity: number;
   notes?: string;
 }
+
+export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'COMPLETED';
+export type OrderType = 'WALK_IN' | 'PRE_ORDER';
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productVariantId: string;
+  pricingRuleId?: string;
+  quantity: number;
+  price: number;
+  productVariant?: {
+    id: string;
+    package: string;
+    product?: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+export interface Order {
+  id: string;
+  userId?: string;
+  orderType: OrderType;
+  status: OrderStatus;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  items?: OrderItem[];
+}
+
+export interface CreateOrderDto {
+  userId?: string;
+  orderType: OrderType;
+  items: {
+    productVariantId: string;
+    quantity: number;
+    price: number;
+    pricingRuleId?: string;
+  }[];
+}

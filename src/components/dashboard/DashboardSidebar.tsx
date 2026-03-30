@@ -81,12 +81,12 @@ export default function DashboardSidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-primary/10 text-primary dark:text-primary-foreground"
                       : "text-muted-foreground hover:bg-gray-100 hover:text-foreground dark:hover:bg-gray-800"
                   )}
                   onClick={() => setIsOpen(false)}
                 >
-                  <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
+                  <item.icon className={cn("h-5 w-5", isActive ? "text-primary dark:text-primary-foreground" : "text-muted-foreground")} />
                   {item.name}
                 </Link>
               );

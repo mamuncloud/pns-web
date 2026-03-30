@@ -73,7 +73,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full border-2 hover:bg-primary hover:text-white dark:hover:text-zinc-950 hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
+            className="rounded-full border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
             disabled={currentPage <= 1}
           >
             <span className="material-symbols-outlined">chevron_left</span>
@@ -93,7 +93,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
                     className={cn(
                       "rounded-full px-5 py-2 font-bold transition-all duration-300 min-w-[44px]",
                       currentPage === page 
-                        ? "bg-primary text-white dark:text-zinc-950 shadow-md transform scale-110" 
+                        ? "bg-primary text-primary-foreground shadow-md transform scale-110" 
                         : "text-dark/60 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 hover:text-primary"
                     )}
                   >
@@ -116,7 +116,7 @@ export default function ProductPagination({ totalPages, currentPage }: ProductPa
           <Button
             variant="outline"
             size="icon"
-            className="rounded-full border-2 hover:bg-primary hover:text-white dark:hover:text-zinc-950 hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
+            className="rounded-full border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary w-12 h-12 shadow-sm transition-all dark:bg-zinc-900 dark:border-white/10"
             disabled={currentPage >= totalPages}
           >
             <span className="material-symbols-outlined">chevron_right</span>

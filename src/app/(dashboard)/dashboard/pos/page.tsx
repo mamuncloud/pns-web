@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product, ProductVariant } from "@/types/product";
+import { api } from "@/lib/api";
+import { CreateOrderDto, OrderType } from "@/types/financial";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,13 +48,20 @@ export default function POSPage() {
   const isInternalReload = useRef(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
       const { data } = await getProductsFromDb(1, 100);
       setProducts(data);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      toast.error("Gagal memuat produk.");
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -127,19 +136,46 @@ export default function POSPage() {
   const isMarginLow = averageMargin > 0 && averageMargin < 20;
 
   const checkoutAction = async () => {
+    if (cart.length === 0) return;
+    
     setIsProcessing(true);
     try {
-      // Mock API call or transaction processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const orderData: CreateOrderDto = {
+        orderType: 'WALK_IN' as OrderType,
+        items: cart.map(item => ({
+          productVariantId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          // pricingRuleId is optional
+        }))
+      };
+
+      const response = await api.orders.create(orderData);
       
-      toast.success(`Transaksi Berhasil! Total: Rp ${totalRevenue.toLocaleString('id-ID')}`);
+      if (response.success) {
+        toast.success(`Transaksi Berhasil! Total: Rp ${totalRevenue.toLocaleString('id-ID')}`);
+        
+        // Clear cart and refetch products to update stock without full reload
+        setCart([]);
+        fetchProducts();
+      } else {
+        toast.error(response.message || "Gagal memproses transaksi.");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
       
-      // Clear cart and reload to refresh state
-      setCart([]);
-      isInternalReload.current = true;
-      setTimeout(() => window.location.reload(), 1500);
-    } catch {
-      toast.error("Terjadi kesalahan saat memproses transaksi.");
+      let errorMessage = "Terjadi kesalahan saat memproses transaksi.";
+      if (error instanceof Error) {
+        // Safe access to Axios error if it exists
+        const axiosError = error as unknown as Record<string, unknown>;
+        const response = axiosError.response as Record<string, unknown>;
+        const data = response?.data as Record<string, unknown>;
+        if (typeof data?.message === 'string') {
+          errorMessage = data.message;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

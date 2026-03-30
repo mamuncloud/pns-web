@@ -127,7 +127,7 @@
   --muted: oklch(0.2 0.01 25.5);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent-foreground: oklch(0.985 0 0); /* Fixed: Ensure light text on dark accent in dark mode */
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -220,11 +220,18 @@
   -webkit-background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  /* Fallback for older browsers */
+  @supports not (background-clip: text) {
+    color: #C62828;
+    background: none;
+  }
 }
 
 .dark .animate-shimmer {
-  background: linear-gradient(110deg, #FFD700 45%, #FFFFFF 50%, #FFD700 55%);
+  background: linear-gradient(110deg, #FFD700 40%, #FFF59D 50%, #FFD700 60%);
   background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 
 .animate-mesh {

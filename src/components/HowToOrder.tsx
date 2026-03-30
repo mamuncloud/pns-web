@@ -10,7 +10,7 @@ export default function HowToOrder() {
         
         {/* Header Section */}
         <div className="text-center mb-16 md:mb-24 relative z-10">
-          <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest animate-pulse-slow">
+          <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-primary/10 text-primary dark:text-primary-foreground text-xs font-bold uppercase tracking-widest animate-pulse-slow">
             Proses Mudah
           </div>
           <h2 className="font-headline text-4xl md:text-5xl font-black text-on-background dark:text-zinc-100 mb-6 tracking-tight leading-tight">

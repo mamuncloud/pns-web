@@ -8,6 +8,8 @@ import {
   CreateRepackDto,
   StockMovement,
   AdjustStockDto,
+  Order,
+  CreateOrderDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -242,5 +244,11 @@ export const api = {
       api.get<Repack[]>(`/repacks${productId ? `?productId=${productId}` : ''}`),
     get: (id: string) => api.get<Repack>(`/repacks/${id}`),
     create: (data: CreateRepackDto) => api.post<{ id: string; message: string }>('/repacks', data),
+  },
+
+  orders: {
+    list: () => api.get<Order[]>('/orders'),
+    get: (id: string) => api.get<Order>(`/orders/${id}`),
+    create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
   },
 };

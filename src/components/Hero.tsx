@@ -64,7 +64,7 @@ export default function Hero() {
 
               <h1 className="font-headline text-5xl md:text-7xl font-black text-on-background dark:text-white leading-[1.1] tracking-tighter mb-6">
                 SATU PLANET,<br />
-                <span className="animate-shimmer inline-block pb-2">RIBUAN RASA!</span>
+                <span className="animate-shimmer inline-block pb-2 px-1">RIBUAN RASA!</span>
               </h1>
 
               <p className="text-on-background/80 dark:text-zinc-300 text-lg md:text-xl font-medium max-w-sm leading-relaxed mb-10">
@@ -72,7 +72,7 @@ export default function Hero() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button className="group h-14 md:h-16 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold transition-all duration-300 hover:scale-[1.05] hover:shadow-lg">
+                <Button className="group h-14 md:h-16 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all duration-300 hover:scale-[1.05] hover:shadow-lg">
                   <ShoppingBag className="mr-2 h-5 w-5" />
                   Pesan Sekarang
                   <ArrowRight className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
@@ -110,7 +110,7 @@ export default function Hero() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                   
                   <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6">
-                    <span className="inline-block px-3 py-1 rounded-lg bg-primary/95 text-white text-[10px] font-black uppercase tracking-wider mb-2 shadow-sm">
+                    <span className="inline-block px-3 py-1 rounded-lg bg-primary/95 text-primary-foreground text-[10px] font-black uppercase tracking-wider mb-2 shadow-sm">
                       {item.tag}
                     </span>
                     <h3 className="text-white font-bold text-sm md:text-lg leading-tight drop-shadow-md">

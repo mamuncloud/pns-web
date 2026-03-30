@@ -49,7 +49,7 @@ export default function Wholesale() {
               </div>
               
               {/* Floating badges */}
-              <div className="absolute -top-4 -right-4 bg-accent text-primary-foreground font-black italic px-4 py-2 rounded-xl text-sm shadow-xl animate-float-delayed rotate-12">
+              <div className="absolute -top-4 -right-4 bg-accent text-accent-foreground font-black italic px-4 py-2 rounded-xl text-sm shadow-xl animate-float-delayed rotate-12">
                 DISKON %
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground font-black italic px-4 py-2 rounded-xl text-sm shadow-xl animate-float rotate-[-12deg]">

@@ -24,7 +24,7 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  primary: "bg-primary/10 text-primary border-primary/20",
+  primary: "bg-primary/10 text-primary dark:text-primary-foreground border-primary/20",
   success: "bg-green-500/10 text-green-600 border-green-500/20",
   warning: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   info: "bg-sky-500/10 text-sky-600 border-sky-500/20",

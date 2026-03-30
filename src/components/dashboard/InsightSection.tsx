@@ -98,7 +98,7 @@ export default function InsightSection() {
             </CardTitle>
             <CardDescription>Insight otomatis untuk optimalisasi profit.</CardDescription>
           </div>
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 font-bold uppercase tracking-wider text-[10px] px-2 shadow-sm">
+          <Badge variant="outline" className="bg-primary/10 text-primary dark:text-primary-foreground border-primary/30 font-bold uppercase tracking-wider text-[10px] px-2 shadow-sm">
             Financial Intelligence
           </Badge>
         </div>
