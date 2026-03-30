@@ -35,7 +35,7 @@ export default function Hero() {
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-white/20 to-transparent" />
               <div className="relative flex items-center justify-center gap-3">
                 <span className="relative">
-                  Lihat Produk
+                  Lihat Etalase
                   <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-current transition-all duration-500 group-hover:w-full opacity-30" />
                 </span>
                 <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover:translate-x-1" />
