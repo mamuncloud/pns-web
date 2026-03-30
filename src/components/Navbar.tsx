@@ -1,14 +1,32 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { StoreStatusBadge } from "@/components/store-status-badge";
+import { cn } from "@/lib/utils";
 
 export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-transparent dark:border-zinc-800/60 flex justify-between items-center px-6 md:px-12 py-4 max-w-full">
+    <nav 
+      className={cn(
+        "fixed top-0 w-full z-50 flex justify-between items-center px-6 md:px-12 transition-all duration-300",
+        isScrolled 
+          ? "bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 shadow-sm py-3" 
+          : "bg-transparent border-b border-transparent py-5"
+      )}
+    >
       <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
         <div className="relative h-10 w-10">
           <Image
@@ -26,12 +44,6 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         <StoreStatusBadge />
         <ThemeToggle />
-        {/* <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
-          <span className="material-symbols-outlined">shopping_cart</span>
-        </button>
-        <button className="text-on-background/70 hover:text-primary transition-colors flex items-center justify-center">
-          <span className="material-symbols-outlined">account_circle</span>
-        </button> */}
       </div>
     </nav>
   );
