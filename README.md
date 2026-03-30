@@ -13,6 +13,8 @@ PNS Web is the frontend web application for the PNS online ordering and product 
 - **WhatsApp Integration**: Fast customer support via a floating WhatsApp button for quick inquiries.
 - **Admin Dashboard**: Comprehensive dashboard for managing products, suppliers, and purchase history.
 - **Purchase Management**: Streamlined "Kulakan Barang" flow with draft saving, real-time HPP impact analysis, and safe deletion of draft records.
+- **Unified Staff Login**: Hybrid login form that supports both Email and WhatsApp Magic Links.
+- **WhatsApp Management**: Dashboard interface for managers to check the notification bot status and pair/unpair devices.
 - **Best-Practice Auth**: Secure session management using Access + Refresh tokens with auto-interception and silent renewal.
 
 ## 🛠 Tech Stack
@@ -93,4 +95,33 @@ sequenceDiagram
     API->>DB: Validate Refresh Token Session
     API-->>App: 200 OK (Fresh Access Token)
     App->>API: Retry original API call
+```
+
+### Staff Login & WhatsApp Notifier
+
+The application features a unified login system for staff that automatically routes magic links based on the identifier provided (Email or Phone).
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Web as PNS Web (Next.js)
+    participant Server as PNS Server (NestJS)
+    participant WA as WhatsApp (Baileys Bot)
+
+    User->>Web: Enter Email or Phone
+    Web->>Server: POST /auth/staff/request
+    Server->>Server: Detect Type (Email/WhatsApp)
+    alt is Phone
+        Server->>WA: Trigger Message
+        WA-->>User: Link Received on WhatsApp
+    else is Email
+        Server->>Server: Send Email
+    end
+    Server-->>Web: 200 OK (type='...')
+    Web-->>User: Show Confirmation Screen
+    
+    User->>Web: Click Magic Link
+    Web->>Server: GET /auth/verify?token=...
+    Server-->>Web: JWT Issued
+    Web->>User: Portal Access Granted
 ```

@@ -175,6 +175,7 @@ export const api = {
   
   auth: {
     requestLogin: (email: string) => api.post<{ message: string }>('/auth/request-login', { email }),
+    requestStaffLogin: (identifier: string) => api.post<{ message: string; type: 'EMAIL' | 'WHATSAPP' }>('/auth/staff/request', { identifier }),
     verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
     refresh: () => api.post<{ access_token: string }>('/auth/refresh'),
     logout: () => api.post<{ success: boolean }>('/auth/logout'),
@@ -256,5 +257,10 @@ export const api = {
     list: () => api.get<Order[]>('/orders'),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
+  },
+  
+  whatsapp: {
+    status: () => api.get<{ status: string; qr?: string }>('/whatsapp/status'),
+    logout: () => api.post<{ message: string }>('/whatsapp/logout'),
   },
 };

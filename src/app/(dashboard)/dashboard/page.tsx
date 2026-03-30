@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import StatCards from "@/components/dashboard/StatCards";
 import InsightSection from "@/components/dashboard/InsightSection";
+import WhatsappManager from "@/components/dashboard/WhatsappManager";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,79 +92,87 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="space-y-1">
-              <CardTitle className="text-xl font-bold">Aktivitas Terkini</CardTitle>
-              <CardDescription>Transaksi dan log terbaru dari sistem.</CardDescription>
-            </div>
-            <Link href="/dashboard/logs" className="text-sm font-semibold text-primary hover:underline flex items-center gap-1 group">
-              Lihat Semua
-              <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-6">
-              {recentActivities.map((activity) => {
-                const Icon = activity.icon;
-                return (
-                  <div key={activity.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center dark:bg-gray-800">
-                        <Icon className={`h-5 w-5 ${activity.iconColor}`} />
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-xl font-bold">Aktivitas Terkini</CardTitle>
+                <CardDescription>Transaksi dan log terbaru dari sistem.</CardDescription>
+              </div>
+              <Link href="/dashboard/logs" className="text-sm font-semibold text-primary hover:underline flex items-center gap-1 group">
+                Lihat Semua
+                <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <div className="space-y-6">
+                {recentActivities.map((activity) => {
+                  const Icon = activity.icon;
+                  return (
+                    <div key={activity.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center dark:bg-gray-800">
+                          <Icon className={`h-5 w-5 ${activity.iconColor}`} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{activity.title}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      <div className="text-right">
+                        {activity.amount && (
+                          <p className="text-sm font-bold text-foreground mb-1">{activity.amount}</p>
+                        )}
+                        <Badge variant={activity.statusVariant as "default" | "secondary" | "destructive" | "outline"} className="text-[10px] py-0 px-1.5 h-auto uppercase">
+                          {activity.status}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="text-right">
-                      {activity.amount && (
-                        <p className="text-sm font-bold text-foreground mb-1">{activity.amount}</p>
-                      )}
-                      <Badge variant={activity.statusVariant as "default" | "secondary" | "destructive" | "outline"} className="text-[10px] py-0 px-1.5 h-auto uppercase">
-                        {activity.status}
-                      </Badge>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Quick Actions */}
-        <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold">Aksi Cepat</CardTitle>
-            <CardDescription>Shortcut ke fitur yang sering digunakan.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 pb-8">
-            <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
-              <span className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-primary" />
-                Tambah Produk
-              </span>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </Button>
-            <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
-              <span className="flex items-center gap-3">
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                Input Penjualan
-              </span>
-              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </Button>
-            <Link href="/partner" className="block">
+        {/* Sidebar Actions */}
+        <div className="space-y-8">
+          {/* WhatsApp Manager - Only for Managers */}
+          {user?.role === 'MANAGER' && <WhatsappManager />}
+
+          {/* Quick Actions */}
+          <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-200/50 dark:shadow-none bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl rounded-3xl overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">Aksi Cepat</CardTitle>
+              <CardDescription>Shortcut ke fitur yang sering digunakan.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 pb-8">
               <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
                 <span className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Persetujuan Partner
+                  <Package className="h-5 w-5 text-primary" />
+                  Tambah Produk
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </Button>
-            </Link>
-          </CardContent>
-        </Card>
+              <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
+                <span className="flex items-center gap-3">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  Input Penjualan
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </Button>
+              <Link href="/partner" className="block">
+                <Button variant="outline" className="w-full justify-between h-14 rounded-2xl bg-gray-50/50 hover:bg-primary/5 hover:border-primary/30 transition-all dark:bg-gray-800/30 group">
+                  <span className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-primary" />
+                    Persetujuan Partner
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

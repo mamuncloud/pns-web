@@ -12,9 +12,10 @@ import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 export default function LoginPage() {
   const { isAuthenticated, isEmployee, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [sentType, setSentType] = useState<'EMAIL' | 'WHATSAPP'>('EMAIL');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,7 +23,6 @@ export default function LoginPage() {
       if (isEmployee) {
         router.push("/dashboard");
       } else {
-        // Fallback to dashboard if /order doesn't exist or for other user types
         router.push("/dashboard");
       }
     }
@@ -38,13 +38,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!identifier) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      await api.auth.requestLogin(email);
+      const response = await api.auth.requestStaffLogin(identifier);
+      setSentType(response.data.type);
       setIsSent(true);
     } catch (err) {
       const error = err as Error;
@@ -60,7 +61,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Staff Login</CardTitle>
           <CardDescription className="text-center">
-            Enter your email to receive a magic login link
+            Enter your email or phone number to receive a magic login link
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -70,9 +71,9 @@ export default function LoginPage() {
                 <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">Check your email</h3>
+                <h3 className="text-lg font-medium">Check your {sentType === 'EMAIL' ? 'email' : 'WhatsApp'}</h3>
                 <p className="text-sm text-muted-foreground">
-                  We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>. 
+                  We&apos;ve sent a magic link to <span className="font-semibold">{identifier}</span> via {sentType === 'EMAIL' ? 'email' : 'WhatsApp'}. 
                   Click the link to log in.
                 </p>
               </div>
@@ -81,20 +82,22 @@ export default function LoginPage() {
                 className="mt-4" 
                 onClick={() => setIsSent(false)}
               >
-                Use another email
+                Use another method
               </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground">
+                    {identifier.includes('@') ? <Mail className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                  </div>
                   <Input
-                    type="email"
-                    placeholder="name@pns.com"
+                    type="text"
+                    placeholder="Email or Phone (e.g. 0812...)"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="pl-10 h-10"
                     disabled={isLoading}
                   />
@@ -121,7 +124,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 text-center text-sm text-muted-foreground">
           <p>
-            This area is for authorized managers and cashiers only.
+            Authorized access only. Links are valid for 15 minutes.
           </p>
         </CardFooter>
       </Card>
