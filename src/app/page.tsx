@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="pt-24 md:pt-32 pb-16">
+      <main className="pb-16">
         <Hero />
         <Categories />
         <Wholesale />

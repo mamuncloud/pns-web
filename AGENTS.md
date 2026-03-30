@@ -131,4 +131,20 @@ style(dashboard): apply consistent card shadow utility classes
 ## 9. Error Handling and Validation
 - **NestJS Exceptions:** Use standard NestJS built-in HTTP exceptions (`NotFoundException`, `ConflictException`, `BadRequestException`) with descriptive messages.
 - **User-Friendly Errors:** Ensure backend error messages are clear and suitable for direct display in the UI (e.g., "Produk tidak ditemukan" instead of "database error").
-- **DTO Validation:** Strict validation of all input DTOs using `class-validator` and `class-transformer`.
+
+## 10. Standard Git Workflow
+
+To ensure code quality, traceability, and stability of the production environment, all developers and AI agents MUST follow this workflow:
+
+1.  **Create a GitHub Issue**: Every task, feature, or bugfix must start with a descriptive issue. 
+    - Use clear titles (e.g., `[FEATURE] Add product search`).
+    - Describe the *What*, *Why*, and *How*.
+2.  **Create a Feature Branch**: Never commit directly to `main`.
+    - Format: `feat/issue-slug` or `fix/issue-slug`.
+    - Example: `feat/navbar-scroll-effect`.
+3.  **Atomic & Conventional Commits**: Follow the rules in Section 6. Commit often with logical units of work.
+4.  **Open a Pull Request (PR)**: Once the task is complete and verified locally.
+    - Set `main` as the base branch.
+    - Reference the issue in the description (e.g., `Closes #12`).
+    - Provide a summary of changes and visual evidence (screenshots/recordings) for UI changes.
+5.  **Merge only after Review**: The project owner or a peer must review and approve the PR before it is merged into `main`.

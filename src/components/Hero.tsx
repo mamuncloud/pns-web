@@ -1,59 +1,127 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, ArrowRight } from "lucide-react";
+import { ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const snackItems = [
+  {
+    id: 1,
+    name: "Basreng Pedas",
+    image: "/hero/basreng.webp",
+    className: "lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto", // Large Square
+    tag: "Terlaris",
+  },
+  {
+    id: 2,
+    name: "Makaroni Spiral",
+    image: "/hero/makaroni.jpg",
+    className: "aspect-square", // Small Square
+    tag: "Gurih",
+  },
+  {
+    id: 3,
+    name: "Seblak Kering",
+    image: "/hero/seblak.jpg",
+    className: "aspect-square", // Small Square
+    tag: "Mix",
+  },
+  {
+    id: 4,
+    name: "Keripik Pisang",
+    image: "/hero/pisang.jpg",
+    className: "aspect-square", // Small Square
+    tag: "Manis",
+  },
+  {
+    id: 5,
+    name: "Usus Balado",
+    image: "/hero/usus.jpg",
+    className: "col-span-2 aspect-[2/1] lg:aspect-auto", // Wide Rect
+    tag: "Kriuk",
+  },
+];
 
 export default function Hero() {
   return (
-    <section className="max-w-7xl mx-auto px-6 mb-24">
-      <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
-        <div className="w-full md:w-1/2 space-y-8">
-          <h1 className="font-headline text-5xl md:text-7xl font-extrabold text-primary leading-[1.1] tracking-tight">
-            Nikmati Camilan <br />
-            Favorit Kamu <br />
-            Kapan Saja!
-          </h1>
-          <p className="text-on-background/70 dark:text-zinc-400 text-lg md:text-xl max-w-lg leading-relaxed font-medium">
-            Kelezatan autentik dengan bumbu melimpah. Dari Basreng hingga Keripik Singkong, semua ada di Planet Nyemil Snack.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 pt-10">
-            <Button className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-primary font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:shadow-primary/50 hover:scale-[1.05] active:scale-[0.98] border border-white/10 text-primary-foreground min-w-[200px]">
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <div className="relative flex items-center justify-center gap-3">
-                <div className="relative flex items-center justify-center">
-                  <ShoppingBag className="h-6 w-6 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110" />
-                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-primary-foreground rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 delay-100 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-                </div>
-                <span className="relative">
-                  Pesan Sekarang
-                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-foreground/30 transition-all duration-500 group-hover:w-full" />
-                </span>
-              </div>
-            </Button>
+    <section className="relative w-full min-h-screen flex items-center pt-16 pb-24 lg:pt-20 lg:pb-32 overflow-x-clip">
+      {/* Background Mesh Decor */}
+      <div className="absolute inset-0 -z-10 opacity-20 dark:opacity-10 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent rounded-full blur-[100px]" />
+      </div>
 
-            <Button variant="outline" className="group relative h-16 px-10 overflow-hidden rounded-2xl bg-primary/5 dark:bg-white/5 backdrop-blur-md font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:bg-primary hover:text-white dark:hover:bg-white/10 hover:scale-[1.05] active:scale-[0.98] border border-primary/30 dark:border-white/20 text-primary dark:text-white min-w-[200px]">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-white/20 to-transparent" />
-              <div className="relative flex items-center justify-center gap-3">
-                <span className="relative">
-                  Lihat Etalase
-                  <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-current transition-all duration-500 group-hover:w-full opacity-30" />
-                </span>
-                <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover:translate-x-1" />
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Text Content */}
+          <div className="lg:col-span-12 xl:col-span-5 order-1 lg:order-1 flex flex-col justify-center animate-stagger" style={{ animationDelay: '0s' }}>
+            <div className="glass-card p-6 md:p-12 rounded-[2.5rem] relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
+              
+              <div className="flex items-center gap-2 mb-6 text-primary font-black uppercase tracking-[0.2em] text-xs">
+                <Sparkles className="h-4 w-4" />
+                <span>Planet Nyemil Snack</span>
               </div>
-            </Button>
+
+              <h1 className="font-headline text-5xl md:text-7xl font-black text-on-background dark:text-white leading-[1.1] tracking-tighter mb-6">
+                SATU PLANET,<br />
+                <span className="animate-shimmer inline-block pb-2">RIBUAN RASA!</span>
+              </h1>
+
+              <p className="text-on-background/80 dark:text-zinc-300 text-lg md:text-xl font-medium max-w-sm leading-relaxed mb-10">
+                Puas-puasin lidah kamu dengan camilan autentik paling nagih se-jagad raya.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button className="group h-14 md:h-16 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold transition-all duration-300 hover:scale-[1.05] hover:shadow-lg">
+                  <ShoppingBag className="mr-2 h-5 w-5" />
+                  Pesan Sekarang
+                  <ArrowRight className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                </Button>
+                
+                <Button variant="ghost" className="h-14 md:h-16 px-8 rounded-2xl border-2 border-primary/20 hover:border-primary/50 text-primary dark:text-white font-bold transition-all">
+                  Lihat Etalase
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="w-full md:w-1/2">
-          <div className="relative rounded-[3rem] overflow-hidden aspect-square">
-            <Image
-              alt="Hero snack image"
-              className="object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7kF66mTD-AEC-pQweXs4lTGOMZ5AYN6Qasl2kBCcpHSxupGtiYsILuYvxDgvd8YkzkWlMGt8pMLrYK4UAk4A0BgIwSipNvHognZ8ytxVELOE67mVU1loPXniQ97KQRf8Bzz4LyTO4NpXwCOOQIgWneVqo_Hjp9EiuY-QN-HGydWDvsII41VqYyWONPt1GFDwjammyH_y65Txr0VOGadobCIOyxTJFGCeRqDQctgeEbcAY16jSmyAy_5OFJhrauSW3LTDT0ZdUPbI"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-              loading="eager"
-            />
+
+          {/* Bento Grid Variety */}
+          <div className="lg:col-span-12 xl:col-span-7 order-2 lg:order-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {snackItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "relative group overflow-hidden rounded-[2rem] animate-stagger border border-white/10 shadow-lg",
+                    item.className
+                  )}
+                  style={{ animationDelay: `${(index + 1) * 0.1}s` }}
+                >
+                  <div className="relative w-full h-full min-h-[150px]">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      priority={index === 0}
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  
+                  <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6">
+                    <span className="inline-block px-3 py-1 rounded-lg bg-primary/95 text-white text-[10px] font-black uppercase tracking-wider mb-2 shadow-sm">
+                      {item.tag}
+                    </span>
+                    <h3 className="text-white font-bold text-sm md:text-lg leading-tight drop-shadow-md">
+                      {item.name}
+                    </h3>
+                  </div>
+
+                  <div className="absolute inset-0 border-2 border-white/0 group-hover:border-white/10 transition-colors pointer-events-none rounded-[2rem]" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
