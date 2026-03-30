@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -17,6 +17,7 @@ export default function DashboardLayout({
   const { user, isAuthenticated, isEmployee, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   useActivityRefresh();
 
   useEffect(() => {
@@ -59,12 +60,12 @@ export default function DashboardLayout({
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
       <Toaster />
       {/* Sidebar */}
-      <DashboardSidebar />
+      <DashboardSidebar isCollapsed={isCollapsed} />
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col">
         {/* Header */}
-        <DashboardHeader user={user} />
+        <DashboardHeader user={user} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
 
         {/* Page Content */}
         <main className="flex-1 p-6 lg:p-10">

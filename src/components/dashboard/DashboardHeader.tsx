@@ -8,7 +8,8 @@ import {
   LogOut,
   ChevronDown,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -20,9 +21,10 @@ import { useStoreSettings } from "@/hooks/use-store-settings";
 
 interface DashboardHeaderProps {
   user: AuthUser | null;
+  onToggleCollapse?: () => void;
 }
 
-export default function DashboardHeader({ user }: DashboardHeaderProps) {
+export default function DashboardHeader({ user, onToggleCollapse }: DashboardHeaderProps) {
   const { logout } = useAuth();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -59,7 +61,13 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
   return (
     <header className="h-16 border-b border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800 sticky top-0 z-30 flex items-center justify-between px-6 lg:px-10">
       {/* Title / Search */}
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-4 lg:gap-8">
+        {/* Sidebar Toggle (Desktop only) */}
+        {onToggleCollapse && (
+          <Button variant="ghost" size="icon" className="hidden lg:flex" onClick={onToggleCollapse}>
+            <Menu className="h-5 w-5 text-muted-foreground" />
+          </Button>
+        )}
         <h1 className="text-lg font-bold text-foreground hidden sm:block">
           {getPageTitle()}
         </h1>
