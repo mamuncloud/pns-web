@@ -19,6 +19,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ProductCreateDialog } from "@/components/dashboard/products/ProductCreateDialog";
 import { Badge } from "@/components/ui/badge";
+import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -33,6 +34,29 @@ export default function DashboardProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const refreshProducts = async () => {
+    setIsLoading(true);
+    const { data } = await getProductsFromDb(1, 100);
+    setProducts(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    async function fetchProducts() {
+      setIsLoading(true);
+      const { data } = await getProductsFromDb(1, 100);
+      setProducts(data);
+      setIsLoading(false);
+    }
+
+    fetchProducts();
+  }, []);
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
@@ -167,7 +191,13 @@ export default function DashboardProductsPage() {
                               <ArrowUpRight className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100 dark:border-gray-800 hover:bg-gray-50 transition-all">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl border-gray-100 dark:border-gray-800 hover:bg-gray-50 transition-all"
+                            title="Edit Produk"
+                            onClick={() => setEditingProduct(product)}
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </div>
@@ -181,6 +211,21 @@ export default function DashboardProductsPage() {
         </div>
       </Card>
 
+      {editingProduct && (
+        <ProductEditDialog
+          product={editingProduct}
+          open={Boolean(editingProduct)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingProduct(null);
+            }
+          }}
+          onSuccess={async () => {
+            await refreshProducts();
+            setEditingProduct(null);
+          }}
+        />
+      )}
     </div>
   );
 }

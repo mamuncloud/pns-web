@@ -27,10 +27,12 @@ import {
   MapPin,
   FileText,
   History,
+  Pencil,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn, getProductImageUrl, formatCurrency } from "@/lib/utils";
+import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
 
 function ProductImageGallery({ images, productName }: { images: ProductImage[]; productName: string }) {
   if (images.length > 1) {
@@ -156,6 +158,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const resolvedParams = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   const refreshProduct = async () => {
     const p = await getProductById(resolvedParams.id);
@@ -237,6 +240,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="flex items-center gap-2 sm:ml-auto">
+          <Button variant="outline" className="gap-2" onClick={() => setIsEditing(true)}>
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
           <Link href={`/dashboard/repacks?productId=${product.id}`}>
             <Button variant="outline" className="gap-2">
               <Scissors className="h-4 w-4" />
@@ -333,6 +340,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <ProductStockCard product={product} />
         </div>
       </div>
+
+      {product && (
+        <ProductEditDialog
+          product={product}
+          open={isEditing}
+          onOpenChange={setIsEditing}
+          onSuccess={refreshProduct}
+        />
+      )}
     </div>
   );
 }
