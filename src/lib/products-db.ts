@@ -99,10 +99,11 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 }
 
-export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string): Promise<PaginatedProducts> {
+export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string, search?: string): Promise<PaginatedProducts> {
   try {
     let url = `/products?page=${page}&limit=${limit}`;
     if (taste) url += `&taste=${taste}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
     
     const response = await api.get<BackendProduct[]>(url);
     

@@ -8,8 +8,6 @@ import {
   Tag,
   ArrowRight,
   ShieldCheck,
-  Zap,
-  RefreshCw,
   Box,
   Truck,
   Calculator
@@ -115,7 +113,7 @@ export function ConsignmentDetailView({
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/5">
-                    {consignment.items?.map((item, idx) => (
+                    {consignment.items?.map((item) => (
                       <TableRow key={item.id} className="group/row hover:bg-white/80 dark:hover:bg-black/40 transition-all duration-500 border-none">
                         <TableCell className="px-10 py-8 text-[11px] font-black text-muted-foreground/30 font-mono uppercase tracking-widest italic">{item.id.split('-')[0]}</TableCell>
                         <TableCell className="px-10 py-8">
