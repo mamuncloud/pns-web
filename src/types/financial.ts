@@ -157,7 +157,68 @@ export interface CreateRepackDto {
     sizeInGram?: number;
   }[];
 }
-export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL';
+export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL' | 'CONSIGNMENT_IN' | 'CONSIGNMENT_OUT';
+
+export type ConsignmentStatus = 'OPEN' | 'PARTIALLY_SETTLED' | 'CLOSED';
+
+export interface ConsignmentItem {
+  id: string;
+  consignmentId: string;
+  productVariantId: string;
+  qtyReceived: number;
+  qtyReturned: number;
+  qtySettled: number;
+  unitCost: number;
+  createdAt: string;
+  productVariant?: {
+    id: string;
+    package: string;
+    product?: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+export interface Consignment {
+  id: string;
+  supplierId: string;
+  date: string;
+  totalAmount: number;
+  totalSettled: number;
+  status: ConsignmentStatus;
+  note?: string;
+  attachmentUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  supplier?: {
+    id: string;
+    name: string;
+  };
+  items?: ConsignmentItem[];
+}
+
+export interface CreateConsignmentDto {
+  supplierId: string;
+  date: string;
+  note?: string;
+  attachmentUrl?: string;
+  items: {
+    productVariantId: string;
+    qtyReceived: number;
+    unitCost: number;
+  }[];
+}
+
+export interface SettleConsignmentDto {
+  consignmentId: string;
+  note?: string;
+  items: {
+    id: string;
+    currentStock: number;
+    qtyReturned?: number;
+  }[];
+}
 
 export interface StockMovement {
   id: string;

@@ -46,3 +46,5 @@ next-env.d.ts
 # prd
 .prd
 /src/generated/prisma
+/playwright-report
+/test-results/

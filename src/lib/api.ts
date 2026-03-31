@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    PLAYWRIGHT_DEBUG?: boolean;
+  }
+}
+
 import { 
   AuthUser, 
   PricingRule, 
@@ -13,6 +19,9 @@ import {
   Employee,
   CreateEmployeeDto,
   UpdateEmployeeDto,
+  Consignment,
+  CreateConsignmentDto,
+  SettleConsignmentDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -119,6 +128,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         subscribeTokenRefresh(async (newToken) => {
           try {
             const retryResponse = await makeRequest(newToken);
+            if (typeof window !== 'undefined' && window.PLAYWRIGHT_DEBUG) {
+              console.log(`[API DEBUG] ${options.method || 'GET'} ${url}`, options.headers);
+            }
             const result = await retryResponse.json();
             if (!retryResponse.ok) {
               const errorMsg = `[${retryResponse.status}] ${options.method || "GET"} ${url}: ${result.message || "Forbidden"}`;
@@ -159,6 +171,16 @@ export interface Supplier {
   phone?: string;
   address?: string;
 }
+
+export interface CreateSupplierDto {
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+export type UpdateSupplierDto = Partial<CreateSupplierDto>;
 
 export const api = {
   get: <T>(endpoint: string, options: RequestInit = {}) => 
@@ -249,6 +271,9 @@ export const api = {
 
   suppliers: {
     list: () => api.get<Supplier[]>('/suppliers'),
+    create: (data: CreateSupplierDto) => api.post<Supplier>('/suppliers', data),
+    update: (id: string, data: UpdateSupplierDto) => api.patch<Supplier>(`/suppliers/${id}`, data),
+    delete: (id: string) => api.delete<{ message: string; id: string }>(`/suppliers/${id}`),
   },
   
   storeSettings: {
@@ -267,5 +292,13 @@ export const api = {
     list: () => api.get<Order[]>('/orders'),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
+  },
+
+  consignment: {
+    list: () => api.get<Consignment[]>('/consignment'),
+    get: (id: string) => api.get<Consignment>(`/consignment/${id}`),
+    create: (data: CreateConsignmentDto) => api.post<Consignment>('/consignment', data),
+    settle: (data: SettleConsignmentDto) => 
+      api.post<{ message: string; totalAmountSettledDelta: number; status: string }>('/consignment/settle', data),
   },
 };
