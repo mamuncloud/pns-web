@@ -228,6 +228,7 @@ export const api = {
     getBrands: () => api.get<Brand[]>('/products/brands'),
     createBrand: (name: string) => api.post<Brand>('/products/brands', { name }),
     create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
+    update: (id: string, data: Record<string, unknown>) => api.patch<Record<string, unknown>>(`/products/${id}`, data),
     createVariant: (productId: string, data: CreateVariantDto) => api.post<Record<string, unknown>>(`/products/${productId}/variants`, data),
   },
 
