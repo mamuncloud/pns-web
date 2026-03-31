@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const { isAuthenticated, isEmployee, isLoading: isAuthLoading } = useAuth();
@@ -58,19 +58,19 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50/50 px-4 py-12 dark:bg-gray-950">
       <Card className="w-full max-w-md shadow-lg border-gray-200 dark:border-gray-800">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Staff Login</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email to receive a magic login link
+          <CardTitle className="text-2xl font-black text-center tracking-tighter uppercase italic">Otentikasi Akses Staf</CardTitle>
+          <CardDescription className="text-center text-[10px] uppercase tracking-[0.2em] font-medium opacity-60">
+            Protokol Identitas Planet Nyemil Snack
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isSent ? (
             <div className="flex flex-col items-center justify-center space-y-4 py-4 text-center">
               <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/30">
-                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <CircleCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">Check your email</h3>
+                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email Anda</h3>
                 <p className="text-sm text-muted-foreground">
                   We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>. 
                   Click the link to log in.
@@ -102,7 +102,7 @@ export default function LoginPage() {
               </div>
               {error && (
                 <div className="flex items-center space-x-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive dark:bg-destructive/20">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <CircleAlert className="h-4 w-4 shrink-0" />
                   <p>{error}</p>
                 </div>
               )}
@@ -110,10 +110,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending link...
+                    MENGIRIM TAUTAN...
                   </>
                 ) : (
-                  "Get Link"
+                  "DAPATKAN TAUTAN AKSES"
                 )}
               </Button>
             </form>

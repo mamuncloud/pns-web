@@ -15,7 +15,9 @@ import {
   Activity,
   Scissors,
   ClipboardList,
-  Users
+  Users,
+  Handshake,
+  Truck
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ const navItems = [
   { name: "Pos (Kasir)", href: "/dashboard/pos", icon: ShoppingCart, roles: ["MANAGER", "CASHIER"] },
   { name: "Products", href: "/dashboard/products", icon: Package, roles: ["MANAGER"] },
   { name: "Purchases", href: "/dashboard/purchases", icon: ShoppingBag, roles: ["MANAGER"] },
+  { name: "Consigns", href: "/dashboard/consignment", icon: Handshake, roles: ["MANAGER"] },
+  { name: "Suppliers", href: "/dashboard/suppliers", icon: Truck, roles: ["MANAGER"] },
   { name: "Repacks", href: "/dashboard/repacks", icon: Scissors, roles: ["MANAGER"] },
   { name: "Stock Ledger", href: "/dashboard/stock", icon: Activity, roles: ["MANAGER"] },
   { name: "Staff", href: "/dashboard/staff", icon: Users, roles: ["MANAGER"] },
