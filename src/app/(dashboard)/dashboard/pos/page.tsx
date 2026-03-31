@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
@@ -39,19 +39,29 @@ interface CartItem extends DisplayVariant {
   quantity: number;
 }
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const isInternalReload = useRef(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (search?: string) => {
     setIsLoading(true);
     try {
-      const { data } = await getProductsFromDb(1, 100);
+      const { data } = await getProductsFromDb(1, 100, undefined, search);
       setProducts(data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -59,11 +69,11 @@ export default function POSPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts(debouncedSearch || undefined);
+  }, [debouncedSearch, fetchProducts]);
 
   // Transform products into a flat list of variants for display
   const displayVariants = useMemo(() => {
@@ -83,7 +93,6 @@ export default function POSPage() {
     return variants;
   }, [products]);
 
-  // Prevent accidental page reload if there are items in cart or checkout is in progress
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isInternalReload.current) return;
@@ -97,11 +106,6 @@ export default function POSPage() {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isProcessing, cart.length]);
-
-  const filteredVariants = displayVariants.filter(v => 
-    v.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.package.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const addToCart = (variant: DisplayVariant) => {
     const existing = cart.find(item => item.id === variant.id);
@@ -222,7 +226,7 @@ export default function POSPage() {
             />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredVariants.map((p) => (
+              {displayVariants.map((p) => (
                 <Card 
                   key={p.id} 
                   className="cursor-pointer hover:border-primary/50 transition-all duration-300 group active:scale-95 shadow-sm border-gray-200/50 dark:border-gray-800/50 rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-xl hover:shadow-primary/5 min-h-[140px]"

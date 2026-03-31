@@ -4,12 +4,10 @@ import {
   Handshake, 
   Search, 
   MoreVertical,
-  Package,
   Calendar,
   Calculator,
   Eye,
   Trash2,
-  Clock,
   ArrowRight
 } from "lucide-react";
 import { 
@@ -38,6 +36,8 @@ import { useState, useMemo } from "react";
 interface ConsignmentDataListProps {
   consignments: Consignment[];
   isLoading: boolean;
+  search: string;
+  onSearchChange: (value: string) => void;
   onSettle: (consignment: Consignment) => void;
   onDetail: (consignment: Consignment) => void;
 }
@@ -45,21 +45,19 @@ interface ConsignmentDataListProps {
 export function ConsignmentDataList({ 
   consignments, 
   isLoading, 
+  search,
+  onSearchChange,
   onSettle, 
   onDetail 
 }: ConsignmentDataListProps) {
-  const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
 
   const filteredConsignments = useMemo(() => {
     return consignments.filter(c => {
-      const matchesSearch = 
-        c.supplier?.name.toLowerCase().includes(search.toLowerCase()) || 
-        c.id.toLowerCase().includes(search.toLowerCase());
       const matchesFilter = filter === "ALL" || c.status === filter;
-      return matchesSearch && matchesFilter;
+      return matchesFilter;
     });
-  }, [consignments, search, filter]);
+  }, [consignments, filter]);
 
   return (
     <div id="history" className="space-y-6">
@@ -78,7 +76,7 @@ export function ConsignmentDataList({
               placeholder="Cari Entitas atau Kode Protokol..." 
               className="h-16 pl-14 pr-8 rounded-[2rem] bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-white/5 shadow-sm focus:shadow-emerald-500/5 focus:ring-primary/5 transition-all font-black text-[11px] uppercase tracking-widest placeholder:text-muted-foreground/30"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
           <div className="flex h-16 bg-gray-100/50 dark:bg-white/[0.03] p-2 rounded-[2rem] border border-gray-200/50 dark:border-white/5 w-full md:w-auto backdrop-blur-xl gap-2">

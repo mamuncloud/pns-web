@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
 import { api, Supplier } from "@/lib/api";
@@ -9,27 +9,38 @@ import { SupplierList } from "@/components/dashboard/suppliers/SupplierList";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { toast } from "sonner";
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function DashboardSuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async (searchTerm?: string) => {
     try {
       setIsLoading(true);
-      const { data } = await api.suppliers.list();
+      const { data } = await api.suppliers.list(searchTerm);
       setSuppliers(data);
     } catch {
       toast.error("Gagal memuat data supplier");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchSuppliers();
-  }, []);
+    fetchSuppliers(debouncedSearch || undefined);
+  }, [debouncedSearch, fetchSuppliers]);
 
   const handleDelete = async () => {
     if (!supplierToDelete) return;
@@ -37,7 +48,7 @@ export default function DashboardSuppliersPage() {
       await api.suppliers.delete(supplierToDelete.id);
       toast.success("Supplier berhasil dihapus");
       setSupplierToDelete(null);
-      fetchSuppliers();
+      fetchSuppliers(debouncedSearch || undefined);
       if (selectedSupplier?.id === supplierToDelete.id) {
         setSelectedSupplier(null);
       }
@@ -72,6 +83,8 @@ export default function DashboardSuppliersPage() {
           <SupplierList
             suppliers={suppliers}
             isLoading={isLoading}
+            search={search}
+            onSearchChange={setSearch}
             onEdit={(supplier) => {
               setSelectedSupplier(supplier);
               const el = document.getElementById("supplier-form-section");
@@ -86,7 +99,7 @@ export default function DashboardSuppliersPage() {
             <SupplierForm
               supplier={selectedSupplier}
               onSuccess={() => {
-                fetchSuppliers();
+                fetchSuppliers(debouncedSearch || undefined);
                 setSelectedSupplier(null);
               }}
               onCancel={() => setSelectedSupplier(null)}
