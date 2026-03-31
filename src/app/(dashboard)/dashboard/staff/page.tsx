@@ -37,10 +37,10 @@ export default function DashboardStaffPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (search?: string) => {
     try {
       setIsLoading(true);
-      const { data } = await api.employees.list();
+      const { data } = await api.employees.list(search);
       setEmployees(data);
     } catch {
       toast.error("Gagal memuat data pegawai");
@@ -68,11 +68,6 @@ export default function DashboardStaffPage() {
       toast.error(message);
     }
   };
-
-  const filteredEmployees = employees.filter(e => 
-    e.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    e.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -127,7 +122,7 @@ export default function DashboardStaffPage() {
                         <p className="text-sm font-black uppercase tracking-widest text-muted-foreground/30">Memuat data pegawai...</p>
                       </td>
                     </tr>
-                  ) : filteredEmployees.length === 0 ? (
+                  ) : employees.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-8 py-32 text-center">
                         <Users className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
@@ -135,7 +130,7 @@ export default function DashboardStaffPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredEmployees.map((employee) => {
+                    employees.map((employee) => {
                       const isManager = employee.role === "MANAGER";
                       const isSelected = selectedEmployee?.id === employee.id;
                       return (

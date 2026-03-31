@@ -20,24 +20,33 @@ import { cn } from "@/lib/utils";
 import { ProductCreateDialog } from "@/components/dashboard/products/ProductCreateDialog";
 import { Badge } from "@/components/ui/badge";
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function DashboardProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      const { data } = await getProductsFromDb(1, 100);
-      setProducts(data);
-      setIsLoading(false);
-    }
-    fetchProducts();
-  }, []);
-
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await getProductsFromDb(1, 100, undefined, debouncedSearch || undefined);
+      if (!cancelled) {
+        setProducts(data);
+        setIsLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [debouncedSearch]);
 
   return (
     <div className="space-y-8 pb-10 animate-in fade-in duration-500">
@@ -83,7 +92,7 @@ export default function DashboardProductsPage() {
                     <p className="text-sm font-black uppercase tracking-widest text-muted-foreground/30">Memuat data produk...</p>
                   </td>
                 </tr>
-              ) : filteredProducts.length === 0 ? (
+              ) : products.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-8 py-32 text-center">
                     <Package className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
@@ -91,7 +100,7 @@ export default function DashboardProductsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
+                products.map((product) => {
                   return (
                     <tr key={product.id} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
                       <td className="px-8 py-6">

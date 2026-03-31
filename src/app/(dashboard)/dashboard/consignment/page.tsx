@@ -3,44 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Handshake, 
-  Plus, 
-  Search, 
-  MoreVertical,
-  Edit2,
-  Trash2,
-  Package,
-  ChevronRight,
-  Info,
-  ArrowRight,
-  Store,
-  Calendar,
-  CircleAlert,
-  CircleCheck,
-  Calculator,
-  CircleX,
-  Clock
-} from "lucide-react";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+import { Calculator, CircleCheck, Clock } from "lucide-react";
 import { ConsignmentForm } from "@/components/dashboard/consignment/ConsignmentForm";
 import { SettlementView } from "@/components/dashboard/consignment/SettlementView";
 import { ConsignmentDataList } from "@/components/dashboard/consignment/ConsignmentDataList";
@@ -50,28 +14,39 @@ import { Consignment } from "@/types/financial";
 
 type ViewState = "list" | "settle" | "detail";
 
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export default function ConsignmentPage() {
   const [view, setView] = useState<ViewState>("list");
   const [consignments, setConsignments] = useState<Consignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedConsignment, setSelectedConsignment] = useState<Consignment | null>(null);
-
-  const fetchConsignments = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await api.consignment.list();
-      setConsignments(data);
-    } catch (error: unknown) {
-      console.error("Failed to fetch consignments", error);
-      toast.error("Gagal memuat daftar konsinyasi.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
-    fetchConsignments();
-  }, []);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { data } = await api.consignment.list(debouncedSearch || undefined);
+        if (!cancelled) setConsignments(data);
+      } catch (error: unknown) {
+        console.error("Failed to fetch consignments", error);
+        toast.error("Gagal memuat daftar konsinyasi.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [debouncedSearch]);
 
   const stats = useMemo(() => {
     const active = consignments.filter(c => c.status !== 'CLOSED').length;
@@ -91,7 +66,12 @@ export default function ConsignmentPage() {
         onSuccess={() => {
           setView("list");
           setSelectedConsignment(null);
-          fetchConsignments();
+          api.consignment.list(debouncedSearch || undefined)
+            .then(({ data }) => setConsignments(data))
+            .catch((error: unknown) => {
+              console.error("Failed to fetch consignments", error);
+              toast.error("Gagal memuat daftar konsinyasi.");
+            });
         }} 
       />
     );
@@ -202,7 +182,12 @@ export default function ConsignmentPage() {
         <div className="pb-4">
           <ConsignmentForm 
             onSuccess={() => {
-              fetchConsignments();
+              api.consignment.list(debouncedSearch || undefined)
+                .then(({ data }) => setConsignments(data))
+                .catch((error: unknown) => {
+                  console.error("Failed to fetch consignments", error);
+                  toast.error("Gagal memuat daftar konsinyasi.");
+                });
               document.getElementById("history")?.scrollIntoView({ behavior: 'smooth' });
             }} 
           />
@@ -212,6 +197,8 @@ export default function ConsignmentPage() {
         <ConsignmentDataList 
           consignments={consignments}
           isLoading={isLoading}
+          search={search}
+          onSearchChange={setSearch}
           onSettle={(c) => {
             setSelectedConsignment(c);
             setView("settle");

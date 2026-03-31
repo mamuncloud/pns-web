@@ -206,7 +206,7 @@ export const api = {
   },
 
   employees: {
-    list: () => api.get<Employee[]>('/employees'),
+    list: (search?: string) => api.get<Employee[]>(`/employees${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     create: (data: CreateEmployeeDto) => api.post<Employee>('/employees', data),
     update: (id: string, data: UpdateEmployeeDto) => api.patch<Employee>(`/employees/${id}`, data),
     delete: (id: string) => api.delete<{ message: string; id: string }>(`/employees/${id}`),
@@ -214,8 +214,16 @@ export const api = {
 
  
   products: {
+    list: (page = 1, limit = 10, taste?: string, search?: string) => {
+      const qs = new URLSearchParams();
+      qs.append('page', String(page));
+      qs.append('limit', String(limit));
+      if (taste) qs.append('taste', taste);
+      if (search) qs.append('search', search);
+      return api.get<unknown>(`/products?${qs.toString()}`);
+    },
     getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),
-    getBrands: () => api.get<Brand[]>('/products/brands'),
+    getBrands: (search?: string) => api.get<Brand[]>(`/products/brands${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     createBrand: (name: string) => api.post<Brand>('/products/brands', { name }),
     create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
   },
@@ -230,19 +238,20 @@ export const api = {
   },
 
   stock: {
-    movements: (params?: { productVariantId?: string; productId?: string; type?: string; limit?: number }) => {
+    movements: (params?: { productVariantId?: string; productId?: string; type?: string; limit?: number; search?: string }) => {
       const qs = new URLSearchParams();
       if (params?.productVariantId) qs.append('productVariantId', params.productVariantId);
       if (params?.productId) qs.append('productId', params.productId);
       if (params?.type) qs.append('type', params.type);
       if (params?.limit) qs.append('limit', params.limit.toString());
+      if (params?.search) qs.append('search', params.search);
       return api.get<StockMovement[]>(`/stock/movements?${qs.toString()}`);
     },
     adjust: (data: AdjustStockDto) => api.post<StockMovement>('/stock/adjust', data),
   },
 
   purchases: {
-    list: () => api.get<Purchase[]>('/purchases'),
+    list: (search?: string) => api.get<Purchase[]>(`/purchases${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     get: (id: string) => api.get<Purchase>(`/purchases/${id}`),
     create: (data: CreatePurchaseDto) => api.post<{ id: string }>('/purchases', data),
     update: (id: string, data: Partial<CreatePurchaseDto>) => api.put<Purchase>(`/purchases/${id}`, data),
@@ -270,7 +279,7 @@ export const api = {
   },
 
   suppliers: {
-    list: () => api.get<Supplier[]>('/suppliers'),
+    list: (search?: string) => api.get<Supplier[]>(`/suppliers${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     create: (data: CreateSupplierDto) => api.post<Supplier>('/suppliers', data),
     update: (id: string, data: UpdateSupplierDto) => api.patch<Supplier>(`/suppliers/${id}`, data),
     delete: (id: string) => api.delete<{ message: string; id: string }>(`/suppliers/${id}`),
@@ -282,20 +291,25 @@ export const api = {
   },
 
   repacks: {
-    list: (productId?: string) =>
-      api.get<Repack[]>(`/repacks${productId ? `?productId=${productId}` : ''}`),
+    list: (productId?: string, search?: string) => {
+      const qs = new URLSearchParams();
+      if (productId) qs.append('productId', productId);
+      if (search) qs.append('search', search);
+      const query = qs.toString();
+      return api.get<Repack[]>(`/repacks${query ? `?${query}` : ''}`);
+    },
     get: (id: string) => api.get<Repack>(`/repacks/${id}`),
     create: (data: CreateRepackDto) => api.post<{ id: string; message: string }>('/repacks', data),
   },
 
   orders: {
-    list: () => api.get<Order[]>('/orders'),
+    list: (search?: string) => api.get<Order[]>(`/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
   },
 
   consignment: {
-    list: () => api.get<Consignment[]>('/consignment'),
+    list: (search?: string) => api.get<Consignment[]>(`/consignment${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     get: (id: string) => api.get<Consignment>(`/consignment/${id}`),
     create: (data: CreateConsignmentDto) => api.post<Consignment>('/consignment', data),
     settle: (data: SettleConsignmentDto) => 

@@ -459,46 +459,46 @@ export default function PurchasesPage() {
                             </div>
   
                             <div className="flex-1 max-w-lg">
-                              <Combobox 
-                                value={item.productId || ""} 
-                                onValueChange={(val) => updateItem(item.id, { productId: val ?? "" })}
-                              >
-                                <ComboboxTrigger className="h-14 font-black bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left group/trigger">
-                                  {item.productId ? (
-                                    <div className="flex flex-col items-start truncate">
-                                      <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.15em] leading-none mb-1">
-                                        {item.brandName || "Tanpa Brand"}
-                                      </span>
-                                      <span className="text-sm truncate w-full tracking-tight">
-                                        {item.productName}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <span className="text-muted-foreground/60 text-sm font-medium italic">Cari barang by Nama/Brand...</span>
-                                  )}
-                                </ComboboxTrigger>
-                                <ComboboxContent align="start" className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90">
-                                  <ComboboxInput placeholder="Tulis nama barang..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
-                                  <ComboboxEmpty className="py-12 text-center">
-                                    <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SKU tidak ditemukan</p>
-                                  </ComboboxEmpty>
-                                  <ComboboxList className="space-y-1 max-h-72 overflow-y-auto pr-1">
-                                    {products.map(p => (
-                                      <ComboboxItem 
-                                        key={p.id} 
-                                        value={p.id} 
-                                        className="rounded-xl py-3 px-4 font-black cursor-pointer hover:bg-primary/5 transition-colors"
-                                      >
-                                        <div className="flex flex-col gap-1">
-                                          <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
-                                          <span className="text-sm tracking-tight">{p.name}</span>
-                                        </div>
-                                      </ComboboxItem>
-                                    ))}
-                                  </ComboboxList>
-                                </ComboboxContent>
-                              </Combobox>
+                            <Combobox 
+                              value={item.productId || ""} 
+                              onValueChange={(val) => updateItem(item.id, { productId: val ?? "" })}
+                            >
+                              <ComboboxTrigger className="h-14 font-black bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left group/trigger">
+                                {item.productId ? (
+                                  <div className="flex flex-col items-start truncate">
+                                    <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.15em] leading-none mb-1">
+                                      {item.brandName || "Tanpa Brand"}
+                                    </span>
+                                    <span className="text-sm truncate w-full tracking-tight">
+                                      {item.productName}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground/60 text-sm font-medium italic">Cari barang by Nama/Brand...</span>
+                                )}
+                              </ComboboxTrigger>
+                              <ComboboxContent align="start" className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90">
+                                <ComboboxInput placeholder="Tulis nama barang..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
+                                <ComboboxEmpty className="py-12 text-center">
+                                  <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SKU tidak ditemukan</p>
+                                </ComboboxEmpty>
+                                <ComboboxList className="space-y-1 max-h-72 overflow-y-auto pr-1">
+                                  {products.map(p => (
+                                    <ComboboxItem 
+                                      key={p.id} 
+                                      value={p.id} 
+                                      className="rounded-xl py-3 px-4 font-black cursor-pointer hover:bg-primary/5 transition-colors"
+                                    >
+                                      <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
+                                        <span className="text-sm tracking-tight">{p.name}</span>
+                                      </div>
+                                    </ComboboxItem>
+                                  ))}
+                                </ComboboxList>
+                              </ComboboxContent>
+                            </Combobox>
                             </div>
   
                             <button type="button" onClick={() => removeItem(item.id)} className="h-12 w-12 flex items-center justify-center text-muted-foreground/20 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl">

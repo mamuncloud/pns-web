@@ -19,29 +19,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Supplier } from "@/lib/api";
-import { useState, useMemo } from "react";
 
 interface SupplierListProps {
   suppliers: Supplier[];
   isLoading: boolean;
+  search: string;
+  onSearchChange: (value: string) => void;
   onEdit: (supplier: Supplier) => void;
   onDelete: (supplier: Supplier) => void;
 }
 
-export function SupplierList({ suppliers, isLoading, onEdit, onDelete }: SupplierListProps) {
-  const [search, setSearch] = useState("");
-
-  const filteredSuppliers = useMemo(() => {
-    return suppliers.filter((s) => {
-      const term = search.toLowerCase();
-      return (
-        s.name.toLowerCase().includes(term) ||
-        (s.contactName?.toLowerCase().includes(term) ?? false) ||
-        (s.email?.toLowerCase().includes(term) ?? false)
-      );
-    });
-  }, [suppliers, search]);
-
+export function SupplierList({ suppliers, isLoading, search, onSearchChange, onEdit, onDelete }: SupplierListProps) {
   return (
     <div className="space-y-6">
       <div className="relative group">
@@ -50,7 +38,7 @@ export function SupplierList({ suppliers, isLoading, onEdit, onDelete }: Supplie
           placeholder="Cari nama, kontak, atau email..."
           className="pl-12 h-14 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all text-base font-medium"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
 
@@ -73,7 +61,7 @@ export function SupplierList({ suppliers, isLoading, onEdit, onDelete }: Supplie
                     <p className="text-sm font-black uppercase tracking-widest text-muted-foreground/30">Memuat data supplier...</p>
                   </TableCell>
                 </TableRow>
-              ) : filteredSuppliers.length === 0 ? (
+              ) : suppliers.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={5} className="px-8 py-32 text-center">
                     <Truck className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
@@ -81,7 +69,7 @@ export function SupplierList({ suppliers, isLoading, onEdit, onDelete }: Supplie
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredSuppliers.map((supplier) => (
+                suppliers.map((supplier) => (
                   <TableRow key={supplier.id} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
                     <TableCell className="px-8 py-6">
                       <div className="flex items-center gap-4">
