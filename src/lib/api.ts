@@ -182,6 +182,16 @@ export interface CreateSupplierDto {
 
 export type UpdateSupplierDto = Partial<CreateSupplierDto>;
 
+export type PackageType = 'Medium' | 'Small' | '250gr' | '500gr' | '1kg' | 'bal';
+
+export interface CreateVariantDto {
+  package: PackageType;
+  price: number;
+  initialStock?: number;
+  sku?: string;
+  sizeInGram?: number;
+}
+
 export const api = {
   get: <T>(endpoint: string, options: RequestInit = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'GET' }),
@@ -218,6 +228,7 @@ export const api = {
     getBrands: () => api.get<Brand[]>('/products/brands'),
     createBrand: (name: string) => api.post<Brand>('/products/brands', { name }),
     create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
+    createVariant: (productId: string, data: CreateVariantDto) => api.post<Record<string, unknown>>(`/products/${productId}/variants`, data),
   },
 
   pricingRules: {
