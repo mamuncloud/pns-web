@@ -2,22 +2,11 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { AuthUser } from "@/types/financial";
-import { 
-  Bell, 
-  User, 
-  LogOut,
-  ChevronDown,
-  Settings,
-  HelpCircle,
-  Menu
-} from "lucide-react";
+import { Bell, User, LogOut, ChevronDown, Settings, HelpCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useStoreSettings } from "@/hooks/use-store-settings";
 
 interface DashboardHeaderProps {
   user: AuthUser | null;
@@ -28,7 +17,6 @@ export default function DashboardHeader({ user, onToggleCollapse }: DashboardHea
   const { logout } = useAuth();
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { isStoreOpen, isLoading, isUpdating, toggleStoreStatus } = useStoreSettings();
 
   // Derive page title from pathname
   const getPageTitle = () => {
@@ -80,26 +68,6 @@ export default function DashboardHeader({ user, onToggleCollapse }: DashboardHea
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* Store Status Toggle */}
-        <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-          <span className={cn(
-            "text-[10px] font-black uppercase tracking-widest transition-colors",
-            isStoreOpen ? "text-green-600" : "text-muted-foreground"
-          )}>
-            Open
-          </span>
-          <Switch 
-            checked={isStoreOpen} 
-            disabled={isLoading || isUpdating}
-            onChange={(e) => toggleStoreStatus(e.target.checked)} 
-          />
-          <span className={cn(
-            "text-[10px] font-black uppercase tracking-widest transition-colors",
-            !isStoreOpen ? "text-destructive" : "text-muted-foreground"
-          )}>
-            Closed
-          </span>
-        </div>
 
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="text-muted-foreground relative">

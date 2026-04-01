@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 interface DashboardSidebarProps {
   isCollapsed: boolean;
@@ -43,6 +45,7 @@ export default function DashboardSidebar({ isCollapsed }: DashboardSidebarProps)
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+  const { isStoreOpen, isLoading, isUpdating, toggleStoreStatus } = useStoreSettings();
   
   const userRole = user?.role || "CASHIER";
   const filteredNavItems = navItems.filter(item => item.roles.includes(userRole));
@@ -125,9 +128,34 @@ export default function DashboardSidebar({ isCollapsed }: DashboardSidebarProps)
 
           {/* Bottom Section */}
           <div className={cn(
-            "border-t border-gray-200 dark:border-gray-800 flex flex-col",
+            "border-t border-gray-200 dark:border-gray-800 flex flex-col gap-2",
             isCollapsed ? "p-4 lg:p-2" : "p-4"
           )}>
+            {/* Store Status Toggle */}
+            <div className={cn(
+              "flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 dark:bg-gray-800/50 dark:border-gray-800 transition-all",
+              isCollapsed && "lg:p-2 lg:flex-col lg:gap-2"
+            )}>
+              <div className={cn(
+                "flex flex-col",
+                isCollapsed && "lg:hidden"
+              )}>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Store Status</span>
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-widest transition-colors",
+                  isStoreOpen ? "text-green-600" : "text-destructive"
+                )}>
+                  {isStoreOpen ? "Open" : "Closed"}
+                </span>
+              </div>
+              <Switch 
+                checked={isStoreOpen} 
+                disabled={isLoading || isUpdating}
+                onChange={(e) => toggleStoreStatus(e.target.checked)} 
+                className={cn(isCollapsed && "lg:scale-90")}
+              />
+            </div>
+
             <div className={cn(
               "rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50",
               isCollapsed ? "lg:hidden block" : "block mt-2"
