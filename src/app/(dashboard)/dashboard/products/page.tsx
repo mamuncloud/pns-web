@@ -54,9 +54,6 @@ export default function DashboardProductsPage() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {

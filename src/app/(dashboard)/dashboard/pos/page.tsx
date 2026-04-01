@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
@@ -8,7 +8,7 @@ import { Product, ProductVariant } from "@/types/product";
 import { api } from "@/lib/api";
 import { CreateOrderDto, OrderType } from "@/types/financial";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,12 +57,18 @@ export default function POSPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const isInternalReload = useRef(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 20;
 
-  const fetchProducts = useCallback(async (search?: string) => {
+  const fetchProducts = useCallback(async (pageNum: number, search?: string) => {
     setIsLoading(true);
     try {
-      const { data } = await getProductsFromDb(1, 100, undefined, search);
+      const { data, meta } = await getProductsFromDb(pageNum, limit, undefined, search, true);
       setProducts(data);
+      setTotalPages(meta.totalPages);
     } catch (error) {
       console.error("Failed to fetch products:", error);
       toast.error("Gagal memuat produk.");
@@ -72,26 +78,28 @@ export default function POSPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts(debouncedSearch || undefined);
+    setPage(1);
+    fetchProducts(1, debouncedSearch || undefined);
   }, [debouncedSearch, fetchProducts]);
 
-  // Transform products into a flat list of variants for display
-  const displayVariants = useMemo(() => {
-    const variants: DisplayVariant[] = [];
-    products.forEach(p => {
-      p.variants.forEach(v => {
-        variants.push({
-          ...v,
-          productName: p.name,
-          productImageUrl: p.imageUrl,
-          productTaste: p.taste,
-          productMargin: p.margin,
-          productCurrentHpp: p.currentHpp
-        });
-      });
-    });
-    return variants;
-  }, [products]);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      fetchProducts(newPage, searchQuery || undefined);
+    }
+  };
+
+  // No longer flatting variants globally, but we still need helper mapping for cart
+  const mapVariantToDisplay = (p: Product, v: ProductVariant): DisplayVariant => {
+    return {
+      ...v,
+      productName: p.name,
+      productImageUrl: p.imageUrl,
+      productTaste: p.taste,
+      productMargin: p.margin,
+      productCurrentHpp: p.currentHpp
+    };
+  };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -161,7 +169,7 @@ export default function POSPage() {
         
         // Clear cart and refetch products to update stock without full reload
         setCart([]);
-        fetchProducts();
+        fetchProducts(page, searchQuery || undefined);
       } else {
         toast.error(response.message || "Gagal memproses transaksi.");
       }
@@ -225,40 +233,98 @@ export default function POSPage() {
               description="Belum ada produk yang bisa dijual. Silakan tambahkan produk pertama Anda di menu Kelola Produk."
             />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {displayVariants.map((p) => (
-                <Card 
-                  key={p.id} 
-                  className="cursor-pointer hover:border-primary/50 transition-all duration-300 group active:scale-95 shadow-sm border-gray-200/50 dark:border-gray-800/50 rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-xl hover:shadow-primary/5 min-h-[140px]"
-                  onClick={() => addToCart(p)}
-                >
-                  <CardContent className="p-4 space-y-4">
-                    <div className="aspect-square bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl flex items-center justify-center relative overflow-hidden group-hover:bg-primary/5 transition-colors border border-gray-100 dark:border-gray-800/50">
-                       <Image
-                         src={p.productImageUrl || getProductImageUrl(null)}
-                         alt={p.productName}
-                         fill
-                         className="object-cover"
-                         sizes="(max-width: 768px) 50vw, 25vw"
-                         unoptimized
-                       />
-                       {p.productMargin && p.productMargin > 40 && (
-                         <Badge className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 font-black text-[9px] uppercase tracking-tighter border-none shadow-sm">High Margin</Badge>
-                       )}
-                    </div>
-                    <div className="space-y-1.5 mt-2">
-                       <div className="flex flex-col">
-                        <p className="text-sm font-black text-foreground leading-tight truncate">{p.productName}</p>
-                        <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{p.package}</p>
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products.map((p) => (
+                  <Card 
+                    key={p.id} 
+                    className="group border-gray-200/50 dark:border-gray-800/50 rounded-[2rem] bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden"
+                  >
+                    <div className="flex flex-col h-full">
+                      {/* Product Header */}
+                      <div className="p-4 flex gap-4">
+                        <div className="h-20 w-20 shrink-0 bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl relative overflow-hidden border border-gray-100 dark:border-gray-800/50">
+                          <Image
+                            src={p.imageUrl || getProductImageUrl(null)}
+                            alt={p.name}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            sizes="80px"
+                            unoptimized
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0 py-1">
+                          <div className="flex items-start justify-between gap-2">
+                             <h4 className="text-lg font-black text-foreground leading-tight tracking-tight uppercase italic">{p.name}</h4>
+                             {p.margin && p.margin > 40 && (
+                               <Badge className="bg-green-500/10 text-green-600 border-none font-black text-[8px] uppercase tracking-tighter px-1.5 h-4">High Profit</Badge>
+                             )}
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {p.taste.slice(0, 2).map(t => (
+                              <Badge key={t} variant="outline" className="text-[9px] font-bold uppercase tracking-tighter px-1.5 h-4 border-gray-200 dark:border-gray-800">{t}</Badge>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">Stock: {p.stock || 0}</p>
-                        <p className="text-sm font-black text-primary">Rp {p.price.toLocaleString('id-ID')}</p>
+
+                      {/* Variant Selection Area */}
+                      <div className="px-4 pb-4 bg-gray-50/30 dark:bg-gray-900/10 border-t border-gray-100/50 dark:border-gray-800/50 pt-4 flex-1">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">Pilih Ukuran/Paket:</p>
+                        <div className="grid gap-2">
+                          {p.variants
+                            .filter(v => (v.stock ?? 0) > 0)
+                            .map(v => (
+                              <button
+                                key={v.id}
+                                onClick={() => addToCart(mapVariantToDisplay(p, v))}
+                                className="w-full flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-primary/50 hover:bg-primary/5 transition-all group/variant active:scale-[0.98]"
+                              >
+                                <div className="flex flex-col items-start">
+                                  <span className="text-xs font-black text-foreground uppercase tracking-tight">{v.package}</span>
+                                  <span className="text-[10px] font-bold text-muted-foreground">Stok: {v.stock}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-black text-primary">Rp {v.price.toLocaleString('id-ID')}</span>
+                                  <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center group-hover/variant:bg-primary transition-colors">
+                                    <Plus className="h-4 w-4 text-primary group-hover/variant:text-white" />
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 py-4">
+                  <Button
+                    variant="outline"
+                    className="h-12 w-12 rounded-2xl border-2"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">Page</span>
+                    <span className="h-12 w-12 flex items-center justify-center bg-primary text-white rounded-2xl font-black text-lg">{page}</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">of {totalPages}</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="h-12 w-12 rounded-2xl border-2"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
