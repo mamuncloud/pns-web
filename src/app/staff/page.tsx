@@ -60,7 +60,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-black text-center tracking-tighter uppercase italic">Otentikasi Akses Staf</CardTitle>
           <CardDescription className="text-center text-[10px] uppercase tracking-[0.2em] font-medium opacity-60">
-            Protokol Identitas Planet Nyemil Snack
+            Akses via link email & whatsapp
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -83,7 +83,7 @@ export default function LoginPage() {
                 className="mt-4" 
                 onClick={() => setIsSent(false)}
               >
-                Use another email
+                Gunakan email lain
               </Button>
             </div>
           ) : (
@@ -101,6 +101,9 @@ export default function LoginPage() {
                     disabled={isLoading}
                   />
                 </div>
+                <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest pt-2">
+                  Link akan dikirim ke Email & WhatsApp
+                </p>
               </div>
               {error && (
                 <div className="flex items-center space-x-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive dark:bg-destructive/20">
