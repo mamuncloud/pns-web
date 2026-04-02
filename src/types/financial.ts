@@ -254,6 +254,7 @@ export interface AdjustStockDto {
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'COMPLETED';
 export type OrderType = 'WALK_IN' | 'PRE_ORDER';
+export type PaymentMethod = 'CASH' | 'QRIS';
 
 export interface OrderItem {
   id: string;
@@ -286,6 +287,8 @@ export interface Order {
 export interface CreateOrderDto {
   userId?: string;
   orderType: OrderType;
+  paymentMethod?: PaymentMethod;
+  paidAmount?: number;
   items: {
     productVariantId: string;
     quantity: number;
