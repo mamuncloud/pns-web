@@ -6,14 +6,14 @@ import {
   Package,
   Scissors,
   AlertCircle,
-  Loader2,
-  ChevronDown,
-  ChevronRight,
+  Layers,
   ArrowRight,
   TrendingUp,
   TrendingDown,
   Trash2,
-  Layers,
+  Loader2,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/combobox';
 import { api } from '@/lib/api';
 import { getProductsFromDb } from '@/lib/products-db';
+import { useDebounce } from "@/hooks/use-debounce";
 import { Repack, CreateRepackDto } from '@/types/financial';
 import { Product } from '@/types/product';
 import Link from 'next/link';
@@ -208,12 +209,19 @@ function RepacksContent() {
   const [outputRows, setOutputRows] = useState<OutputRow[]>([
     { id: crypto.randomUUID(), targetVariantPackage: '', qtyProduced: 1, sellingPrice: 0, sizeInGram: 0 },
   ]);
+  const [productSearch, setProductSearch] = useState('');
+  const debouncedSearch = useDebounce(productSearch, 500);
+  const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Computed data
   const selectedProduct = useMemo(() => products.find((p) => p.id === selectedProductId), [products, selectedProductId]);
   const sourceVariant = useMemo(() => selectedProduct?.variants.find((v) => v.id === sourceVariantId), [selectedProduct, sourceVariantId]);
   
+  const filteredProducts = useMemo(() => {
+    return [...products].sort((a, b) => (b.stockQty || 0) - (a.stockQty || 0));
+  }, [products]);
+
   const availableSourceVariants = useMemo(() => selectedProduct?.variants.filter((v) => (v.stock ?? 0) > 0) || [], [selectedProduct]);
   const availableOutputLabels = useMemo(() => VARIANT_LABELS.filter((label) => label !== sourceVariant?.package), [sourceVariant]);
   const totalQtyProduced = useMemo(() => outputRows.reduce((sum, row) => sum + (row.qtyProduced || 0), 0), [outputRows]);
@@ -240,16 +248,19 @@ function RepacksContent() {
   useEffect(() => {
     let mounted = true;
     const loadProducts = async () => {
+      setIsSearching(true);
       try {
-        const res = await getProductsFromDb(1, 100);
+        const res = await getProductsFromDb(1, 100, undefined, debouncedSearch);
         if (mounted) setProducts(res.data);
       } catch (err) {
         console.error('Failed to load products', err);
+      } finally {
+        if (mounted) setIsSearching(false);
       }
     };
     loadProducts();
     return () => { mounted = false; };
-  }, []);
+  }, [debouncedSearch]);
 
   // Sync Repacks with selected product
   useEffect(() => {
@@ -393,6 +404,7 @@ function RepacksContent() {
                 <Combobox 
                   value={selectedProductId} 
                   onValueChange={(val) => handleProductChange(val ?? "")}
+                  onInputValueChange={setProductSearch}
                 >
                   <ComboboxTrigger className="h-14 font-black bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left">
                     {selectedProduct ? (
@@ -410,12 +422,19 @@ function RepacksContent() {
                   </ComboboxTrigger>
                   <ComboboxContent align="start" className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90 zcustom">
                     <ComboboxInput placeholder="Cari by nama..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
-                    <ComboboxEmpty className="py-12 text-center">
-                      <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Produk tidak ditemukan</p>
+                    <ComboboxEmpty className="h-[200px] flex items-center justify-center">
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                        {isSearching ? "Searching..." : "Produk tidak ditemukan"}
+                      </p>
                     </ComboboxEmpty>
                     <ComboboxList className="space-y-1 max-h-72 overflow-y-auto pr-1">
-                      {products.map(p => (
+                      {isSearching && (
+                        <div className="py-10 flex flex-col items-center justify-center gap-2 opacity-50">
+                          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                          <p className="text-[10px] font-black uppercase tracking-widest">Memuat produk...</p>
+                        </div>
+                      )}
+                      {!isSearching && filteredProducts.map(p => (
                         <ComboboxItem 
                           key={p.id} 
                           value={p.id} 
@@ -427,9 +446,6 @@ function RepacksContent() {
                             <div className="flex items-center justify-between mt-1">
                               <span className="text-[9px] text-muted-foreground/50 font-black uppercase tracking-wider flex items-center gap-1">
                                 <Layers className="h-2.5 w-2.5" /> Total Stock: {p.stockQty || 0}
-                              </span>
-                              <span className="text-[9px] text-emerald-600/70 font-black uppercase tracking-wider">
-                                Rp {(p.currentHpp || 0).toLocaleString('id-ID')}
                               </span>
                             </div>
                           </div>
