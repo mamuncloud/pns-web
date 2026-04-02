@@ -1,0 +1,629 @@
+# Instincts generated from https://github.com/mamuncloud/pns-web
+# Generated: 2026-04-02T10:44:53.246Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: pns-web-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, style, refactor, chore, docs
+
+## Evidence
+
+- 123 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat(auth): prioritize phone number and remove unused icon, style(staff): update login wording for better clarity on whatsapp
+
+---
+id: pns-web-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Commit Length
+
+## Action
+
+Write moderate-length commit messages (~76 characters)
+
+## Evidence
+
+- Average commit message length: 76 chars
+- Based on 123 commits
+
+---
+id: pns-web-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: pns-web-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: pns-web-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Export Style
+
+## Action
+
+Prefer default exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: default
+
+---
+id: pns-web-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: app, components, hooks, lib, types
+
+---
+id: pns-web-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: pns-web-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~20x per month
+- Files: src/app/(dashboard)/dashboard/purchases/*, src/app/(dashboard)/dashboard/products/[id]/*, src/app/(dashboard)/dashboard/products/*
+
+---
+id: pns-web-workflow-refactoring
+trigger: "when refactoring code"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Refactoring
+
+## Action
+
+Follow the refactoring workflow:
+1. Ensure tests pass before refactor
+2. Refactor code structure
+3. Verify tests still pass
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: src/**/*
+
+---
+id: pns-web-workflow-feature-development-dashboard-entity
+trigger: "when doing feature development dashboard entity"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Feature Development Dashboard Entity
+
+## Action
+
+Follow the feature-development-dashboard-entity workflow:
+1. Create or update dashboard page under src/app/(dashboard)/dashboard/{entity}/page.tsx
+2. Add or update form and dialog components under src/components/dashboard/{entity}/
+3. Update API client methods in src/lib/api.ts
+4. Update or add types in src/types/{entity or financial}.ts
+5. Optionally add tests under tests/ or update issues/ for tracking
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/components/dashboard/*/*.tsx, src/lib/api.ts
+
+---
+id: pns-web-workflow-api-integration-and-variant-flow
+trigger: "when doing api integration and variant flow"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Api Integration And Variant Flow
+
+## Action
+
+Follow the api-integration-and-variant-flow workflow:
+1. Update product detail page at src/app/(dashboard)/dashboard/products/[id]/page.tsx
+2. Add or update dialog/form component under src/components/dashboard/products/
+3. Update API methods in src/lib/api.ts
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/app/(dashboard)/dashboard/products/[id]/page.tsx, src/components/dashboard/products/*.tsx, src/lib/api.ts
+
+---
+id: pns-web-workflow-server-side-search-list-pages
+trigger: "when doing server side search list pages"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Server Side Search List Pages
+
+## Action
+
+Follow the server-side-search-list-pages workflow:
+1. Update list page(s) under src/app/(dashboard)/dashboard/*/page.tsx to use server-side search
+2. Update API client in src/lib/api.ts and/or src/lib/products-db.ts to support search params
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/lib/api.ts, src/lib/products-db.ts
+
+---
+id: pns-web-workflow-ui-refactor-split-layout
+trigger: "when doing ui refactor split layout"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Ui Refactor Split Layout
+
+## Action
+
+Follow the ui-refactor-split-layout workflow:
+1. Update dashboard page under src/app/(dashboard)/dashboard/{entity}/page.tsx
+2. Refactor or add dialog/form components under src/components/dashboard/{entity}/
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/components/dashboard/*/*.tsx
+
+---
+id: pns-web-workflow-sidebar-navigation-update
+trigger: "when doing sidebar navigation update"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/mamuncloud/pns-web
+---
+
+# Pns Web Workflow Sidebar Navigation Update
+
+## Action
+
+Follow the sidebar-navigation-update workflow:
+1. Update src/components/dashboard/DashboardSidebar.tsx
+2. Optionally update related header/layout files
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: src/components/dashboard/DashboardSidebar.tsx, src/components/dashboard/DashboardHeader.tsx
+
+---
+id: pns-web-instinct-file-naming
+trigger: "When creating a new file in the codebase"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct File Naming
+
+## Action
+
+Name the file using camelCase convention
+
+## Evidence
+
+- Pattern in src/app/(dashboard)/dashboard/products/[id]/page.tsx
+- Pattern in src/hooks/use-activity-refresh.ts
+
+---
+id: pns-web-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in src/lib/api.ts
+- Pattern in src/hooks/use-activity-refresh.ts
+
+---
+id: pns-web-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Class Naming
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in src/components/dashboard/DashboardSidebar.tsx
+
+---
+id: pns-web-instinct-constant-naming
+trigger: "When declaring a constant value"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in src/types/*.ts
+
+---
+id: pns-web-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Import Style
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in src/components/dashboard/DashboardSidebar.tsx
+
+---
+id: pns-web-instinct-export-style
+trigger: "When exporting modules or components"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Export Style
+
+## Action
+
+Use default export style
+
+## Evidence
+
+- Pattern in src/components/dashboard/DashboardSidebar.tsx
+
+---
+id: pns-web-instinct-test-location
+trigger: "When adding new tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Test Location
+
+## Action
+
+Place test files in a separate directory (e.g., tests/)
+
+## Evidence
+
+- Pattern in workflow feature-development-dashboard-entity
+- Pattern in workflow refactoring
+
+---
+id: pns-web-instinct-test-after-feature
+trigger: "When implementing a new feature"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Test After Feature
+
+## Action
+
+Add corresponding tests after feature implementation
+
+## Evidence
+
+- Commit sequence in workflow feature-development
+- Example: 'Add tests for feature' after 'Add feature implementation'
+
+---
+id: pns-web-instinct-test-after-refactor
+trigger: "When refactoring code"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Test After Refactor
+
+## Action
+
+Ensure all tests pass before and after refactoring
+
+## Evidence
+
+- Commit sequence in workflow refactoring: 'Ensure tests pass before refactor', 'Verify tests still pass'
+
+---
+id: pns-web-instinct-git-commit-format
+trigger: "When making a git commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Git Commit Format
+
+## Action
+
+Use conventional commit format: <type>(<scope>): <description>
+
+## Evidence
+
+- Seen in commit 'feat(auth): prioritize phone number and remove unused icon'
+- Seen in commit 'fix(dashboard): resolve stock adjustment validation and add reason presets'
+
+---
+id: pns-web-instinct-git-commit-prefixes
+trigger: "When choosing a commit type"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Git Commit Prefixes
+
+## Action
+
+Use one of the prefixes: feat, style, refactor, chore, docs, fix
+
+## Evidence
+
+- Pattern in commit history: 'feat', 'style', 'refactor', 'chore', 'docs', 'fix'
+
+---
+id: pns-web-instinct-feature-development-dashboard-entity
+trigger: "When adding a new dashboard entity or major feature"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Feature Development Dashboard Entity
+
+## Action
+
+Create/update dashboard page, form/dialog components, API client, and types; optionally add tests
+
+## Evidence
+
+- Workflow: feature-development-dashboard-entity
+- Commits: 'feat(staff): add WhatsApp support and login UI update'
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/components/dashboard/*/*.tsx, src/lib/api.ts, src/types/*.ts
+
+---
+id: pns-web-instinct-api-integration-variant-flow
+trigger: "When adding or enhancing product variant creation/editing with API integration"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Api Integration Variant Flow
+
+## Action
+
+Update product detail page, dialog/form component, and API client methods
+
+## Evidence
+
+- Workflow: api-integration-and-variant-flow
+- Files: src/app/(dashboard)/dashboard/products/[id]/page.tsx, src/components/dashboard/products/*.tsx, src/lib/api.ts
+
+---
+id: pns-web-instinct-server-side-search
+trigger: "When implementing or improving server-side search for dashboard list pages"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Server Side Search
+
+## Action
+
+Update list page(s) and API client to support server-side search parameters
+
+## Evidence
+
+- Workflow: server-side-search-list-pages
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/lib/api.ts, src/lib/products-db.ts
+
+---
+id: pns-web-instinct-ui-refactor-split-layout
+trigger: "When improving dashboard UX by introducing a split layout"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Ui Refactor Split Layout
+
+## Action
+
+Update dashboard page and refactor/add dialog/form components for split layout
+
+## Evidence
+
+- Workflow: ui-refactor-split-layout
+- Files: src/app/(dashboard)/dashboard/*/page.tsx, src/components/dashboard/*/*.tsx
+
+---
+id: pns-web-instinct-sidebar-navigation-update
+trigger: "When changing the navigation structure or icons in the dashboard sidebar"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: mamuncloud/pns-web
+---
+
+# Pns Web Instinct Sidebar Navigation Update
+
+## Action
+
+Update DashboardSidebar.tsx and optionally related header/layout files
+
+## Evidence
+
+- Workflow: sidebar-navigation-update
+- Files: src/components/dashboard/DashboardSidebar.tsx, src/components/dashboard/DashboardHeader.tsx
+
