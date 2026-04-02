@@ -3,20 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Truck } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { api, Supplier } from "@/lib/api";
 import { SupplierForm } from "@/components/dashboard/suppliers/SupplierForm";
 import { SupplierList } from "@/components/dashboard/suppliers/SupplierList";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { toast } from "sonner";
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-}
 
 export default function DashboardSuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);

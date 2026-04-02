@@ -35,6 +35,8 @@ interface ConsignmentItemListProps {
     hpp: number;
     displayName: string;
   }[];
+  search: string;
+  onSearchChange: (search: string) => void;
 }
 
 export function ConsignmentItemList({
@@ -43,6 +45,8 @@ export function ConsignmentItemList({
   onRemove,
   onUpdate,
   flatVariants,
+  search,
+  onSearchChange,
 }: ConsignmentItemListProps) {
   return (
     <section className="space-y-6">
@@ -92,6 +96,8 @@ export function ConsignmentItemList({
                 onRemove={onRemove}
                 onUpdate={onUpdate}
                 flatVariants={flatVariants}
+                search={search}
+                onSearchChange={onSearchChange}
               />
             ))
           )}
@@ -113,9 +119,11 @@ interface ConsignmentItemRowProps {
     hpp: number;
     displayName: string;
   }[];
+  search: string;
+  onSearchChange: (search: string) => void;
 }
 
-function ConsignmentItemRow({ idx, item, onRemove, onUpdate, flatVariants }: ConsignmentItemRowProps) {
+function ConsignmentItemRow({ idx, item, onRemove, onUpdate, flatVariants, search, onSearchChange }: ConsignmentItemRowProps) {
   const variant = flatVariants.find(v => v.id === item.productVariantId);
 
   return (
@@ -139,7 +147,12 @@ function ConsignmentItemRow({ idx, item, onRemove, onUpdate, flatVariants }: Con
           <ComboboxContent className="w-[400px] rounded-2xl border-none shadow-2xl backdrop-blur-3xl overflow-hidden p-2 bg-white/90 dark:bg-slate-900/90">
             <div className="relative mb-2 p-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-30" />
-              <ComboboxInput placeholder="Cari varian..." className="h-10 w-full pl-10 pr-4 rounded-lg bg-slate-100 dark:bg-white/5 border-none font-bold text-xs ring-0 outline-none" />
+              <ComboboxInput 
+                placeholder="Cari varian..." 
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="h-10 w-full pl-10 pr-4 rounded-lg bg-slate-100 dark:bg-white/5 border-none font-bold text-xs ring-0 outline-none" 
+              />
             </div>
             <ComboboxEmpty className="text-[10px] p-4 text-center text-slate-400 italic">Produk tidak terdaftar.</ComboboxEmpty>
             <ComboboxList className="max-h-72 overflow-y-auto pr-1">

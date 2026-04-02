@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Calculator, CircleCheck, Clock } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { ConsignmentForm } from "@/components/dashboard/consignment/ConsignmentForm";
 import { SettlementView } from "@/components/dashboard/consignment/SettlementView";
 import { ConsignmentDataList } from "@/components/dashboard/consignment/ConsignmentDataList";
@@ -14,14 +15,6 @@ import { Consignment } from "@/types/financial";
 
 type ViewState = "list" | "settle" | "detail";
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-}
 
 export default function ConsignmentPage() {
   const [view, setView] = useState<ViewState>("list");
