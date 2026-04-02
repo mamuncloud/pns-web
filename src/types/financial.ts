@@ -99,12 +99,14 @@ export interface Employee {
   email: string;
   role: 'MANAGER' | 'CASHIER';
   createdAt: string;
+  phone?: string;
 }
 
 export interface CreateEmployeeDto {
   name: string;
   email: string;
   role: 'MANAGER' | 'CASHIER';
+  phone?: string;
 }
 
 export type UpdateEmployeeDto = Partial<CreateEmployeeDto>;

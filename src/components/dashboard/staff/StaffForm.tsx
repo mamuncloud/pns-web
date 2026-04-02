@@ -25,6 +25,7 @@ const staffSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter"),
   email: z.string().email("Format email tidak valid"),
   role: z.enum(["MANAGER", "CASHIER"]),
+  phone: z.string().optional().or(z.literal("")),
 });
 
 type StaffFormValues = z.infer<typeof staffSchema>;
@@ -50,6 +51,7 @@ export function StaffForm({ employee, onSuccess, onCancel }: StaffFormProps) {
       name: "",
       email: "",
       role: "CASHIER",
+      phone: "",
     },
   });
 
@@ -59,12 +61,14 @@ export function StaffForm({ employee, onSuccess, onCancel }: StaffFormProps) {
         name: employee.name,
         email: employee.email,
         role: employee.role,
+        phone: employee.phone || "",
       });
     } else {
       reset({
         name: "",
         email: "",
         role: "CASHIER",
+        phone: "",
       });
     }
   }, [employee, isEditing, reset]);
@@ -80,7 +84,7 @@ export function StaffForm({ employee, onSuccess, onCancel }: StaffFormProps) {
       }
       onSuccess();
       if (!isEditing) {
-        reset({ name: "", email: "", role: "CASHIER" });
+        reset({ name: "", email: "", role: "CASHIER", phone: "" });
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Terjadi kesalahan saat menyimpan data";
@@ -137,6 +141,20 @@ export function StaffForm({ employee, onSuccess, onCancel }: StaffFormProps) {
                 )}
               />
               {errors.email && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight px-1">{errors.email.message}</p>}
+            </div>
+
+            <div className="space-y-2 group">
+              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-focus-within:text-primary transition-colors px-1">Nomor WhatsApp (Opsional)</Label>
+              <Input
+                id="phone"
+                placeholder="Cth: 08123456789"
+                {...register("phone")}
+                className={cn(
+                  "h-12 bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all font-medium",
+                  errors.phone && "border-red-500 focus-visible:ring-red-500"
+                )}
+              />
+              {errors.phone && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight px-1">{errors.phone.message}</p>}
             </div>
 
             <div className="space-y-2 group">

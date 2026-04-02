@@ -7,12 +7,12 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CircleAlert, CircleCheck, Loader2, Mail } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2, Phone } from "lucide-react";
 
 export default function LoginPage() {
   const { isAuthenticated, isEmployee, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,13 +38,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!identifier) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      await api.auth.requestLogin(email);
+      await api.auth.requestLogin(identifier);
       setIsSent(true);
     } catch (err) {
       const error = err as Error;
@@ -60,7 +60,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-black text-center tracking-tighter uppercase italic">Otentikasi Akses Staf</CardTitle>
           <CardDescription className="text-center text-[10px] uppercase tracking-[0.2em] font-medium opacity-60">
-            Protokol Identitas Planet Nyemil Snack
+            Akses via link email & whatsapp
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -70,10 +70,12 @@ export default function LoginPage() {
                 <CircleCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email Anda</h3>
-                <p className="text-sm text-muted-foreground">
-                  We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>. 
-                  Click the link to log in.
+                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email & WhatsApp</h3>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Kami telah mengirimkan tautan akses ke <span className="font-black text-primary underline underline-offset-4">{identifier}</span> dan saluran komunikasi Anda lainnya yang terdaftar.
+                </p>
+                <p className="text-[10px] text-muted-foreground/50 font-black uppercase tracking-widest italic pt-2">
+                  Tautan berlaku selama 10 menit
                 </p>
               </div>
               <Button 
@@ -81,24 +83,27 @@ export default function LoginPage() {
                 className="mt-4" 
                 onClick={() => setIsSent(false)}
               >
-                Use another email
+                Gunakan identitas lain
               </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    type="email"
-                    placeholder="name@pns.com"
+                    type="text"
+                    placeholder="0812XXXXXXXX / email@pns.com"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="pl-10 h-10"
                     disabled={isLoading}
                   />
                 </div>
+                <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest pt-2">
+                  Link akan dikirim ke WhatsApp & Email
+                </p>
               </div>
               {error && (
                 <div className="flex items-center space-x-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive dark:bg-destructive/20">

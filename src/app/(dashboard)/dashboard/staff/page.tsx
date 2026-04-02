@@ -110,6 +110,7 @@ export default function DashboardStaffPage() {
                 <thead>
                   <tr className="bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
                     <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Nama & Email</th>
+                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-center">WhatsApp</th>
                     <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-center">Role Akses</th>
                     <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-right">Tanggal Bergabung</th>
                     <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 text-right">Aksi</th>
@@ -151,6 +152,16 @@ export default function DashboardStaffPage() {
                                 <p className="text-sm text-muted-foreground italic font-medium">{employee.email}</p>
                               </div>
                             </div>
+                          </td>
+                          <td className="px-8 py-6 text-center">
+                            {employee.phone ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                                <span className="text-sm font-bold tracking-tight font-mono">{employee.phone}</span>
+                              </div>
+                            ) : (
+                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Belum diset</span>
+                            )}
                           </td>
                           <td className="px-8 py-6 text-center">
                             <Badge variant="outline" className={cn(
