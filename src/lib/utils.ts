@@ -20,3 +20,12 @@ export function formatCurrency(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+
+export function formatWeight(gram: number | null | undefined): string {
+  if (!gram) return "—";
+  if (gram >= 1000) {
+    const kg = gram / 1000;
+    return `${Number.isInteger(kg) ? kg : kg.toFixed(1)}KG`;
+  }
+  return `${gram}GR`;
+}

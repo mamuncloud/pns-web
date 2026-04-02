@@ -546,7 +546,7 @@ export default function PurchasesPage() {
 
                               <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1 flex items-center gap-1.5 focus-within:text-primary transition-colors">
-                                  <Scale className="h-3 w-3" /> Berat (Gram)
+                                  <Scale className="h-3 w-3" /> Berat
                                 </label>
                                 <div className="relative group/input shadow-sm rounded-2xl overflow-hidden">
                                   <Input 
@@ -557,7 +557,9 @@ export default function PurchasesPage() {
                                     className="h-14 font-black text-xl bg-gray-50/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 border-none"
                                     placeholder="0"
                                   />
-                                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">GRAM</span>
+                                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
+                                    {(item.sizeInGram || 0) >= 1000 ? "KG" : "GR"}
+                                  </span>
                                 </div>
                               </div>
 
