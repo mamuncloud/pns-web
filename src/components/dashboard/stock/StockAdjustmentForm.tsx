@@ -125,13 +125,28 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
                 setSelectedVariantId("");
               }} onInputValueChange={setProductSearch}>
                 <ComboboxTrigger className="w-full text-left font-black h-14 px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm">
-                  {selectedProduct ? selectedProduct.name : "Pilih produk..."}
+                  {selectedProduct ? (
+                    <div className="flex flex-col items-start truncate overflow-hidden">
+                      <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.15em] leading-none mb-1">
+                        {selectedProduct.brand?.name || "Tanpa Brand"}
+                      </span>
+                      <span className="text-sm truncate w-full tracking-tight">
+                        {selectedProduct.name}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground/60 text-sm font-medium italic">Pilih produk...</span>
+                  )}
                 </ComboboxTrigger>
                 <ComboboxContent className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90 zcustom">
                   <ComboboxInput placeholder="Cari by nama..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
                   <ComboboxEmpty className="h-[200px] flex items-center justify-center">
                     <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-8 text-center leading-relaxed">
-                      {isSearching ? "Searching..." : "Produk tidak ditemukan"}
+                      {isSearching ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin" /> Sedang mencari...
+                        </span>
+                      ) : "Produk tidak ditemukan"}
                     </p>
                   </ComboboxEmpty>
                   <ComboboxList className="max-h-[300px] overflow-y-auto space-y-1 pr-1">
@@ -142,9 +157,10 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
                       </div>
                     )}
                     {!isSearching && filteredProducts.map(p => (
-                      <ComboboxItem key={p.id} value={p.id} className="flex flex-col items-start gap-1 p-3 rounded-xl hover:bg-primary/5 cursor-pointer group/item transition-colors font-bold text-sm">
-                        <div className="flex items-center justify-between w-full">
-                          <span>{p.name}</span>
+                      <ComboboxItem key={p.id} value={p.id} className="flex flex-col items-start gap-1 p-3 rounded-xl hover:bg-primary/5 cursor-pointer group/item transition-colors">
+                        <div className="flex flex-col items-start gap-0.5 w-full">
+                          <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
+                          <span className="text-sm font-bold tracking-tight truncate">{p.name}</span>
                         </div>
                         <div className="flex items-center gap-3 opacity-40 group-hover/item:opacity-100 transition-opacity">
                           <div className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">
