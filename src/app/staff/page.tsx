@@ -70,10 +70,12 @@ export default function LoginPage() {
                 <CircleCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email Anda</h3>
-                <p className="text-sm text-muted-foreground">
-                  We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>. 
-                  Click the link to log in.
+                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email & WhatsApp</h3>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Kami telah mengirimkan tautan akses ke <span className="font-black text-primary underline underline-offset-4">{email}</span> dan nomor WhatsApp Anda (jika terdaftar).
+                </p>
+                <p className="text-[10px] text-muted-foreground/50 font-black uppercase tracking-widest italic pt-2">
+                  Tautan berlaku selama 10 menit
                 </p>
               </div>
               <Button 
