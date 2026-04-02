@@ -48,7 +48,7 @@ import {
   Truck,
   Sparkles
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatWeight } from "@/lib/utils";
 import { 
   Combobox,
   ComboboxTrigger,
@@ -631,7 +631,9 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                   className="h-14 font-black text-lg bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-2xl px-5 transition-all focus:ring-4 focus:ring-primary/5 pr-12"
                                   placeholder="0"
                                 />
-                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em] pointer-events-none">GRAM</span>
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em] pointer-events-none">
+                                  {(item.sizeInGram || 0) >= 1000 ? "KG" : "GR"}
+                                </span>
                               </div>
                             </div>
 
@@ -1153,7 +1155,7 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                           <div className="flex flex-col items-end gap-1 mt-1">
                             <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded-full">{item.package}</span>
                             {(item.sizeInGram ?? 0) > 0 && (
-                              <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-tighter italic">({item.sizeInGram} gr)</span>
+                              <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-tighter italic">({formatWeight(item.sizeInGram || 0)})</span>
                             )}
                           </div>
                         </div>

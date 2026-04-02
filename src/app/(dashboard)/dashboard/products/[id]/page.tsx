@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { cn, getProductImageUrl, formatCurrency } from "@/lib/utils";
+import { cn, getProductImageUrl, formatCurrency, formatWeight } from "@/lib/utils";
 import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
 
 function ProductImageGallery({ images, productName }: { images: ProductImage[]; productName: string }) {
@@ -309,11 +309,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           <span className="text-sm">{formatCurrency(v.price)}</span>
                         </td>
                         <td className="py-3 px-4">
-                          {v.sizeInGram ? (
-                            <span className="text-sm">{v.sizeInGram}g</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
+                          <span className="text-sm">{formatWeight(v.sizeInGram)}</span>
                         </td>
                       </tr>
                     ))}

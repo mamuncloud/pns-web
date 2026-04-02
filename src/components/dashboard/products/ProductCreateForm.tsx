@@ -449,7 +449,9 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
                     />
                   </div>
                   <div className="flex-1 space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Ukuran (gram)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                      Ukuran ({(variant.sizeInGram || 0) >= 1000 ? "kg" : "gram"})
+                    </Label>
                     <Input
                       type="number"
                       placeholder="0"

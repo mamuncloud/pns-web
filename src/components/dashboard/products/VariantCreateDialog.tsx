@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,7 @@ export function VariantCreateDialog({ productId, onSuccess }: VariantCreateDialo
     setValue,
     getValues,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<VariantFormValues>({
     resolver: zodResolver(variantSchema),
@@ -74,6 +75,11 @@ export function VariantCreateDialog({ productId, onSuccess }: VariantCreateDialo
   });
 
   const selectedPackage = getValues("package");
+  const watchSizeInGram = useWatch({
+    control,
+    name: "sizeInGram",
+  });
+  const sizeInGramValue = Number(watchSizeInGram) || 0;
 
   const onSubmit = async (data: VariantFormValues) => {
     try {
@@ -169,7 +175,7 @@ export function VariantCreateDialog({ productId, onSuccess }: VariantCreateDialo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sizeInGram">Size (grams)</Label>
+              <Label htmlFor="sizeInGram">Size ({sizeInGramValue >= 1000 ? "kg" : "grams"})</Label>
               <Input
                 id="sizeInGram"
                 type="number"

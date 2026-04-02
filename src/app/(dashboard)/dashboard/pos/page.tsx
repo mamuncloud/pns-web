@@ -23,9 +23,10 @@ import {
   AlertCircle,
   CreditCard,
   Banknote,
-  Percent
+  Percent,
+  Package
 } from "lucide-react";
-import { cn, getProductImageUrl } from "@/lib/utils";
+import { cn, getProductImageUrl, formatWeight } from "@/lib/utils";
 import Image from "next/image";
 
 interface DisplayVariant extends ProductVariant {
@@ -271,10 +272,16 @@ export default function POSPage() {
                                <Badge className="bg-green-500/10 text-green-600 border-none font-black text-[8px] uppercase tracking-tighter px-1.5 h-4">High Profit</Badge>
                              )}
                           </div>
-                          <div className="flex flex-wrap gap-1 mt-1.5">
+                          <div className="flex flex-wrap gap-1 mt-1.5 items-center">
                             {p.taste.slice(0, 2).map(t => (
                               <Badge key={t} variant="outline" className="text-[9px] font-bold uppercase tracking-tighter px-1.5 h-4 border-gray-200 dark:border-gray-800">{t}</Badge>
                             ))}
+                            <div className="flex items-center gap-1 ml-auto">
+                              <Package className="h-2.5 w-2.5 text-muted-foreground/30" />
+                              <span className="text-[8px] font-black text-muted-foreground/50 uppercase tracking-widest">
+                                {p.variants.filter(v => (v.stock ?? 0) > 0).length} Sizes
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -292,7 +299,12 @@ export default function POSPage() {
                                 className="w-full flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-primary/50 hover:bg-primary/5 transition-all group/variant active:scale-[0.98]"
                               >
                                 <div className="flex flex-col items-start">
-                                  <span className="text-xs font-black text-foreground uppercase tracking-tight">{v.package}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">{v.package}</span>
+                                    {v.sizeInGram && v.sizeInGram > 0 && (
+                                      <Badge variant="outline" className="text-[8px] font-bold h-3.5 px-1 border-primary/20 text-primary/60 bg-primary/5 uppercase tracking-tighter">{formatWeight(v.sizeInGram)}</Badge>
+                                    )}
+                                  </div>
                                   <span className="text-[10px] font-bold text-muted-foreground">Stok: {v.stock}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -370,9 +382,14 @@ export default function POSPage() {
                     unoptimized
                   />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 pr-4">
                   <p className="text-xs font-black text-foreground truncate">{item.productName}</p>
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{item.package}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{item.package}</p>
+                    {item.sizeInGram && item.sizeInGram > 0 && (
+                      <span className="text-[9px] font-medium text-muted-foreground/60 tracking-tight">({formatWeight(item.sizeInGram)})</span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex items-center border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-950 px-1">
                       <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:text-primary transition-colors"><Minus className="h-3 w-3" /></button>

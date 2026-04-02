@@ -43,6 +43,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Repack, CreateRepackDto } from '@/types/financial';
 import { Product } from '@/types/product';
 import Link from 'next/link';
+import { formatWeight } from '@/lib/utils';
 
 const VARIANT_LABELS = ['Medium', 'Small', '250gr', '500gr', '1kg', 'bal'] as const;
 type VariantLabel = (typeof VARIANT_LABELS)[number];
@@ -95,7 +96,7 @@ function RepackRow({ repack }: { repack: Repack }) {
   const outputSummary = repack.items
     .map((item) => {
       const label = item.targetVariant?.package || item.targetVariantPackage || 'Unknown';
-      const size = item.sizeInGram ? ` (${item.sizeInGram}g)` : '';
+      const size = item.sizeInGram ? ` (${formatWeight(item.sizeInGram)})` : '';
       return `${label}${size} ×${item.qtyProduced}`;
     })
     .join(', ');
@@ -164,7 +165,7 @@ function RepackRow({ repack }: { repack: Repack }) {
                         </Badge>
                       </td>
                       <td className="px-5 py-3 text-right font-medium text-muted-foreground">
-                        {item.sizeInGram ? `${item.sizeInGram} gr` : '—'}
+                        {formatWeight(item.sizeInGram)}
                       </td>
                       <td className="px-5 py-3 text-right font-black text-foreground">{item.qtyProduced} pcs</td>
                       <td className="px-5 py-3 text-right font-medium text-muted-foreground">{formatIDR(item.sellingPrice)}</td>
@@ -624,7 +625,7 @@ function RepacksContent() {
                               className="h-14 font-black px-4 bg-white dark:bg-gray-950 border-gray-200/50 dark:border-gray-800/50 rounded-xl text-center"
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest pointer-events-none">
-                              GR
+                              {(row.sizeInGram || 0) >= 1000 ? "KG" : "GR"}
                             </div>
                           </div>
                         </div>
