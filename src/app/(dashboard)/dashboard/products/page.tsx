@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
 import { Card } from "@/components/ui/card";
@@ -21,14 +22,6 @@ import { ProductCreateDialog } from "@/components/dashboard/products/ProductCrea
 import { Badge } from "@/components/ui/badge";
 import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-}
 
 export default function DashboardProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

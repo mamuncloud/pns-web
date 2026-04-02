@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product, ProductVariant } from "@/types/product";
+import { useDebounce } from "@/hooks/use-debounce";
 import { api } from "@/lib/api";
 import { CreateOrderDto, OrderType } from "@/types/financial";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
@@ -39,14 +40,6 @@ interface CartItem extends DisplayVariant {
   quantity: number;
 }
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
-}
 
 export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([]);

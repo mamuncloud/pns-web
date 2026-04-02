@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { api, Supplier } from "@/lib/api";
 import { getProductsFromDb } from "@/lib/products-db";
+import { useDebounce } from "@/hooks/use-debounce";
 import { Product } from "@/types/product";
 
 // Sub-components
@@ -30,23 +31,36 @@ export function ConsignmentForm({ onSuccess }: ConsignmentFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [supplierSearch, setSupplierSearch] = useState("");
+  const debouncedSupplierSearch = useDebounce(supplierSearch, 500);
+  
+  const [productSearch, setProductSearch] = useState("");
+  const debouncedProductSearch = useDebounce(productSearch, 500);
+
   // --- Effects ---
   useEffect(() => {
-    async function fetchData() {
+    async function fetchSuppliers() {
       try {
-        const [suppliersRes, productsRes] = await Promise.all([
-          api.suppliers.list(),
-          getProductsFromDb(1, 100)
-        ]);
+        const suppliersRes = await api.suppliers.list(debouncedSupplierSearch);
         setSuppliers(suppliersRes.data);
-        setProducts(productsRes.data);
-      } catch (error: unknown) {
-        console.error("Error fetching data:", error);
-        toast.error("Gagal memuat data pendukung.");
+      } catch (error) {
+        console.error("Error fetching suppliers:", error);
       }
     }
-    fetchData();
-  }, []);
+    fetchSuppliers();
+  }, [debouncedSupplierSearch]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const productsRes = await getProductsFromDb(1, 40, undefined, debouncedProductSearch);
+        setProducts(productsRes.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    }
+    fetchProducts();
+  }, [debouncedProductSearch]);
 
   // --- Handlers ---
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +198,8 @@ export function ConsignmentForm({ onSuccess }: ConsignmentFormProps) {
               setSupplierId={setSupplierId}
               suppliers={suppliers}
               setSuppliers={setSuppliers}
+              search={supplierSearch}
+              onSearchChange={setSupplierSearch}
             />
 
             <ConsignmentItemList 
@@ -192,6 +208,8 @@ export function ConsignmentForm({ onSuccess }: ConsignmentFormProps) {
               onRemove={removeItem}
               onUpdate={updateItem}
               flatVariants={flatVariants}
+              search={productSearch}
+              onSearchChange={setProductSearch}
             />
           </div>
 

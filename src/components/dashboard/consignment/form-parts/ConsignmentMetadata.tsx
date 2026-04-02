@@ -25,6 +25,8 @@ interface ConsignmentMetadataProps {
   setSupplierId: (id: string | null) => void;
   suppliers: Supplier[];
   setSuppliers: React.Dispatch<React.SetStateAction<Supplier[]>>;
+  search: string;
+  onSearchChange: (search: string) => void;
 }
 
 export function ConsignmentMetadata({
@@ -34,16 +36,17 @@ export function ConsignmentMetadata({
   setSupplierId,
   suppliers,
   setSuppliers,
+  search,
+  onSearchChange,
 }: ConsignmentMetadataProps) {
-  const [supplierSearch, setSupplierSearch] = useState("");
   const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
 
   const handleCreateSupplier = async () => {
-    if (!supplierSearch.trim()) return;
+    if (!search.trim()) return;
     
     setIsCreatingSupplier(true);
     try {
-      const response = await api.suppliers.create({ name: supplierSearch });
+      const response = await api.suppliers.create({ name: search });
       const newSupplier = response.data;
       
       // Update local suppliers list
@@ -53,7 +56,7 @@ export function ConsignmentMetadata({
       setSupplierId(newSupplier.id);
       
       // Clear search and show success
-      setSupplierSearch("");
+      onSearchChange("");
       toast.success(`Berhasil mendaftarkan supplier: ${newSupplier.name}`);
     } catch (error) {
       console.error("Failed to create supplier:", error);
@@ -110,13 +113,13 @@ export function ConsignmentMetadata({
                   <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary opacity-50" />
                   <ComboboxInput 
                     placeholder="Cari supplier..." 
-                    value={supplierSearch}
-                    onChange={(e) => setSupplierSearch(e.target.value)}
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
                     className="h-10 w-full pl-10 pr-4 rounded-lg bg-slate-100 dark:bg-white/5 font-semibold text-xs border-none ring-0 outline-none" 
                   />
                 </div>
                 
-                {supplierSearch && !suppliers.some(s => s.name.toLowerCase() === supplierSearch.toLowerCase()) && (
+                {search && !suppliers.some(s => s.name.toLowerCase() === search.toLowerCase()) && (
                   <div className="px-2 pb-2">
                     <button
                       type="button"
@@ -132,7 +135,7 @@ export function ConsignmentMetadata({
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] font-bold uppercase tracking-wider text-primary/60">Supplier Baru</span>
-                        <span className="text-[11px] font-bold truncate max-w-[180px]">{`Daftarkan "${supplierSearch}"`}</span>
+                        <span className="text-[11px] font-bold truncate max-w-[180px]">{`Daftarkan "${search}"`}</span>
                       </div>
                     </button>
                   </div>

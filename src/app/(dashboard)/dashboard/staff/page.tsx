@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   Trash2,
   UserPlus
 } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { api } from "@/lib/api";
 import { Employee } from "@/types/financial";
 import { StaffForm } from "@/components/dashboard/staff/StaffForm";
@@ -32,12 +33,13 @@ export default function DashboardStaffPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   
   // Selection/Edition state
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
-  const fetchEmployees = async (search?: string) => {
+  const fetchEmployees = useCallback(async (search?: string) => {
     try {
       setIsLoading(true);
       const { data } = await api.employees.list(search);
@@ -47,11 +49,11 @@ export default function DashboardStaffPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchEmployees();
-  }, []);
+    fetchEmployees(debouncedSearch || undefined);
+  }, [debouncedSearch, fetchEmployees]);
 
   const handleDelete = async () => {
     if (!employeeToDelete) return;
@@ -59,7 +61,7 @@ export default function DashboardStaffPage() {
       await api.employees.delete(employeeToDelete.id);
       toast.success("Pegawai berhasil dihapus");
       setEmployeeToDelete(null);
-      fetchEmployees();
+      fetchEmployees(debouncedSearch || undefined);
       if (selectedEmployee?.id === employeeToDelete.id) {
         setSelectedEmployee(null);
       }
@@ -219,7 +221,7 @@ export default function DashboardStaffPage() {
             <StaffForm 
               employee={selectedEmployee}
               onSuccess={() => {
-                fetchEmployees();
+                fetchEmployees(debouncedSearch || undefined);
                 setSelectedEmployee(null); // Reset after success/edit
               }}
               onCancel={() => setSelectedEmployee(null)}
