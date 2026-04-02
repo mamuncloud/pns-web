@@ -70,9 +70,9 @@ export default function LoginPage() {
                 <CircleCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email Anda</h3>
+                <h3 className="text-lg font-black uppercase italic tracking-tighter">Periksa Email & WhatsApp Anda</h3>
                 <p className="text-sm text-muted-foreground">
-                  We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>. 
+                  We&apos;ve sent a magic link to <span className="font-semibold">{email}</span> via email and WhatsApp.
                   Click the link to log in.
                 </p>
               </div>
