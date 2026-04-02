@@ -209,7 +209,7 @@ export const api = {
     fetchApi<T>(endpoint, { ...options, method: 'DELETE' }),
   
   auth: {
-    requestLogin: (identifier: string) => api.post<{ message: string }>('/auth/request-login', { email: identifier }),
+    requestLogin: (identifier: string) => api.post<{ message: string }>('/auth/request-login', { identifier }),
     verifyLogin: (token: string) => api.get<{ access_token: string; user: AuthUser }>(`/auth/verify?token=${token}`),
     refresh: () => api.post<{ access_token: string }>('/auth/refresh'),
     logout: () => api.post<{ success: boolean }>('/auth/logout'),
