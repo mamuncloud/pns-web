@@ -7,7 +7,7 @@ import { getProductsFromDb } from "@/lib/products-db";
 import { Product, ProductVariant } from "@/types/product";
 import { useDebounce } from "@/hooks/use-debounce";
 import { api } from "@/lib/api";
-import { CreateOrderDto, OrderType } from "@/types/financial";
+import { CreateOrderDto, OrderType, PaymentMethod } from "@/types/financial";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +50,8 @@ export default function POSPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const isInternalReload = useRef(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
+  const [paidAmount, setPaidAmount] = useState<string>("");
   
   // Pagination state
   const [page, setPage] = useState(1);
@@ -147,6 +149,8 @@ export default function POSPage() {
     try {
       const orderData: CreateOrderDto = {
         orderType: 'WALK_IN' as OrderType,
+        paymentMethod: paymentMethod,
+        paidAmount: paymentMethod === 'CASH' ? parseInt(paidAmount) || totalRevenue : totalRevenue,
         items: cart.map(item => ({
           productVariantId: item.id,
           quantity: item.quantity,
@@ -162,6 +166,7 @@ export default function POSPage() {
         
         // Clear cart and refetch products to update stock without full reload
         setCart([]);
+        setPaidAmount("");
         fetchProducts(page, searchQuery || undefined);
       } else {
         toast.error(response.message || "Gagal memproses transaksi.");
@@ -188,8 +193,21 @@ export default function POSPage() {
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
+    
+    if (paymentMethod === 'CASH') {
+      const amount = parseInt(paidAmount) || 0;
+      if (amount < totalRevenue) {
+        toast.error("Jumlah bayar kurang!");
+        return;
+      }
+    }
+    
     setIsConfirmOpen(true);
   };
+
+  const changeAmount = paymentMethod === 'CASH' 
+    ? Math.max(0, (parseInt(paidAmount) || 0) - totalRevenue)
+    : 0;
 
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-120px)] gap-6 animate-in fade-in duration-500">
@@ -426,13 +444,64 @@ export default function POSPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-             <Button variant="outline" className="h-12 font-black uppercase text-[10px] tracking-widest border-2">
+             <Button 
+               variant={paymentMethod === 'CASH' ? "default" : "outline"} 
+               className={cn(
+                 "h-12 font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
+                 paymentMethod === 'CASH' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
+               )}
+               onClick={() => setPaymentMethod('CASH')}
+             >
                <Banknote className="h-4 w-4 mr-2" /> Tunai
              </Button>
-             <Button variant="outline" className="h-12 font-black uppercase text-[10px] tracking-widest border-2">
-               <CreditCard className="h-4 w-4 mr-2" /> Qris/Kartu
+             <Button 
+               variant={paymentMethod === 'QRIS' ? "default" : "outline"} 
+               className={cn(
+                 "h-12 font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
+                 paymentMethod === 'QRIS' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
+               )}
+               onClick={() => setPaymentMethod('QRIS')}
+             >
+               <CreditCard className="h-4 w-4 mr-2" /> Qris
              </Button>
           </div>
+
+          {paymentMethod === 'CASH' && (
+            <div className="space-y-4 animate-in slide-in-from-top duration-300">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Jumlah Bayar (Tunai)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground">Rp</span>
+                  <Input 
+                    type="number"
+                    placeholder="0"
+                    className="pl-12 h-14 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-lg font-black focus:ring-primary/20 focus:border-primary transition-all"
+                    value={paidAmount}
+                    onChange={(e) => setPaidAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between">
+                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Kembalian:</span>
+                <span className="text-xl font-black text-primary">Rp {changeAmount.toLocaleString('id-ID')}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {[totalRevenue, totalRevenue + 5000, totalRevenue + 10000, 50000, 100000].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 text-[10px] font-black bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 rounded-xl hover:border-primary hover:text-primary transition-all"
+                    onClick={() => setPaidAmount(amount.toString())}
+                  >
+                    Rp {amount.toLocaleString('id-ID')}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Button 
             className="w-full h-14 text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20"
