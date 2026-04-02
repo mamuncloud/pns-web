@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import { api } from "@/lib/api";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
-import { Boxes, KeyRound, AlertTriangle } from "lucide-react";
+import { Boxes, KeyRound, AlertTriangle, Loader2, Layers } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { 
   Combobox,
   ComboboxTrigger,
@@ -26,13 +27,33 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
   const [quantity, setQuantity] = useState<string>("");
   const [reasonType, setReasonType] = useState<"rusak" | "hilang" | "lainnya">("rusak");
   const [notes, setNotes] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const debouncedSearch = useDebounce(productSearch, 500);
+  const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    getProductsFromDb(1, 400).then(({ data }) => setProducts(data));
-  }, []);
+    let mounted = true;
+    const loadProducts = async () => {
+      setIsSearching(true);
+      try {
+        const res = await getProductsFromDb(1, 100, undefined, debouncedSearch);
+        if (mounted) setProducts(res.data);
+      } catch (err) {
+        console.error('Failed to load products', err);
+      } finally {
+        if (mounted) setIsSearching(false);
+      }
+    };
+    loadProducts();
+    return () => { mounted = false; };
+  }, [debouncedSearch]);
 
   const selectedProduct = products.find(p => p.id === selectedProductId);
+
+  const filteredProducts = useMemo(() => {
+    return [...products].sort((a, b) => (b.stockQty || 0) - (a.stockQty || 0));
+  }, [products]);
 
   // Auto-select first variant if only one, or default to it 
   useEffect(() => {
@@ -102,17 +123,50 @@ export function StockAdjustmentForm({ onSuccess }: { onSuccess?: () => void }) {
               <Combobox value={selectedProductId} onValueChange={(val) => {
                 setSelectedProductId(val ?? "");
                 setSelectedVariantId("");
-              }}>
+              }} onInputValueChange={setProductSearch}>
                 <ComboboxTrigger className="w-full text-left font-black h-14 px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm">
-                  {selectedProduct ? selectedProduct.name : "Pilih produk..."}
+                  {selectedProduct ? (
+                    <div className="flex flex-col items-start truncate overflow-hidden">
+                      <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.15em] leading-none mb-1">
+                        {selectedProduct.brand?.name || "Tanpa Brand"}
+                      </span>
+                      <span className="text-sm truncate w-full tracking-tight">
+                        {selectedProduct.name}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground/60 text-sm font-medium italic">Pilih produk...</span>
+                  )}
                 </ComboboxTrigger>
-                <ComboboxContent className="w-(--anchor-width) min-w-[280px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
-                  <ComboboxInput placeholder="Cari..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-0" />
-                  <ComboboxEmpty className="py-6 text-center text-xs text-muted-foreground font-bold italic">Tidak ditemukan</ComboboxEmpty>
-                  <ComboboxList className="max-h-[300px] overflow-y-auto space-y-1">
-                    {products.map(p => (
-                      <ComboboxItem key={p.id} value={p.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-primary/5 cursor-pointer group/item transition-colors font-bold text-sm">
-                        {p.name}
+                <ComboboxContent className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90 zcustom">
+                  <ComboboxInput placeholder="Cari by nama..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
+                  <ComboboxEmpty className="h-[200px] flex items-center justify-center">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-8 text-center leading-relaxed">
+                      {isSearching ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin" /> Sedang mencari...
+                        </span>
+                      ) : "Produk tidak ditemukan"}
+                    </p>
+                  </ComboboxEmpty>
+                  <ComboboxList className="max-h-[300px] overflow-y-auto space-y-1 pr-1">
+                    {isSearching && (
+                      <div className="py-10 flex flex-col items-center justify-center gap-2 opacity-50">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">Memuat produk...</p>
+                      </div>
+                    )}
+                    {!isSearching && filteredProducts.map(p => (
+                      <ComboboxItem key={p.id} value={p.id} className="flex flex-col items-start gap-1 p-3 rounded-xl hover:bg-primary/5 cursor-pointer group/item transition-colors">
+                        <div className="flex flex-col items-start gap-0.5 w-full">
+                          <span className="text-[10px] text-primary/70 font-black uppercase tracking-widest leading-none">{p.brand?.name || "Tanpa Brand"}</span>
+                          <span className="text-sm font-bold tracking-tight truncate">{p.name}</span>
+                        </div>
+                        <div className="flex items-center gap-3 opacity-40 group-hover/item:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md">
+                            <Layers className="h-2.5 w-2.5" /> Total Stock: {p.stockQty || 0}
+                          </div>
+                        </div>
                       </ComboboxItem>
                     ))}
                   </ComboboxList>
