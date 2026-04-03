@@ -74,7 +74,6 @@ export default function DashboardLayout({
       <div className="flex flex-1 flex-col min-w-0">
         {/* Header */}
         <DashboardHeader
-          user={user}
           onMobileToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
 
