@@ -151,8 +151,8 @@ export default function DashboardSidebar({
       <aside
         className={cn(
           sidebarClasses,
-          "fixed inset-y-0 right-0 z-50 flex w-72 flex-col lg:hidden transition-all duration-300 ease-out",
-          isMobileDrawerOpen ? "translate-x-0" : "translate-x-full",
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col lg:hidden transition-all duration-300 ease-out",
+          isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full overflow-hidden">
