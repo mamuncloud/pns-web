@@ -30,15 +30,16 @@ export default function DashboardLayout({
 
       // Route Authorization
       const userRole = user?.role || "CASHIER";
-      
+
       // If user is a CASHIER, restrict their access to specific allowed paths only
       if (userRole === "CASHIER") {
         const allowedPaths = ["/dashboard", "/dashboard/pos"];
         // Allow exact matches or sub-paths like /dashboard/pos/...
         const isAllowed = allowedPaths.some(
-          allowed => pathname === allowed || pathname.startsWith(`${allowed}/`)
+          (allowed) =>
+            pathname === allowed || pathname.startsWith(`${allowed}/`),
         );
-        
+
         if (!isAllowed) {
           router.push("/dashboard");
         }
@@ -51,7 +52,9 @@ export default function DashboardLayout({
       <div className="flex h-screen w-full items-center justify-center bg-gray-50/50 dark:bg-gray-950">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">Checking authorization...</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            Checking authorization...
+          </p>
         </div>
       </div>
     );
@@ -61,22 +64,23 @@ export default function DashboardLayout({
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
       <Toaster />
       {/* Sidebar */}
-      <DashboardSidebar 
-        isCollapsed={isCollapsed} 
+      <DashboardSidebar
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         isMobileOpen={isMobileSidebarOpen}
         onMobileToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
-
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col">
         {/* Header */}
-        <DashboardHeader user={user} onToggleCollapse={() => setIsCollapsed(!isCollapsed)} />
+        <DashboardHeader
+          user={user}
+          onMobileToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        />
 
         {/* Page Content */}
         <main className="flex-1 p-6 lg:p-10">
-          <div className="mx-auto max-w-7xl">
-            {children}
-          </div>
+          <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
     </div>
