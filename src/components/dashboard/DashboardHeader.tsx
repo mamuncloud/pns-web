@@ -75,7 +75,7 @@ export default function DashboardHeader({
             <Menu className="h-5 w-5 text-muted-foreground" />
           </Button>
         )}
-        <h1 className="text-lg font-bold text-foreground sm:block">
+        <h1 className="text-lg font-bold text-foreground sm:block truncate max-w-[140px] sm:max-w-xs md:max-w-md">
           {getPageTitle()}
         </h1>
 
