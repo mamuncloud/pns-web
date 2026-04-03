@@ -19,9 +19,6 @@ import {
   Employee,
   CreateEmployeeDto,
   UpdateEmployeeDto,
-  Consignment,
-  CreateConsignmentDto,
-  SettleConsignmentDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -318,13 +315,5 @@ export const api = {
     list: (search?: string) => api.get<Order[]>(`/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
-  },
-
-  consignment: {
-    list: (search?: string) => api.get<Consignment[]>(`/consignment${search ? `?search=${encodeURIComponent(search)}` : ''}`),
-    get: (id: string) => api.get<Consignment>(`/consignment/${id}`),
-    create: (data: CreateConsignmentDto) => api.post<Consignment>('/consignment', data),
-    settle: (data: SettleConsignmentDto) => 
-      api.post<{ message: string; totalAmountSettledDelta: number; status: string }>('/consignment/settle', data),
   },
 };
