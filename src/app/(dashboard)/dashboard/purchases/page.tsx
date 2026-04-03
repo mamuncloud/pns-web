@@ -443,8 +443,8 @@ export default function PurchasesPage() {
                       <CardContent className="p-0">
                         <div className="flex flex-col divide-y divide-gray-100/50 dark:divide-gray-800/50">
                           {/* 1. Header: Product Selection */}
-                          <div className="p-6 bg-gray-50/30 dark:bg-gray-900/10 flex items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
+                          <div className="p-6 bg-gray-50/30 dark:bg-gray-900/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                            <div className="flex items-center gap-4 w-full sm:w-auto">
                               <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-white shadow-lg shadow-primary/30 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                                 {idx + 1}
                               </div>
@@ -458,7 +458,7 @@ export default function PurchasesPage() {
                               </div>
                             </div>
   
-                            <div className="flex-1 max-w-lg">
+                            <div className="flex-1 max-w-lg w-full">
                             <Combobox 
                               value={item.productId || ""} 
                               onValueChange={(val) => updateItem(item.id, { productId: val ?? "" })}
@@ -501,7 +501,7 @@ export default function PurchasesPage() {
                             </Combobox>
                             </div>
   
-                            <button type="button" onClick={() => removeItem(item.id)} className="h-12 w-12 flex items-center justify-center text-muted-foreground/20 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl">
+                            <button type="button" onClick={() => removeItem(item.id)} className="h-12 w-12 flex items-center justify-center text-muted-foreground/20 hover:text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl self-end sm:self-auto mt-2 sm:mt-0 shrink-0">
                               <Trash2 className="h-5 w-5" />
                             </button>
                           </div>
