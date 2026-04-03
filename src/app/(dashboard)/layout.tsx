@@ -18,6 +18,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   useActivityRefresh();
 
   useEffect(() => {
@@ -60,7 +61,11 @@ export default function DashboardLayout({
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
       <Toaster />
       {/* Sidebar */}
-      <DashboardSidebar isCollapsed={isCollapsed} />
+      <DashboardSidebar 
+        isCollapsed={isCollapsed} 
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileToggle={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+      />
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col">
