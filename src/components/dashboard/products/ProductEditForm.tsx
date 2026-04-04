@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
-import { compressImage } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +21,7 @@ import NextImage from "next/image";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Product, ProductImage } from "@/types/product";
+import { ImageCropper } from "@/components/ui/ImageCropper";
 
 interface Brand {
   id: string;
@@ -55,6 +55,13 @@ export function ProductEditForm({
     { file: File; preview: string; isPrimary: boolean }[]
   >([]);
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
+
+  // Cropping State
+  const [croppingImage, setCroppingImage] = useState<{
+    file: File;
+    url: string;
+  } | null>(null);
+  const [imageQueue, setImageQueue] = useState<File[]>([]);
 
   useEffect(() => {
     async function fetchBrands() {
@@ -106,43 +113,64 @@ export function ProductEditForm({
     }
   };
 
-  const handleNewImageChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setIsSubmitting(true);
-
-      try {
-        const compressedImages = await Promise.all(
-          files.map(async (file, index) => {
-            let processedFile: File | Blob = file;
-            if (file.size > 1024 * 1024) {
-              const compressedBlob = await compressImage(file, 1600, 0.7);
-              processedFile = new File([compressedBlob], file.name, {
-                type: "image/jpeg",
-              });
-            }
-
-            const hasAnyPrimary =
-              existingImages.some((img) => img.isPrimary) ||
-              newImages.some((img) => img.isPrimary);
-            return {
-              file: processedFile as File,
-              preview: URL.createObjectURL(processedFile),
-              isPrimary: !hasAnyPrimary && index === 0,
-            };
-          }),
-        );
-        setNewImages([...newImages, ...compressedImages]);
-      } catch (err) {
-        console.error("Compression failed", err);
-        setError(
-          "Gagal memproses beberapa gambar. Silakan coba lagi dengan ukuran yang lebih kecil.",
-        );
-      } finally {
-        setIsSubmitting(false);
+      if (files.length > 0) {
+        const [first, ...rest] = files;
+        setCroppingImage({ file: first, url: URL.createObjectURL(first) });
+        setImageQueue(rest);
       }
+      // Reset input so the same file can be selected again if needed
+      e.target.value = "";
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    if (!croppingImage) return;
+
+    const fileName = croppingImage.file.name;
+    const croppedFile = new File([croppedBlob], fileName, {
+      type: "image/jpeg",
+    });
+
+    const hasAnyPrimary =
+      existingImages.some((img) => img.isPrimary) ||
+      newImages.some((img) => img.isPrimary);
+
+    setNewImages((prev) => [
+      ...prev,
+      {
+        file: croppedFile,
+        preview: URL.createObjectURL(croppedFile),
+        isPrimary: !hasAnyPrimary && prev.length === 0,
+      },
+    ]);
+
+    // Cleanup
+    URL.revokeObjectURL(croppingImage.url);
+
+    // Process next in queue
+    if (imageQueue.length > 0) {
+      const [next, ...rest] = imageQueue;
+      setCroppingImage({ file: next, url: URL.createObjectURL(next) });
+      setImageQueue(rest);
+    } else {
+      setCroppingImage(null);
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (croppingImage) {
+      URL.revokeObjectURL(croppingImage.url);
+    }
+
+    if (imageQueue.length > 0) {
+      const [next, ...rest] = imageQueue;
+      setCroppingImage({ file: next, url: URL.createObjectURL(next) });
+      setImageQueue(rest);
+    } else {
+      setCroppingImage(null);
     }
   };
 
@@ -616,7 +644,7 @@ export function ProductEditForm({
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="min-w-[120px] bg-primary text-primary-foreground h-10"
+          className="h-10 min-w-[120px] bg-primary text-primary-foreground"
         >
           {isSubmitting ? (
             <>
@@ -628,6 +656,15 @@ export function ProductEditForm({
           )}
         </Button>
       </div>
+
+      {croppingImage && (
+        <ImageCropper
+          open={!!croppingImage}
+          image={croppingImage.url}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </form>
   );
 }
