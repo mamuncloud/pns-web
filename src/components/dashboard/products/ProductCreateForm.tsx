@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
-import { compressImage } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import NextImage from "next/image";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ImageCropper } from "@/components/ui/ImageCropper";
 
 interface Brand {
   id: string;
@@ -47,6 +47,10 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
   const [tastes, setTastes] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
   const [variants, setVariants] = useState<{ package: string; price: number; sku?: string; sizeInGram?: number }[]>([]);
+
+  // Cropping State
+  const [croppingImage, setCroppingImage] = useState<{ file: File; url: string } | null>(null);
+  const [imageQueue, setImageQueue] = useState<File[]>([]);
 
   useEffect(() => {
     async function fetchBrands() {
@@ -85,35 +89,55 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
       setIsCreatingBrand(false);
     }
   };
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setIsSubmitting(true); // Temporarily show loading while compressing
-      
-      try {
-        const compressedImages = await Promise.all(
-          files.map(async (file, index) => {
-            // Only compress if larger than 1MB
-            let processedFile: File | Blob = file;
-            if (file.size > 1024 * 1024) {
-              const compressedBlob = await compressImage(file, 1600, 0.7);
-              processedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
-            }
-            
-            return {
-              file: processedFile as File,
-              preview: URL.createObjectURL(processedFile),
-              isPrimary: selectedImages.length === 0 && index === 0,
-            };
-          })
-        );
-        setSelectedImages([...selectedImages, ...compressedImages]);
-      } catch (err) {
-        console.error("Compression failed", err);
-        setError("Gagal memproses beberapa gambar. Silakan coba lagi dengan ukuran yang lebih kecil.");
-      } finally {
-        setIsSubmitting(false);
+      if (files.length > 0) {
+        const [first, ...rest] = files;
+        setCroppingImage({ file: first, url: URL.createObjectURL(first) });
+        setImageQueue(rest);
       }
+      // Reset input
+      e.target.value = "";
+    }
+  };
+
+  const handleCropComplete = (croppedBlob: Blob) => {
+    if (!croppingImage) return;
+
+    const fileName = croppingImage.file.name;
+    const croppedFile = new File([croppedBlob], fileName, { type: 'image/jpeg' });
+    
+    setSelectedImages(prev => [...prev, {
+      file: croppedFile,
+      preview: URL.createObjectURL(croppedFile),
+      isPrimary: prev.length === 0
+    }]);
+
+    // Cleanup
+    URL.revokeObjectURL(croppingImage.url);
+
+    // Process next in queue
+    if (imageQueue.length > 0) {
+      const [next, ...rest] = imageQueue;
+      setCroppingImage({ file: next, url: URL.createObjectURL(next) });
+      setImageQueue(rest);
+    } else {
+      setCroppingImage(null);
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (croppingImage) {
+      URL.revokeObjectURL(croppingImage.url);
+    }
+
+    if (imageQueue.length > 0) {
+      const [next, ...rest] = imageQueue;
+      setCroppingImage({ file: next, url: URL.createObjectURL(next) });
+      setImageQueue(rest);
+    } else {
+      setCroppingImage(null);
     }
   };
 
@@ -511,6 +535,15 @@ export function ProductCreateForm({ onSuccess, onCancel }: ProductCreateFormProp
           )}
         </Button>
       </div>
+
+      {croppingImage && (
+        <ImageCropper
+          open={!!croppingImage}
+          image={croppingImage.url}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </form>
   );
 }
