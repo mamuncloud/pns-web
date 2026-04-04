@@ -1,16 +1,3 @@
-export type PricingType = 'WEIGHT' | 'FIXED_PRICE' | 'BULK';
-
-export interface PricingRule {
-  id: string;
-  productId: string;
-  type: PricingType;
-  weightGram?: number;
-  targetPrice?: number;
-  marginPct: number;
-  rounding: number;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export type AdjustmentReason = 'DEFECT' | 'EXPIRED' | 'LOST' | 'RESTOCK' | 'PURCHASE';
 
@@ -200,7 +187,6 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productVariantId: string;
-  pricingRuleId?: string;
   quantity: number;
   price: number;
   productVariant?: {
@@ -233,6 +219,5 @@ export interface CreateOrderDto {
     productVariantId: string;
     quantity: number;
     price: number;
-    pricingRuleId?: string;
   }[];
 }

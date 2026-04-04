@@ -29,6 +29,7 @@ interface BackendProduct {
   status?: string;
   currentHpp?: number;
   createdAt: string;
+
   updatedAt: string;
   variants: Array<{
     id: string;
@@ -93,6 +94,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     };
+
   } catch (error) {
     console.error(`Error in getProductById for ${id}:`, error);
     return null;
