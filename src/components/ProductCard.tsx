@@ -74,7 +74,7 @@ export default function ProductCard({
           {product.variants.map((v, index) => (
             <span 
               key={`${v.package}-${index}`} 
-              className="px-3 py-1.5 bg-primary/10 rounded-full text-[10px] font-bold text-primary dark:text-primary-foreground/90"
+              className="px-3 py-1.5 bg-primary/10 dark:bg-primary/20 rounded-full text-[10px] font-bold text-primary dark:text-primary"
             >
               {v.package}
             </span>
