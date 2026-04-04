@@ -6,7 +6,6 @@ declare global {
 
 import { 
   AuthUser, 
-  PricingRule, 
   StockAdjustment, 
   Purchase,
   CreatePurchaseDto,
@@ -229,7 +228,6 @@ export const api = {
       if (search) qs.append('search', search);
       return api.get<unknown>(`/products?${qs.toString()}`);
     },
-    getPricing: (id: string) => api.get<PricingRule[]>(`/products/${id}/pricing`),
     getBrands: (search?: string) => api.get<Brand[]>(`/products/brands${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     createBrand: (name: string) => api.post<Brand>('/products/brands', { name }),
     create: (data: Record<string, unknown>) => api.post<Record<string, unknown>>('/products', data),
@@ -237,9 +235,7 @@ export const api = {
     createVariant: (productId: string, data: CreateVariantDto) => api.post<Record<string, unknown>>(`/products/${productId}/variants`, data),
   },
 
-  pricingRules: {
-    create: (data: Partial<PricingRule>) => api.post<PricingRule>('/pricing-rules', data),
-  },
+
 
   stockAdjustments: {
     list: (productId?: string) => api.get<StockAdjustment[]>(`/stock-adjustments${productId ? `?productId=${productId}` : ''}`),
