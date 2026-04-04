@@ -14,7 +14,7 @@ import {
   ComboboxTrigger,
   ComboboxInput,
   ComboboxEmpty,
-  ComboboxList
+  ComboboxList,
 } from "@/components/ui/combobox";
 import { ImagePlus, Loader2, Plus, Star, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,11 @@ interface ProductEditFormProps {
   onCancel: () => void;
 }
 
-export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFormProps) {
+export function ProductEditForm({
+  product,
+  onSuccess,
+  onCancel,
+}: ProductEditFormProps) {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState(true);
   const [isCreatingBrand, setIsCreatingBrand] = useState(false);
@@ -47,7 +51,9 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
   const [brandSearch, setBrandSearch] = useState("");
   const [tastes, setTastes] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
-  const [newImages, setNewImages] = useState<{ file: File; preview: string; isPrimary: boolean }[]>([]);
+  const [newImages, setNewImages] = useState<
+    { file: File; preview: string; isPrimary: boolean }[]
+  >([]);
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -68,25 +74,28 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
     setName(product.name);
     setDescription(product.description || "");
     setBrandId(product.brandId || null);
+    setBrandSearch(product.brand?.name || "");
     setTastes(product.taste || []);
     setExistingImages(
       (product.images || [])
         .filter((img) => img.url && !img.url.includes("placeholder"))
-        .map((img) => ({ ...img, isPrimary: img.isPrimary ?? false }))
+        .map((img) => ({ ...img, isPrimary: img.isPrimary ?? false })),
     );
   }, [product]);
 
   const handleCreateBrand = async (brandName: string) => {
     if (!brandName.trim()) return;
-    
+
     setIsCreatingBrand(true);
     try {
       const response = await api.products.createBrand(brandName.trim());
       const newBrand = response.data;
-      
-      setBrands((prev) => [...prev, newBrand].sort((a, b) => a.name.localeCompare(b.name)));
+
+      setBrands((prev) =>
+        [...prev, newBrand].sort((a, b) => a.name.localeCompare(b.name)),
+      );
       setBrandId(newBrand.id);
-      
+
       toast.success(`Brand "${newBrand.name}" berhasil dibuat`);
       setBrandSearch("");
     } catch (err) {
@@ -97,32 +106,40 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
     }
   };
 
-  const handleNewImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       setIsSubmitting(true);
-      
+
       try {
         const compressedImages = await Promise.all(
           files.map(async (file, index) => {
             let processedFile: File | Blob = file;
             if (file.size > 1024 * 1024) {
               const compressedBlob = await compressImage(file, 1600, 0.7);
-              processedFile = new File([compressedBlob], file.name, { type: 'image/jpeg' });
+              processedFile = new File([compressedBlob], file.name, {
+                type: "image/jpeg",
+              });
             }
-            
-            const hasAnyPrimary = existingImages.some((img) => img.isPrimary) || newImages.some((img) => img.isPrimary);
+
+            const hasAnyPrimary =
+              existingImages.some((img) => img.isPrimary) ||
+              newImages.some((img) => img.isPrimary);
             return {
               file: processedFile as File,
               preview: URL.createObjectURL(processedFile),
               isPrimary: !hasAnyPrimary && index === 0,
             };
-          })
+          }),
         );
         setNewImages([...newImages, ...compressedImages]);
       } catch (err) {
         console.error("Compression failed", err);
-        setError("Gagal memproses beberapa gambar. Silakan coba lagi dengan ukuran yang lebih kecil.");
+        setError(
+          "Gagal memproses beberapa gambar. Silakan coba lagi dengan ukuran yang lebih kecil.",
+        );
       } finally {
         setIsSubmitting(false);
       }
@@ -135,13 +152,13 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       setRemovedImageIds([...removedImageIds, img.id]);
     }
     const remaining = existingImages.filter((_, i) => i !== index);
-    
+
     if (img.isPrimary && remaining.length > 0) {
       remaining[0].isPrimary = true;
     } else if (remaining.length === 0 && newImages.length > 0) {
       newImages[0].isPrimary = true;
     }
-    
+
     setExistingImages(remaining);
   };
 
@@ -149,7 +166,7 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
     const deletedImage = newImages[index];
     URL.revokeObjectURL(deletedImage.preview);
     const remaining = newImages.filter((_, i) => i !== index);
-    
+
     if (deletedImage.isPrimary && remaining.length > 0) {
       remaining[0].isPrimary = true;
     } else if (remaining.length === 0 && existingImages.length > 0) {
@@ -157,7 +174,7 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       updatedExisting[0].isPrimary = true;
       setExistingImages(updatedExisting);
     }
-    
+
     setNewImages(remaining);
   };
 
@@ -166,13 +183,13 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       existingImages.map((img, i) => ({
         ...img,
         isPrimary: i === index,
-      }))
+      })),
     );
     setNewImages(
       newImages.map((img) => ({
         ...img,
         isPrimary: false,
-      }))
+      })),
     );
   };
 
@@ -181,20 +198,22 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       newImages.map((img, i) => ({
         ...img,
         isPrimary: i === index,
-      }))
+      })),
     );
     setExistingImages(
       existingImages.map((img) => ({
         ...img,
         isPrimary: false,
-      }))
+      })),
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !brandId || tastes.length === 0) {
-      setError("Mohon isi semua field yang wajib (Nama, Brand, dan Minimal 1 Rasa)");
+      setError(
+        "Mohon isi semua field yang wajib (Nama, Brand, dan Minimal 1 Rasa)",
+      );
       return;
     }
 
@@ -203,10 +222,10 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
 
     try {
       let imageUrls: string[] = [];
-      
+
       if (newImages.length > 0) {
         try {
-          const files = newImages.map(img => img.file);
+          const files = newImages.map((img) => img.file);
           const response = await api.storage.uploadMultiple(files);
           imageUrls = response.data;
         } catch (uploadErr) {
@@ -215,8 +234,8 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
         }
       }
 
-      const allImagesHavePrimary = 
-        existingImages.some((img) => img.isPrimary) || 
+      const allImagesHavePrimary =
+        existingImages.some((img) => img.isPrimary) ||
         (imageUrls.length > 0 && newImages.some((img) => img.isPrimary));
 
       const finalImages = imageUrls.map((url, index) => ({
@@ -231,7 +250,9 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       const persistedExistingImages = existingImages.map((img, index) => ({
         id: img.id,
         url: img.url,
-        isPrimary: allImagesHavePrimary ? img.isPrimary : finalImages.length === 0 && index === 0,
+        isPrimary: allImagesHavePrimary
+          ? img.isPrimary
+          : finalImages.length === 0 && index === 0,
       }));
 
       await api.products.update(product.id, {
@@ -240,9 +261,10 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
         brandId: brandId || undefined,
         taste: tastes,
         images: [...persistedExistingImages, ...finalImages],
-        removeImageIds: removedImageIds.length > 0 ? removedImageIds : undefined,
+        removeImageIds:
+          removedImageIds.length > 0 ? removedImageIds : undefined,
       });
-      
+
       toast.success("Produk berhasil diperbarui");
       onSuccess();
     } catch (err) {
@@ -271,7 +293,9 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Nama Produk <span className="text-destructive">*</span></Label>
+          <Label htmlFor="name">
+            Nama Produk <span className="text-destructive">*</span>
+          </Label>
           <Input
             id="name"
             placeholder="Masukkan nama produk..."
@@ -283,58 +307,80 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="brand">Brand <span className="text-destructive">*</span></Label>
+          <Label htmlFor="brand">
+            Brand <span className="text-destructive">*</span>
+          </Label>
           <Combobox
             value={brandId}
             onValueChange={setBrandId}
             inputValue={brandSearch}
             onInputValueChange={setBrandSearch}
-            itemToStringLabel={(id: string) => brands.find(b => b.id === id)?.name || ""}
+            itemToStringLabel={(id: string) =>
+              brands.find((b) => b.id === id)?.name || ""
+            }
             disabled={isSubmitting || isLoadingBrands}
           >
             <ComboboxTrigger id="brand">
-              <ComboboxInput 
-                placeholder={isLoadingBrands ? "Memuat brand..." : "Cari brand..."} 
+              <ComboboxInput
+                placeholder={
+                  isLoadingBrands ? "Memuat brand..." : "Cari brand..."
+                }
                 className="w-full bg-transparent outline-none"
               />
             </ComboboxTrigger>
             <ComboboxContent>
               {brands.length === 0 && !isLoadingBrands ? (
                 <div className="p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-3">Belum ada brand terdaftar.</p>
-                  <Button 
-                    type="button" 
-                    size="sm" 
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Belum ada brand terdaftar.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
                     variant="outline"
                     className="w-full text-[10px] font-bold uppercase tracking-widest gap-2"
                     onClick={() => handleCreateBrand(brandSearch)}
                     disabled={isCreatingBrand || !brandSearch.trim()}
                   >
-                    {isCreatingBrand ? <Loader2 className="size-3 animate-spin"/> : <Plus className="size-3"/>}
-                    Tambah Brand &quot;{brandSearch || 'Baru'}&quot;
+                    {isCreatingBrand ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <Plus className="size-3" />
+                    )}
+                    Tambah Brand &quot;{brandSearch || "Baru"}&quot;
                   </Button>
                 </div>
               ) : (
                 <>
                   <ComboboxList className="max-h-60 overflow-y-auto p-1 space-y-0.5">
                     {brands.map((brand) => (
-                      <ComboboxItem key={brand.id} value={brand.id} className="rounded-lg py-2 px-3 text-sm font-medium cursor-pointer hover:bg-primary/5">
+                      <ComboboxItem
+                        key={brand.id}
+                        value={brand.id}
+                        className="rounded-lg py-2 px-3 text-sm font-medium cursor-pointer hover:bg-primary/5"
+                      >
                         {brand.name}
                       </ComboboxItem>
                     ))}
                   </ComboboxList>
                   <ComboboxEmpty className="p-0 border-t border-gray-100 dark:border-gray-800">
                     <div className="p-4 text-center">
-                      <p className="text-xs text-muted-foreground mb-3">Brand &quot;{brandSearch}&quot; tidak ditemukan.</p>
-                      <Button 
-                        type="button" 
-                        size="sm" 
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Brand &quot;{brandSearch}&quot; tidak ditemukan.
+                      </p>
+                      <Button
+                        type="button"
+                        size="sm"
                         variant="outline"
                         className="w-full text-[10px] font-bold uppercase tracking-widest gap-2"
                         onClick={() => handleCreateBrand(brandSearch)}
                         disabled={isCreatingBrand || !brandSearch.trim()}
                       >
-                        {isCreatingBrand ? <Loader2 className="size-3 animate-spin"/> : <Plus className="size-3"/>}
+                        {isCreatingBrand ? (
+                          <Loader2 className="size-3 animate-spin" />
+                        ) : (
+                          <Plus className="size-3" />
+                        )}
                         Tambah Brand &quot;{brandSearch}&quot;
                       </Button>
                     </div>
@@ -361,33 +407,44 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
           <Label>Media / Gambar Produk</Label>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
             {existingImages.map((img, index) => (
-              <div 
-                key={img.id || index} 
+              <div
+                key={img.id || index}
                 className={cn(
                   "relative aspect-square rounded-md overflow-hidden border group",
-                  img.isPrimary ? "border-primary ring-2 ring-primary/20" : "border-input"
+                  img.isPrimary
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-input",
                 )}
               >
-                <NextImage 
-                  src={img.url} 
-                  alt={`Existing ${index}`} 
+                <NextImage
+                  src={img.url}
+                  alt={`Existing ${index}`}
                   width={200}
                   height={200}
                   className="w-full h-full object-cover"
                   unoptimized
                 />
-                
+
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setPrimaryExistingImage(index)}
                     className={cn(
                       "p-1.5 rounded-full transition-colors",
-                      img.isPrimary ? "bg-primary text-primary-foreground" : "bg-white/20 text-white hover:bg-white/40"
+                      img.isPrimary
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-white/20 text-white hover:bg-white/40",
                     )}
-                    title={img.isPrimary ? "Gambar Utama" : "Jadikan Gambar Utama"}
+                    title={
+                      img.isPrimary ? "Gambar Utama" : "Jadikan Gambar Utama"
+                    }
                   >
-                    <Star className={cn("size-3.5", img.isPrimary && "fill-current")} />
+                    <Star
+                      className={cn(
+                        "size-3.5",
+                        img.isPrimary && "fill-current",
+                      )}
+                    />
                   </button>
                   <button
                     type="button"
@@ -401,40 +458,56 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
 
                 {img.isPrimary && (
                   <div className="absolute top-1 left-1">
-                    <Badge variant="default" className="text-[10px] px-1 py-0 h-4 uppercase font-bold">Primary</Badge>
+                    <Badge
+                      variant="default"
+                      className="text-[10px] px-1 py-0 h-4 uppercase font-bold"
+                    >
+                      Primary
+                    </Badge>
                   </div>
                 )}
               </div>
             ))}
 
             {newImages.map((img, index) => (
-              <div 
-                key={`new-${index}`} 
+              <div
+                key={`new-${index}`}
                 className={cn(
                   "relative aspect-square rounded-md overflow-hidden border group",
-                  img.isPrimary ? "border-primary ring-2 ring-primary/20" : "border-input"
+                  img.isPrimary
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-input",
                 )}
               >
-                <NextImage 
-                  src={img.preview} 
-                  alt={`New ${index}`} 
+                <NextImage
+                  src={img.preview}
+                  alt={`New ${index}`}
                   width={200}
                   height={200}
                   className="w-full h-full object-cover"
                   unoptimized
                 />
-                
+
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setPrimaryNewImage(index)}
                     className={cn(
                       "p-1.5 rounded-full transition-colors",
-                      img.isPrimary ? "bg-primary text-primary-foreground" : "bg-white/20 text-white hover:bg-white/40"
+                      img.isPrimary
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-white/20 text-white hover:bg-white/40",
                     )}
-                    title={img.isPrimary ? "Gambar Utama" : "Jadikan Gambar Utama"}
+                    title={
+                      img.isPrimary ? "Gambar Utama" : "Jadikan Gambar Utama"
+                    }
                   >
-                    <Star className={cn("size-3.5", img.isPrimary && "fill-current")} />
+                    <Star
+                      className={cn(
+                        "size-3.5",
+                        img.isPrimary && "fill-current",
+                      )}
+                    />
                   </button>
                   <button
                     type="button"
@@ -448,18 +521,30 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
 
                 {img.isPrimary && (
                   <div className="absolute top-1 left-1">
-                    <Badge variant="default" className="text-[10px] px-1 py-0 h-4 uppercase font-bold">Primary</Badge>
+                    <Badge
+                      variant="default"
+                      className="text-[10px] px-1 py-0 h-4 uppercase font-bold"
+                    >
+                      Primary
+                    </Badge>
                   </div>
                 )}
                 <div className="absolute top-1 right-1">
-                  <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">New</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-1 py-0 h-4"
+                  >
+                    New
+                  </Badge>
                 </div>
               </div>
             ))}
-            
+
             <label className="flex flex-col items-center justify-center aspect-square rounded-md border-2 border-dashed border-input bg-muted/30 hover:bg-muted/50 hover:border-muted-foreground/50 cursor-pointer transition-all gap-1.5">
               <ImagePlus className="size-5 text-muted-foreground" />
-              <span className="text-[10px] text-muted-foreground font-medium">Tambah</span>
+              <span className="text-[10px] text-muted-foreground font-medium">
+                Tambah
+              </span>
               <input
                 type="file"
                 multiple
@@ -471,12 +556,16 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
             </label>
           </div>
           <p className="text-[10px] text-muted-foreground italic">
-            * Klik ikon bintang untuk mengubah gambar utama. Klik X untuk menghapus.
+            * Klik ikon bintang untuk mengubah gambar utama. Klik X untuk
+            menghapus.
           </p>
         </div>
 
         <div className="space-y-3">
-          <Label>Profil Rasa (Min. 1, Max. 3) <span className="text-destructive">*</span></Label>
+          <Label>
+            Profil Rasa (Min. 1, Max. 3){" "}
+            <span className="text-destructive">*</span>
+          </Label>
           <div className="flex flex-wrap gap-2">
             {AVAILABLE_TASTES.map((taste) => {
               const isSelected = tastes.includes(taste.value);
@@ -490,11 +579,13 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
                   disabled={isSubmitting}
                   className={cn(
                     "rounded-md px-4 py-2 h-auto text-sm transition-all",
-                    isSelected ? "shadow-md" : "hover:bg-muted"
+                    isSelected ? "shadow-md" : "hover:bg-muted",
                   )}
                 >
                   {taste.label}
-                  {isSelected && <Plus className="ml-2 h-3.5 w-3.5 rotate-45" />}
+                  {isSelected && (
+                    <Plus className="ml-2 h-3.5 w-3.5 rotate-45" />
+                  )}
                 </Button>
               );
             })}
@@ -514,16 +605,16 @@ export function ProductEditForm({ product, onSuccess, onCancel }: ProductEditFor
       )}
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button 
-          type="button" 
-          variant="ghost" 
+        <Button
+          type="button"
+          variant="ghost"
           onClick={onCancel}
           disabled={isSubmitting}
         >
           Batal
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting}
           className="min-w-[120px] bg-primary text-primary-foreground h-10"
         >
