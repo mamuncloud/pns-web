@@ -17,6 +17,7 @@ import {
   Truck,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isStoreOpen, isLoading, isUpdating, toggleStoreStatus } =
     useStoreSettings();
 
@@ -249,6 +250,16 @@ export default function DashboardSidebar({
                 </span>
               </div>
             </div>
+            
+            {/* Sign Out Button - Mobile */}
+            <Button
+              variant="destructive"
+              className="w-full justify-start gap-3 h-12 rounded-xl"
+              onClick={logout}
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="font-semibold">Sign Out</span>
+            </Button>
           </div>
         </div>
       </aside>
@@ -434,6 +445,19 @@ export default function DashboardSidebar({
                   <span className="text-sm font-medium">Collapse</span>
                 </>
               )}
+            </button>
+
+            {/* Sign Out Button - Desktop */}
+            <button
+              onClick={logout}
+              className={cn(
+                "flex items-center rounded-xl hover:bg-destructive/10 text-destructive transition-colors group",
+                isCollapsed ? "justify-center h-10 w-10 mx-auto" : "p-2 gap-3",
+              )}
+              title={isCollapsed ? "Sign Out" : undefined}
+            >
+              <LogOut className="h-5 w-5" />
+              {!isCollapsed && <span className="text-sm font-medium">Sign Out</span>}
             </button>
           </div>
         </div>
