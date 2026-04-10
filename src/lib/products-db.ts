@@ -58,7 +58,7 @@ type BackendVariant = BackendProduct['variants'][number];
 
 export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const response = await api.get<BackendProduct>(`/products/${id}`);
+    const response = await api.get<BackendProduct>(`/products/${id}`, { silent: true });
     
     if (!response.success || !response.data) {
       return null;
@@ -95,8 +95,10 @@ export async function getProductById(id: string): Promise<Product | null> {
       updatedAt: p.updatedAt,
     };
 
-  } catch (error) {
-    console.error(`Error in getProductById for ${id}:`, error);
+  } catch (error: any) {
+    if (error?.statusCode !== 404) {
+      console.error(`Error in getProductById for ${id}:`, error);
+    }
     return null;
   }
 }
