@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
@@ -21,46 +20,67 @@ import { cn } from "@/lib/utils";
 import { ProductCreateDialog } from "@/components/dashboard/products/ProductCreateDialog";
 import { Badge } from "@/components/ui/badge";
 import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
-
+import { useCallback, useEffect, useState } from "react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { PaginationMeta } from "@/lib/products-db";
 
 export default function DashboardProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
 
-  const refreshProducts = async () => {
+  const refreshProducts = useCallback(async (page = currentPage) => {
+    // Avoid synchronous setState in effect (cascading renders)
+    await Promise.resolve();
     setIsLoading(true);
-    const { data } = await getProductsFromDb(1, 100);
+    const { data, meta: paginationMeta } = await getProductsFromDb(page, pageSize);
     setProducts(data);
+    setMeta(paginationMeta);
     setIsLoading(false);
-  };
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      const { data } = await getProductsFromDb(1, 100);
-      setProducts(data);
-      setIsLoading(false);
-    }
-
-    fetchProducts();
-  }, []);
+    // Wrap in setTimeout to avoid the cascading render warning
+    const timer = setTimeout(() => {
+      void refreshProducts(currentPage);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [currentPage, refreshProducts]);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const { data } = await getProductsFromDb(1, 100, undefined, debouncedSearch || undefined);
+      setIsLoading(true);
+      // Reset to page 1 when searching
+      if (currentPage !== 1 && debouncedSearch) {
+        setCurrentPage(1);
+        return;
+      }
+      
+      const { data, meta: paginationMeta } = await getProductsFromDb(currentPage, pageSize, undefined, debouncedSearch || undefined);
       if (!cancelled) {
         setProducts(data);
+        setMeta(paginationMeta);
         setIsLoading(false);
       }
     };
     void load();
     return () => { cancelled = true; };
-  }, [debouncedSearch]);
+  }, [debouncedSearch, currentPage, pageSize]);
 
   return (
     <div className="space-y-8 pb-10 animate-in fade-in duration-500">
@@ -200,6 +220,65 @@ export default function DashboardProductsPage() {
           </table>
         </div>
       </Card>
+
+      {meta && meta.totalPages > 1 && (
+        <div className="flex justify-center pt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
+                  href="#"
+                />
+              </PaginationItem>
+              
+              {Array.from({ length: meta.totalPages }).map((_, i) => {
+                const pageNum = i + 1;
+                // Simple pagination logic: show current, first, last, and neighbors
+                if (
+                  pageNum === 1 || 
+                  pageNum === meta.totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink 
+                        isActive={currentPage === pageNum}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(pageNum);
+                        }}
+                        href="#"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                } else if (
+                  pageNum === currentPage - 2 || 
+                  pageNum === currentPage + 2
+                ) {
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+                return null;
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(p => Math.min(meta.totalPages, p + 1))}
+                  className={cn(currentPage === meta.totalPages && "pointer-events-none opacity-50")}
+                  href="#"
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {editingProduct && (
         <ProductEditDialog

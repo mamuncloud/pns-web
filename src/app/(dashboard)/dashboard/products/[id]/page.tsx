@@ -168,7 +168,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       const p = await getProductById(resolvedParams.id);
       setProduct(p);
       if (!p) setError("Produk tidak ditemukan atau telah dihapus.");
-    } catch (err) {
+    } catch (error) {
+      console.error("Error refreshing product:", error);
       setError("Terjadi kesalahan saat memuat data produk.");
     }
   };
@@ -183,8 +184,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         if (!p) {
           setError("Produk tidak ditemukan atau telah dihapus.");
         }
-      } catch (err: any) {
-        if (err?.statusCode !== 404) {
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'statusCode' in err && err.statusCode !== 404) {
           console.error("Failed to fetch product:", err);
         }
         setError("Gagal memuat data produk. Pastikan ID benar.");

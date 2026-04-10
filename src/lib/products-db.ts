@@ -95,8 +95,8 @@ export async function getProductById(id: string): Promise<Product | null> {
       updatedAt: p.updatedAt,
     };
 
-  } catch (error: any) {
-    if (error?.statusCode !== 404) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode !== 404) {
       console.error(`Error in getProductById for ${id}:`, error);
     }
     return null;
