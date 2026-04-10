@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use, useCallback, useRef } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -98,6 +99,14 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
   const [editStatus, setEditStatus] = useState<'DRAFT' | 'COMPLETED'>('DRAFT');
   const [editItems, setEditItems] = useState<EditableItem[]>([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [supplierSearch, setSupplierSearch] = useState("");
+  const debouncedSupplierSearch = useDebounce(supplierSearch, 500);
+
+  const [productSearch, setProductSearch] = useState("");
+  const debouncedProductSearch = useDebounce(productSearch, 500);
+  const [isProductsLoading, setIsProductsLoading] = useState(false);
+  const [isSuppliersLoading, setIsSuppliersLoading] = useState(false);
+
   const [confirmConfig, setConfirmConfig] = useState({ 
     title: "", 
     description: "", 
@@ -142,22 +151,52 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [actionLoading, isEditing, editItems.length]);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      const { data } = await getProductsFromDb(1, 100);
-      setProducts(data);
+  const fetchSuppliers = useCallback(async (search?: string) => {
+    setIsSuppliersLoading(true);
+    try {
+      const { data } = await api.suppliers.list(search);
+      setSuppliers(data);
+    } catch (error) {
+      console.error("Failed to fetch suppliers", error);
+    } finally {
+      setIsSuppliersLoading(false);
     }
-    async function fetchSuppliers() {
-      try {
-        const { data } = await api.suppliers.list();
-        setSuppliers(data);
-      } catch (error) {
-        console.error("Failed to fetch suppliers", error);
-      }
-    }
-    fetchProducts();
-    fetchSuppliers();
   }, []);
+
+  const fetchProductsList = useCallback(async (search?: string) => {
+    setIsProductsLoading(true);
+    try {
+      const { data } = await getProductsFromDb(1, 100, undefined, search);
+      setProducts(data);
+    } catch (error) {
+      console.error("Failed to fetch products", error);
+    } finally {
+      setIsProductsLoading(false);
+    }
+  }, []);
+
+  // Initial products load
+  useEffect(() => {
+    fetchProductsList();
+  }, [fetchProductsList]);
+
+  // Debounced supplier fetch
+  useEffect(() => {
+    if (isEditing) {
+      fetchSuppliers(debouncedSupplierSearch);
+    } else {
+      // Still load initial list for non-editing mode if needed, 
+      // but usually detail page loads them when entering edit mode or on mount
+      fetchSuppliers();
+    }
+  }, [debouncedSupplierSearch, fetchSuppliers, isEditing]);
+
+  // Debounced product fetch
+  useEffect(() => {
+    if (isEditing) {
+      fetchProductsList(debouncedProductSearch);
+    }
+  }, [debouncedProductSearch, fetchProductsList, isEditing]);
 
   useEffect(() => {
     if (purchase && isEditing) {
@@ -440,7 +479,11 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                     <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 px-1">
                       <User className="h-3 w-3 text-primary" /> Supplier
                     </label>
-                    <Combobox value={editSupplier} onValueChange={(val) => setEditSupplier(val ?? "")}>
+                    <Combobox 
+                      value={editSupplier} 
+                      onValueChange={(val) => setEditSupplier(val ?? "")}
+                      onInputValueChange={setSupplierSearch}
+                    >
                       <ComboboxTrigger className="h-12 font-bold px-4 bg-gray-50/50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 focus:ring-primary/20 transition-all rounded-xl shadow-none text-left">
                         {editSupplier ? (suppliers.find(s => s.id === editSupplier)?.name || editSupplier) : "Pilih supplier..."}
                       </ComboboxTrigger>
@@ -456,6 +499,16 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                               <Check className="h-4 w-4 text-primary opacity-0 group-data-[selected]:opacity-100 transition-opacity" />
                             </ComboboxItem>
                           ))}
+                          {isSuppliersLoading && (
+                            <ComboboxEmpty className="py-6 text-center text-xs text-muted-foreground font-bold animate-pulse uppercase tracking-widest">
+                              Mencari supplier...
+                            </ComboboxEmpty>
+                          )}
+                          {suppliers.length === 0 && !isSuppliersLoading && (
+                            <ComboboxEmpty className="py-6 text-center text-xs text-muted-foreground font-bold italic uppercase tracking-widest">
+                              Supplier tidak ditemukan
+                            </ComboboxEmpty>
+                          )}
                         </ComboboxList>
                       </ComboboxContent>
                     </Combobox>
@@ -533,7 +586,11 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                 {idx + 1}
                               </div>
                               <div className="flex-1 max-w-xl">
-                                <Combobox value={item.productId || ""} onValueChange={(val) => updateEditItem(item.id, { productId: val ?? "" })}>
+                                <Combobox 
+                                  value={item.productId || ""} 
+                                  onValueChange={(val) => updateEditItem(item.id, { productId: val ?? "" })}
+                                  onInputValueChange={setProductSearch}
+                                >
                                   <ComboboxTrigger className="h-14 font-black bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left">
                                     {item.productId ? (
                                       <div className="flex flex-col items-start truncate">
@@ -548,7 +605,9 @@ export default function PurchaseDetailPage({ params }: { params: Promise<{ id: s
                                   </ComboboxTrigger>
                                   <ComboboxContent align="start" className="w-(--anchor-width) min-w-[320px] p-2 rounded-2xl border-gray-200 dark:border-gray-800 shadow-2xl backdrop-blur-md bg-white/90 dark:bg-gray-950/90">
                                     <ComboboxInput placeholder="Cari barang atau brand..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-0 font-bold" />
-                                    <ComboboxEmpty className="py-10 text-xs font-black text-muted-foreground uppercase tracking-widest text-center">Barang tidak ditemukan.</ComboboxEmpty>
+                                    <ComboboxEmpty className="py-10 text-xs font-black text-muted-foreground uppercase tracking-widest text-center">
+                                      {isProductsLoading ? "Mencari barang..." : "Barang tidak ditemukan."}
+                                    </ComboboxEmpty>
                                     <ComboboxList className="space-y-1 max-h-60 overflow-y-auto pr-1">
                                       {products.map(p => (
                                         <ComboboxItem key={p.id} value={p.id} className="rounded-xl py-3 px-4 font-bold cursor-pointer hover:bg-primary/5 group/p transition-colors">
