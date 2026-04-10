@@ -29,3 +29,14 @@ export function formatWeight(gram: number | null | undefined): string {
   }
   return `${gram}GR`;
 }
+
+/**
+ * Checks if the current environment is a mobile device based on user agent.
+ * Useful for handling platform-specific behaviors like deep-linking delays.
+ */
+export function isMobileDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
