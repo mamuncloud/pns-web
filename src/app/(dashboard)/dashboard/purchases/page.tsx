@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { getProductsFromDb } from "@/lib/products-db";
@@ -80,30 +81,52 @@ export default function PurchasesPage() {
     description: "", 
     targetStatus: 'DRAFT' as 'DRAFT' | 'COMPLETED' 
   });
+  const [supplierSearch, setSupplierSearch] = useState("");
+  const debouncedSupplierSearch = useDebounce(supplierSearch, 500);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      const { data } = await getProductsFromDb(1, 100);
+  const [productSearch, setProductSearch] = useState("");
+  const debouncedProductSearch = useDebounce(productSearch, 500);
+  const [isProductsLoading, setIsProductsLoading] = useState(false);
+
+  const fetchSuppliers = useCallback(async (search?: string) => {
+    setIsSuppliersLoading(true);
+    try {
+      const { data } = await api.suppliers.list(search);
+      setSuppliers(data);
+    } catch (error) {
+      console.error("Failed to fetch suppliers", error);
+    } finally {
+      setIsSuppliersLoading(false);
+    }
+  }, []);
+
+  const fetchProducts = useCallback(async (search?: string) => {
+    setIsProductsLoading(true);
+    try {
+      const { data } = await getProductsFromDb(1, 100, undefined, search);
       setProducts(data);
+    } catch (error) {
+      console.error("Failed to fetch products", error);
+    } finally {
+      setIsProductsLoading(false);
       setIsLoading(false);
     }
-
-    async function fetchSuppliers() {
-      setIsSuppliersLoading(true);
-      try {
-        const { data } = await api.suppliers.list();
-        setSuppliers(data);
-      } catch (error) {
-        console.error("Failed to fetch suppliers", error);
-      } finally {
-        setIsSuppliersLoading(false);
-      }
-    }
-
-    fetchProducts();
-    fetchSuppliers();
   }, []);
+
+  // Initial products load
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Debounced supplier fetch
+  useEffect(() => {
+    fetchSuppliers(debouncedSupplierSearch);
+  }, [debouncedSupplierSearch, fetchSuppliers]);
+
+  // Debounced product fetch
+  useEffect(() => {
+    fetchProducts(debouncedProductSearch);
+  }, [debouncedProductSearch, fetchProducts]);
 
   // Prevent accidental page reload if there are unsaved items or submission is in progress
   useEffect(() => {
@@ -283,6 +306,7 @@ export default function PurchasesPage() {
                     <Combobox 
                       value={supplier} 
                       onValueChange={(val) => setSupplier(val ?? "")}
+                      onInputValueChange={setSupplierSearch}
                     >
                       <ComboboxTrigger className="h-14 font-black px-5 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 focus:ring-primary/20 transition-all rounded-2xl shadow-sm">
                         {supplier 
@@ -311,6 +335,11 @@ export default function PurchasesPage() {
                           {suppliers.length === 0 && !isSuppliersLoading && (
                             <ComboboxEmpty className="py-6 text-center text-xs text-muted-foreground font-bold italic">
                               Supplier tidak ditemukan
+                            </ComboboxEmpty>
+                          )}
+                          {isSuppliersLoading && (
+                            <ComboboxEmpty className="py-6 text-center text-xs text-muted-foreground font-bold animate-pulse">
+                              Mencari supplier...
                             </ComboboxEmpty>
                           )}
                         </ComboboxList>
@@ -462,6 +491,7 @@ export default function PurchasesPage() {
                             <Combobox 
                               value={item.productId || ""} 
                               onValueChange={(val) => updateItem(item.id, { productId: val ?? "" })}
+                              onInputValueChange={setProductSearch}
                             >
                               <ComboboxTrigger className="h-14 font-black bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl px-5 shadow-sm hover:border-primary/30 transition-all text-left group/trigger">
                                 {item.productId ? (
@@ -480,8 +510,17 @@ export default function PurchasesPage() {
                               <ComboboxContent align="start" className="w-(--anchor-width) min-w-[340px] p-2 rounded-2xl border-gray-200/50 dark:border-gray-800/50 shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-950/90">
                                 <ComboboxInput placeholder="Tulis nama barang..." className="h-12 px-4 bg-gray-50 dark:bg-gray-900 rounded-xl mb-2 border-none focus:ring-1 focus:ring-primary/20" />
                                 <ComboboxEmpty className="py-12 text-center">
-                                  <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-                                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SKU tidak ditemukan</p>
+                                  {isProductsLoading ? (
+                                    <>
+                                      <div className="h-6 w-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3" />
+                                      <p className="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">Mencari barang...</p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Package className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SKU tidak ditemukan</p>
+                                    </>
+                                  )}
                                 </ComboboxEmpty>
                                 <ComboboxList className="space-y-1 max-h-72 overflow-y-auto pr-1">
                                   {products.map(p => (
