@@ -31,6 +31,7 @@ import Image from "next/image";
 
 interface DisplayVariant extends ProductVariant {
   productName: string;
+  productBrand?: string;
   productImageUrl: string;
   productTaste: string[];
   productMargin?: number;
@@ -90,6 +91,7 @@ export default function POSPage() {
     return {
       ...v,
       productName: p.name,
+      productBrand: p.brand?.name,
       productImageUrl: p.imageUrl,
       productTaste: p.taste,
       productMargin: p.margin,
@@ -266,11 +268,16 @@ export default function POSPage() {
                           />
                         </div>
                         <div className="flex-1 min-w-0 py-1">
-                          <div className="flex items-start justify-between gap-2">
-                             <h4 className="text-lg font-black text-foreground leading-tight tracking-tight uppercase italic">{p.name}</h4>
-                             {p.margin && p.margin > 40 && (
-                               <Badge className="bg-green-500/10 text-green-600 border-none font-black text-[8px] uppercase tracking-tighter px-1.5 h-4">High Profit</Badge>
-                             )}
+                          <div className="flex flex-col">
+                            {p.brand?.name && (
+                              <span className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">{p.brand.name}</span>
+                            )}
+                            <div className="flex items-start justify-between gap-2">
+                               <h4 className="text-lg font-black text-foreground leading-tight tracking-tight uppercase italic">{p.name}</h4>
+                               {p.margin && p.margin > 40 && (
+                                 <Badge className="bg-green-500/10 text-green-600 border-none font-black text-[8px] uppercase tracking-tighter px-1.5 h-4">High Profit</Badge>
+                               )}
+                            </div>
                           </div>
                           <div className="flex flex-wrap gap-1 mt-1.5 items-center">
                             {p.taste.slice(0, 2).map(t => (
@@ -383,7 +390,12 @@ export default function POSPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0 pr-4">
-                  <p className="text-xs font-black text-foreground truncate">{item.productName}</p>
+                  <div className="flex flex-col">
+                    {item.productBrand && (
+                      <span className="text-[8px] font-black text-primary uppercase tracking-tighter mb-0.5">{item.productBrand}</span>
+                    )}
+                    <p className="text-xs font-black text-foreground truncate">{item.productName}</p>
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">{item.package}</p>
                     {item.sizeInGram && item.sizeInGram > 0 && (
