@@ -48,6 +48,7 @@ function ProductImageGallery({ images, productName }: { images: ProductImage[]; 
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
+                  priority={index === 0}
                 />
               </div>
             </CarouselItem>
@@ -67,6 +68,7 @@ function ProductImageGallery({ images, productName }: { images: ProductImage[]; 
         fill
         className="object-cover"
         sizes="(max-width: 768px) 100vw, 33vw"
+        priority
       />
       {!images[0].url.includes("placeholder") && (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground/50 bg-gray-100/50 dark:bg-gray-800/50">
@@ -159,40 +161,67 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const refreshProduct = async () => {
-    const p = await getProductById(resolvedParams.id);
-    setProduct(p);
+    try {
+      const p = await getProductById(resolvedParams.id);
+      setProduct(p);
+      if (!p) setError("Produk tidak ditemukan atau telah dihapus.");
+    } catch (err) {
+      setError("Terjadi kesalahan saat memuat data produk.");
+    }
   };
 
   useEffect(() => {
     async function fetchProduct() {
       setIsLoading(true);
-      const p = await getProductById(resolvedParams.id);
-      setProduct(p);
-      setIsLoading(false);
+      setError(null);
+      try {
+        const p = await getProductById(resolvedParams.id);
+        setProduct(p);
+        if (!p) {
+          setError("Produk tidak ditemukan atau telah dihapus.");
+        }
+      } catch (err: any) {
+        if (err?.statusCode !== 404) {
+          console.error("Failed to fetch product:", err);
+        }
+        setError("Gagal memuat data produk. Pastikan ID benar.");
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchProduct();
   }, [resolvedParams.id]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center space-y-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading product details...</p>
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center space-y-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Memuat detail produk...</p>
         </div>
       </div>
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 space-y-4">
-        <Package className="h-12 w-12 text-muted-foreground/30" />
-        <p className="text-lg">Product not found</p>
+      <div className="flex flex-col items-center justify-center py-32 space-y-6 animate-in fade-in duration-500">
+        <div className="h-20 w-20 rounded-full bg-muted/30 flex items-center justify-center">
+          <Package className="h-10 w-10 text-muted-foreground/40" />
+        </div>
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-black tracking-tight text-foreground">Produk Tidak Ditemukan</h2>
+          <p className="text-muted-foreground max-w-xs mx-auto">
+            {error || "ID produk ini tidak terdaftar di sistem. Mungkin produk telah dihapus atau ID salah."}
+          </p>
+        </div>
         <Link href="/dashboard/products">
-          <Button variant="outline">Back to Products</Button>
+          <Button variant="outline" className="h-11 px-8 rounded-xl font-bold uppercase tracking-wider text-[11px] shadow-sm hover:shadow-md transition-all">
+            Kembali ke Katalog
+          </Button>
         </Link>
       </div>
     );

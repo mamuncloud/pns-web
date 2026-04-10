@@ -56,7 +56,12 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+export interface FetchOptions extends RequestInit {
+  silent?: boolean;
+}
+
+async function fetchApi<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
+  const { silent, ...fetchOptions } = options;
   const url = `${API_BASE_URL}${endpoint}`;
   
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
@@ -65,12 +70,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   const makeRequest = async (tokenValue: string | null) => {
     return fetch(url, {
-      ...options,
+      ...fetchOptions,
       credentials: 'include',
       headers: {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(tokenValue ? { 'Authorization': `Bearer ${tokenValue}` } : {}),
-        ...options.headers,
+        ...fetchOptions.headers,
       },
     });
   };
@@ -125,12 +130,14 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
           try {
             const retryResponse = await makeRequest(newToken);
             if (typeof window !== 'undefined' && window.PLAYWRIGHT_DEBUG) {
-              console.log(`[API DEBUG] ${options.method || 'GET'} ${url}`, options.headers);
+              console.log(`[API DEBUG] ${fetchOptions.method || 'GET'} ${url}`, fetchOptions.headers);
             }
             const result = await retryResponse.json();
             if (!retryResponse.ok) {
-              const errorMsg = `[${retryResponse.status}] ${options.method || "GET"} ${url}: ${result.message || "Forbidden"}`;
-              console.warn(errorMsg, result);
+              const errorMsg = `[${retryResponse.status}] ${fetchOptions.method || "GET"} ${url}: ${result.message || "Forbidden"}`;
+              if (!silent) {
+                console.warn(errorMsg, result);
+              }
               reject(new ApiError(errorMsg, retryResponse.status, result, url));
             } else {
               resolve(result);
@@ -146,8 +153,10 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const result = await response.json();
 
   if (!response.ok) {
-    const errorMsg = `[${response.status}] ${options.method || 'GET'} ${url}: ${result.message || 'Forbidden'}`;
-    console.warn(errorMsg, result);
+    const errorMsg = `[${response.status}] ${fetchOptions.method || 'GET'} ${url}: ${result.message || 'Forbidden'}`;
+    if (!silent) {
+      console.warn(errorMsg, result);
+    }
     throw new ApiError(errorMsg, response.status, result, url);
   }
 
@@ -189,19 +198,19 @@ export interface CreateVariantDto {
 }
 
 export const api = {
-  get: <T>(endpoint: string, options: RequestInit = {}) => 
+  get: <T>(endpoint: string, options: FetchOptions = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'GET' }),
   
-  post: <T>(endpoint: string, body?: unknown, options: RequestInit = {}) => 
+  post: <T>(endpoint: string, body?: unknown, options: FetchOptions = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   
-  put: <T>(endpoint: string, body: unknown, options: RequestInit = {}) => 
+  put: <T>(endpoint: string, body: unknown, options: FetchOptions = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
   
-  patch: <T>(endpoint: string, body: unknown, options: RequestInit = {}) => 
+  patch: <T>(endpoint: string, body: unknown, options: FetchOptions = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
   
-  delete: <T>(endpoint: string, options: RequestInit = {}) => 
+  delete: <T>(endpoint: string, options: FetchOptions = {}) => 
     fetchApi<T>(endpoint, { ...options, method: 'DELETE' }),
   
   auth: {
