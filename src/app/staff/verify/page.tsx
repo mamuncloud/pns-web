@@ -4,7 +4,8 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle2, Smartphone } from "lucide-react";
+import { isMobileDevice } from "@/lib/utils";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -12,6 +13,7 @@ function VerifyContent() {
   const token = searchParams.get("token");
   const [status, setStatus] = useState<"loading" | "success" | "error">(token ? "loading" : "error");
   const [error, setError] = useState<string | null>(token ? null : "No token provided.");
+  const [isWaitingForApp, setIsWaitingForApp] = useState(false);
   const verifyAttempted = useRef(false);
 
   useEffect(() => {
@@ -46,7 +48,21 @@ function VerifyContent() {
       }
     };
 
-    verifyToken();
+    // Check if it's likely a mobile device for deep-link handling
+    const isMobile = isMobileDevice();
+
+    if (isMobile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsWaitingForApp(true);
+      // Small delay on mobile to allow app-link switch/processing first
+      const timeout = setTimeout(() => {
+        setIsWaitingForApp(false);
+        verifyToken();
+      }, 1500);
+      return () => clearTimeout(timeout);
+    } else {
+      verifyToken();
+    }
   }, [token, router]);
 
   return (
@@ -59,7 +75,18 @@ function VerifyContent() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center space-y-4 py-6">
-        {status === "loading" && (
+        {isWaitingForApp && (
+          <div className="flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="relative">
+              <Smartphone className="h-12 w-12 text-primary animate-pulse" />
+              <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full animate-ping" />
+            </div>
+            <p className="text-center text-sm font-medium text-muted-foreground max-w-[200px]">
+              Checking for the PNS mobile application...
+            </p>
+          </div>
+        )}
+        {!isWaitingForApp && status === "loading" && (
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         )}
         {status === "success" && (
