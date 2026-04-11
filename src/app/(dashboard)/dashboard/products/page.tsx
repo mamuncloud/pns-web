@@ -12,7 +12,8 @@ import {
   ArrowUpRight, 
   MoreVertical,
   Filter,
-  Scissors
+  Scissors,
+  ArrowUpDown
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ProductCreateDialog } from "@/components/dashboard/products/ProductCreateDialog";
 import { Badge } from "@/components/ui/badge";
 import { ProductEditDialog } from "@/components/dashboard/products/ProductEditDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCallback, useEffect, useState } from "react";
 import {
   Pagination,
@@ -40,16 +42,28 @@ export default function DashboardProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [filterTaste, setFilterTaste] = useState<string>("Semua");
+  const [sortBy, setSortBy] = useState<string>("stock");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   const refreshProducts = useCallback(async (page = currentPage) => {
     // Avoid synchronous setState in effect (cascading renders)
     await Promise.resolve();
     setIsLoading(true);
-    const { data, meta: paginationMeta } = await getProductsFromDb(page, pageSize);
+    const { data, meta: paginationMeta } = await getProductsFromDb(
+      page, 
+      pageSize,
+      filterTaste === "Semua" ? undefined : filterTaste,
+      debouncedSearch || undefined,
+      undefined,
+      sortBy,
+      sortOrder
+    );
     setProducts(data);
     setMeta(paginationMeta);
     setIsLoading(false);
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, filterTaste, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => {
     // Wrap in setTimeout to avoid the cascading render warning
@@ -58,8 +72,6 @@ export default function DashboardProductsPage() {
     }, 0);
     return () => clearTimeout(timer);
   }, [currentPage, refreshProducts]);
-
-  const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,7 +83,15 @@ export default function DashboardProductsPage() {
         return;
       }
       
-      const { data, meta: paginationMeta } = await getProductsFromDb(currentPage, pageSize, undefined, debouncedSearch || undefined);
+      const { data, meta: paginationMeta } = await getProductsFromDb(
+        currentPage, 
+        pageSize, 
+        filterTaste === "Semua" ? undefined : filterTaste, 
+        debouncedSearch || undefined,
+        undefined,
+        sortBy,
+        sortOrder
+      );
       if (!cancelled) {
         setProducts(data);
         setMeta(paginationMeta);
@@ -80,7 +100,7 @@ export default function DashboardProductsPage() {
     };
     void load();
     return () => { cancelled = true; };
-  }, [debouncedSearch, currentPage, pageSize]);
+  }, [debouncedSearch, currentPage, pageSize, filterTaste, sortBy, sortOrder]);
 
   return (
     <div className="space-y-8 pb-10 animate-in fade-in duration-500">
@@ -102,10 +122,41 @@ export default function DashboardProductsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="h-14 px-6 gap-3 border-gray-200/50 dark:border-gray-800/50 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-sm hover:shadow-md hover:bg-white dark:hover:bg-gray-950 transition-all">
-          <Filter className="h-4 w-4 text-primary" />
-          Filter
-        </Button>
+        <div className="flex gap-4">
+          <Select value={`${sortBy}-${sortOrder}`} onValueChange={(val) => {
+            const [by, order] = (val || "stock-desc").split('-');
+            setSortBy(by);
+            setSortOrder(order as "asc" | "desc");
+          }}>
+            <SelectTrigger className="w-[180px] h-14 rounded-2xl bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all focus:ring-primary/20">
+              <div className="flex items-center gap-2 text-muted-foreground mr-2">
+                <ArrowUpDown className="h-4 w-4" />
+              </div>
+              <SelectValue placeholder="Urutkan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="stock-desc">Stok Terbanyak</SelectItem>
+              <SelectItem value="stock-asc">Stok Tersedikit</SelectItem>
+              <SelectItem value="createdAt-desc">Paling Baru</SelectItem>
+              <SelectItem value="createdAt-asc">Paling Lama</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterTaste} onValueChange={(val) => setFilterTaste(val || "Semua")}>
+            <SelectTrigger className="w-[160px] h-14 rounded-2xl bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all focus:ring-primary/20">
+              <div className="flex items-center gap-2 text-muted-foreground mr-2">
+                <Filter className="h-4 w-4" />
+              </div>
+              <SelectValue placeholder="Semua Rasa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Semua">Semua Rasa</SelectItem>
+              <SelectItem value="GURIH">Gurih</SelectItem>
+              <SelectItem value="PEDAS">Pedas</SelectItem>
+              <SelectItem value="MANIS">Manis</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <Card className="border-gray-200/50 dark:border-gray-800/50 shadow-xl shadow-gray-100/50 dark:shadow-none overflow-hidden rounded-3xl bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
