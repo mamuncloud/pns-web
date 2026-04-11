@@ -103,13 +103,15 @@ export async function getProductById(id: string): Promise<Product | null> {
   }
 }
 
-export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string, search?: string, hasStock?: boolean): Promise<PaginatedProducts> {
+export async function getProductsFromDb(page: number = 1, limit: number = 12, taste?: string, search?: string, hasStock?: boolean, sortBy?: string, sortOrder: 'asc' | 'desc' = 'desc'): Promise<PaginatedProducts> {
   try {
     let url = `/products?page=${page}&limit=${limit}`;
-    if (taste) url += `&taste=${taste}`;
+    if (taste && taste !== "Semua") url += `&taste=${taste}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     if (hasStock !== undefined) url += `&hasStock=${hasStock}`;
-    
+    if (sortBy) url += `&sortBy=${sortBy}`;
+    if (sortOrder) url += `&sortOrder=${sortOrder}`;
+
     const response = await api.get<BackendProduct[]>(url);
     
     if (!response.success) {
