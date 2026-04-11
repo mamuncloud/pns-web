@@ -226,11 +226,18 @@ function RepacksContent() {
   const availableSourceVariants = useMemo(() => selectedProduct?.variants.filter((v) => (v.stock ?? 0) > 0) || [], [selectedProduct]);
   const availableOutputLabels = useMemo(() => VARIANT_LABELS.filter((label) => label !== sourceVariant?.package), [sourceVariant]);
   const totalQtyProduced = useMemo(() => outputRows.reduce((sum, row) => sum + (row.qtyProduced || 0), 0), [outputRows]);
+  const sourceHpp = useMemo(() => {
+    if (!sourceVariant) return 0;
+    if (sourceVariant.hpp && sourceVariant.hpp > 0) return sourceVariant.hpp;
+    if (sourceVariant.price && sourceVariant.price > 0) return sourceVariant.price;
+    return selectedProduct?.currentHpp || 0;
+  }, [sourceVariant, selectedProduct]);
+
   const costPerUnit = useMemo(() => {
-    return totalQtyProduced > 0 && selectedProduct?.currentHpp
-      ? (selectedProduct.currentHpp * sourceQtyUsed) / totalQtyProduced
+    return totalQtyProduced > 0 && sourceHpp > 0
+      ? (sourceHpp * sourceQtyUsed) / totalQtyProduced
       : 0;
-  }, [totalQtyProduced, selectedProduct, sourceQtyUsed]);
+  }, [totalQtyProduced, sourceHpp, sourceQtyUsed]);
 
   // Load Repacks
   const loadRepacks = useCallback(async (productId?: string) => {
@@ -521,7 +528,7 @@ function RepacksContent() {
                   <div className="hidden sm:block h-12 w-px bg-primary/20" />
                   <div className="flex-1 w-full space-y-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 px-1">HPP per unit asal</p>
-                    <p className="text-2xl font-black text-foreground">{formatIDR(selectedProduct?.currentHpp || 0)}</p>
+                    <p className="text-2xl font-black text-foreground">{formatIDR(sourceHpp)}</p>
                   </div>
                 </div>
               </div>
@@ -679,7 +686,7 @@ function RepacksContent() {
               <div className="space-y-2 bg-white/50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/50 shadow-sm">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 block">Total Modal (HPP Asli)</span>
                 <p className="text-2xl font-black text-foreground tracking-tighter">
-                  {formatIDR((selectedProduct?.currentHpp || 0) * sourceQtyUsed)}
+                  {formatIDR(sourceHpp * sourceQtyUsed)}
                 </p>
                 <p className="text-[10px] text-muted-foreground/70 font-medium italic mt-1">
                   Berdasarkan stok {sourceQtyUsed} {sourceVariant?.package || 'unit'}.
