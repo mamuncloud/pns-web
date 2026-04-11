@@ -27,8 +27,8 @@ export default async function ProductsPage(props: {
   
   const tasteFilter = tasteMap[activeTab];
   
-  // Fetch paginated products from DB
-  const { data: products, meta } = await getProductsFromDb(page, 12, tasteFilter);
+  // Fetch paginated products from DB - request only items that have stock
+  const { data: products, meta } = await getProductsFromDb(page, 12, tasteFilter, undefined, true);
 
   return (
     <>

@@ -17,8 +17,9 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "@/components/ui/sonner";
-
 import { ThemeProvider } from "@/components/theme-provider";
+import { CartProvider } from "@/contexts/CartContext";
+import FloatingCart from "@/components/FloatingCart";
 
 export default function RootLayout({
   children,
@@ -42,8 +43,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <CartProvider>
+            {children}
+            <FloatingCart />
+            <Toaster />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
