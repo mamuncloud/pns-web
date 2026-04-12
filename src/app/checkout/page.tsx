@@ -61,7 +61,7 @@ export default function CheckoutPage() {
     try {
       const orderData: CreateOrderDto = {
         orderType: "PRE_ORDER",
-        paymentMethod: "QRIS",
+        paymentMethod: "MAYAR",
         customerName: customerName.trim() || undefined,
         customerPhone: customerPhone.trim(),
         items: items.map((item) => ({

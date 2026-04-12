@@ -323,6 +323,8 @@ export const api = {
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     getPublic: (id: string) => api.get<Order>(`/orders/public/${id}`),
     create: (data: CreateOrderDto) => api.post<Order>('/orders', data),
+    updateStatus: (id: string, status: string) =>
+      api.patch<Order>(`/orders/${id}/status`, { status }),
     lookupCustomer: (phone: string) =>
       api.get<{ name: string | null }>(`/orders/lookup-customer?phone=${encodeURIComponent(phone)}`),
   },

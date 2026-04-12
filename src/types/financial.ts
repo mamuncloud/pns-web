@@ -179,9 +179,9 @@ export interface AdjustStockDto {
   note?: string;
 }
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'COMPLETED';
+export type OrderStatus = 'PENDING' | 'PAID' | 'FAILED' | 'READY' | 'COMPLETED' | 'CANCELLED';
 export type OrderType = 'WALK_IN' | 'PRE_ORDER';
-export type PaymentMethod = 'CASH' | 'QRIS';
+export type PaymentMethod = 'CASH' | 'EDC_BCA' | 'MAYAR';
 
 export interface OrderItem {
   id: string;

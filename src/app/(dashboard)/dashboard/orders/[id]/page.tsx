@@ -20,11 +20,19 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { api as apiClient } from "@/lib/api";
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [confirmAction, setConfirmAction] = useState<{
+    newStatus: string;
+    title: string;
+    description: string;
+  } | null>(null);
 
   const fetchOrder = useCallback(async () => {
     setIsLoading(true);
@@ -76,6 +84,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
+    <>
     <div className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -97,13 +106,32 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="rounded-2xl font-bold h-12 px-6">
-            Print HTML
-          </Button>
-          <Button className="rounded-2xl font-bold h-12 px-6 gap-2">
-            Mark as Completed
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          {order.status === 'PAID' && (
+            <Button 
+              className="rounded-2xl font-bold h-12 px-6 gap-2 bg-sky-500 hover:bg-sky-600"
+              onClick={() => setConfirmAction({
+                newStatus: 'READY',
+                title: 'Siapkan Pesanan?',
+                description: 'Tandai pesanan ini sebagai SIAP untuk diambil pelanggan.',
+              })}
+            >
+              Siapkan Pesanan
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
+          {order.status === 'READY' && (
+            <Button 
+              className="rounded-2xl font-bold h-12 px-6 gap-2 bg-green-500 hover:bg-green-600"
+              onClick={() => setConfirmAction({
+                newStatus: 'COMPLETED',
+                title: 'Selesaikan Pesanan?',
+                description: 'Tandai pesanan ini sebagai SELESAI (pelanggan sudah mengambil).',
+              })}
+            >
+              Selesai / Pickup
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -189,27 +217,57 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-4 relative">
+                  {['PAID', 'READY', 'COMPLETED'].includes(order.status) && (
+                    <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-gray-100 dark:bg-gray-800" />
+                  )}
                   <div className={cn(
                     "h-10 w-10 rounded-full z-10 flex items-center justify-center",
-                    order.status === 'PAID' || order.status === 'COMPLETED' 
+                    ['PAID', 'READY', 'COMPLETED'].includes(order.status)
                       ? "bg-green-500/10 border-2 border-green-500" 
                       : "bg-amber-500/10 border-2 border-amber-500"
                   )}>
-                    {order.status === 'PAID' || order.status === 'COMPLETED' 
+                    {['PAID', 'READY', 'COMPLETED'].includes(order.status)
                       ? <CheckCircle2 className="h-5 w-5 text-green-600" />
                       : <Clock className="h-5 w-5 text-amber-600" />
                     }
                   </div>
                   <div className="pt-1 flex-1">
                     <p className="text-sm font-black text-foreground italic uppercase">
-                      {order.status === 'PAID' || order.status === 'COMPLETED' ? "Pembayaran Sukses" : "Menunggu Pembayaran"}
+                      {['PAID', 'READY', 'COMPLETED'].includes(order.status) ? "Pembayaran Sukses" : "Menunggu Pembayaran"}
                     </p>
                     <p className="text-xs text-muted-foreground font-medium mt-1">
-                      {order.paymentMethod} Payment Mode
+                      {getPaymentMethodLabel(order.paymentMethod)}
                     </p>
                   </div>
                 </div>
+
+                {['READY', 'COMPLETED'].includes(order.status) && (
+                  <div className="flex gap-4 relative">
+                    {order.status === 'READY' && (
+                      <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-gray-100 dark:bg-gray-800" />
+                    )}
+                    <div className="h-10 w-10 rounded-full bg-sky-500/10 border-2 border-sky-500 z-10 flex items-center justify-center">
+                      <CheckCircle2 className="h-5 w-5 text-sky-600" />
+                    </div>
+                    <div className="pt-1 flex-1">
+                      <p className="text-sm font-black text-foreground italic uppercase">Pesanan Siap</p>
+                      <p className="text-xs text-muted-foreground font-medium mt-1">Menunggu pelanggan mengambil</p>
+                    </div>
+                  </div>
+                )}
+
+                {order.status === 'COMPLETED' && (
+                  <div className="flex gap-4">
+                    <div className="h-10 w-10 rounded-full bg-green-500/10 border-2 border-green-500 z-10 flex items-center justify-center">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div className="pt-1 flex-1">
+                      <p className="text-sm font-black text-foreground italic uppercase">Selesai</p>
+                      <p className="text-xs text-muted-foreground font-medium mt-1">Pesanan telah diserahkan ke pelanggan</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -294,6 +352,28 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
     </div>
+
+    {/* Confirmation Dialog */}
+    <ConfirmationDialog
+      open={!!confirmAction}
+      onOpenChange={(open) => { if (!open) setConfirmAction(null); }}
+      title={confirmAction?.title || ""}
+      description={confirmAction?.description || ""}
+      onConfirm={async () => {
+        if (confirmAction) {
+          try {
+            await apiClient.orders.updateStatus(id, confirmAction.newStatus);
+            toast.success(`Status pesanan berhasil diubah ke ${confirmAction.newStatus}`);
+            fetchOrder();
+          } catch {
+            toast.error("Gagal mengubah status pesanan.");
+          }
+        }
+      }}
+      confirmText="Ya, Lanjutkan"
+      cancelText="Batal"
+    />
+  </>
   );
 }
 
@@ -311,5 +391,14 @@ function getStatusColor(status: string) {
       return "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20";
     default:
       return "bg-gray-500 text-white";
+  }
+}
+
+function getPaymentMethodLabel(method: string): string {
+  switch (method) {
+    case "CASH": return "Cash";
+    case "EDC_BCA": return "EDC BCA";
+    case "MAYAR": return "QRIS Mayar";
+    default: return method;
   }
 }
