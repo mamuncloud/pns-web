@@ -15,6 +15,7 @@ import {
   Scissors,
   Users,
   Truck,
+  ClipboardList,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -39,6 +40,12 @@ const navGroups = [
         name: "Overview",
         href: "/dashboard",
         icon: LayoutDashboard,
+        roles: ["MANAGER", "CASHIER"],
+      },
+      {
+        name: "Orders",
+        href: "/dashboard/orders",
+        icon: ClipboardList,
         roles: ["MANAGER", "CASHIER"],
       },
       {

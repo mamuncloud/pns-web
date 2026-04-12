@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
-import { Order, OrderStatus } from '@/types/financial';
+import { OrderStatus } from '@/types/financial';
 
 /**
  * Hook to poll order status until it is no longer PENDING.
@@ -12,13 +12,20 @@ export function useOrderPolling(orderId: string | null) {
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Reset status when orderId changes to null
+  if (!orderId && status !== null) {
+    setStatus(null);
+  }
+
   useEffect(() => {
     if (!orderId) {
-      setStatus(null);
       return;
     }
 
-    const checkStatus = async () => {
+    const checkStatus = async (isInitial = false) => {
+      if (isInitial) {
+        setIsLoading(true);
+      }
       try {
         const response = await api.orders.get(orderId);
         const currentStatus = response.data.status;
@@ -35,15 +42,18 @@ export function useOrderPolling(orderId: string | null) {
       } catch (err) {
         console.error('Error polling order status:', err);
         setError('Failed to check order status');
+      } finally {
+        if (isInitial) {
+          setIsLoading(false);
+        }
       }
     };
 
     // Initial check
-    setIsLoading(true);
-    checkStatus().finally(() => setIsLoading(false));
+    checkStatus(true);
 
     // Poll every 3 seconds
-    intervalRef.current = setInterval(checkStatus, 3000);
+    intervalRef.current = setInterval(() => checkStatus(false), 3000);
 
     return () => {
       if (intervalRef.current) {

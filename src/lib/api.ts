@@ -318,6 +318,7 @@ export const api = {
 
   orders: {
     list: (search?: string) => api.get<Order[]>(`/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+    getSummary: () => api.get<OrderSummary>('/orders/summary'),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     getPublic: (id: string) => api.get<Order>(`/orders/public/${id}`),
     create: (data: CreateOrderDto) => api.post<Order>('/orders', data),

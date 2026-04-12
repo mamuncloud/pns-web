@@ -210,6 +210,7 @@ export interface Order {
   customerPhone?: string;
   orderType: OrderType;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
   totalAmount: number;
   paymentUrl?: string;
   createdAt: string;
@@ -235,4 +236,13 @@ export interface CreateOrderDto {
     quantity: number;
     price: number;
   }[];
+}
+export interface OrderSummary {
+  totalRevenue: number;
+  totalOrders: number;
+  pendingOrders: number;
+  revenueByType: {
+    WALK_IN: number;
+    PRE_ORDER: number;
+  };
 }
