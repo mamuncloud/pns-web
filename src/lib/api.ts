@@ -319,6 +319,9 @@ export const api = {
   orders: {
     list: (search?: string) => api.get<Order[]>(`/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
-    create: (data: CreateOrderDto) => api.post<{ data: Order; message: string }>('/orders', data),
+    getPublic: (id: string) => api.get<Order>(`/orders/public/${id}`),
+    create: (data: CreateOrderDto) => api.post<Order>('/orders', data),
+    lookupCustomer: (phone: string) =>
+      api.get<{ name: string | null }>(`/orders/lookup-customer?phone=${encodeURIComponent(phone)}`),
   },
 };

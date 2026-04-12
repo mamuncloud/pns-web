@@ -187,8 +187,11 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productVariantId: string;
+  productName: string;
   quantity: number;
   price: number;
+  subtotal: number;
+  package?: string;
   productVariant?: {
     id: string;
     package: string;
@@ -201,17 +204,29 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderNumber: string;
   userId?: string;
+  customerName?: string;
+  customerPhone?: string;
   orderType: OrderType;
   status: OrderStatus;
   totalAmount: number;
+  paymentUrl?: string;
   createdAt: string;
   updatedAt: string;
-  items?: OrderItem[];
+  items: OrderItem[];
+  payment?: {
+    status: OrderStatus;
+    method: PaymentMethod;
+    paymentUrl?: string;
+    directPaymentUrl?: string;
+  };
 }
 
 export interface CreateOrderDto {
   userId?: string;
+  customerName?: string;
+  customerPhone?: string;
   orderType: OrderType;
   paymentMethod?: PaymentMethod;
   paidAmount?: number;

@@ -4,7 +4,7 @@ import { getProductById } from "@/lib/products-db";
 import { getProductImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EnumTaste } from "@/types/product";
 import ProductOrderClient from "./ProductOrderClient";
