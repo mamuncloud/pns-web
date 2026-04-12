@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use, Fragment } from "react";
+import { useEffect, useState, use, Fragment, useCallback } from "react";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,11 @@ import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { Order, OrderItem } from "@/types/financial";
 
 export default function OrderTrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -42,6 +43,10 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
     }
 
     const interval = setInterval(() => {
+      if (!order?.payment?.expiresAt) {
+        clearInterval(interval);
+        return;
+      }
       const now = new Date().getTime();
       const distance = new Date(order.payment.expiresAt).getTime() - now;
 
@@ -61,7 +66,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
     return () => clearInterval(interval);
   }, [order?.payment?.expiresAt, order?.status]);
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const response = await api.orders.getPublic(resolvedParams.id);
       setOrder(response.data);
@@ -71,7 +76,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.id]);
 
   useEffect(() => {
     fetchOrder();
@@ -82,7 +87,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
       interval = setInterval(fetchOrder, 10000); // Check every 10 seconds
     }
     return () => clearInterval(interval);
-  }, [resolvedParams.id, order?.status]);
+  }, [fetchOrder, order?.status]);
 
   if (loading) {
     return (
@@ -318,7 +323,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-zinc-50 dark:divide-zinc-800 px-8">
-                  {order.items.map((item: any) => (
+                  {order.items.map((item: OrderItem) => (
                     <div key={item.id} className="py-6 flex items-center justify-between group">
                       <div className="flex gap-5 items-center">
                         <div className="h-16 w-16 rounded-[1.25rem] bg-[#F8F9FA] dark:bg-zinc-800 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">

@@ -11,7 +11,7 @@ export function ThemeProvider({
   // This prevents React from attempting to execute the initialization script on the client
   const scriptProps = typeof window === 'undefined' 
     ? undefined 
-    : ({ type: 'application/json' } as { type?: string; [key: string]: any });
+    : ({ type: 'application/json' } as { type?: string; [key: string]: string | boolean | number | undefined });
 
   return (
     <NextThemesProvider {...props} scriptProps={scriptProps}>
