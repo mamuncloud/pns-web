@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
-import { Order, OrderSummary } from "@/types/financial";
+import { Order, OrderSummary, OrderStatus } from "@/types/financial";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,19 +14,48 @@ import {
   Clock, 
   ChevronRight,
   TrendingUp,
-  Filter
+  Filter,
+  PackageCheck,
+  CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { toast } from "sonner";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
+const STATUS_TABS: { label: string; value: OrderStatus | "ALL" }[] = [
+  { label: "Semua", value: "ALL" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Paid", value: "PAID" },
+  { label: "Ready", value: "READY" },
+  { label: "Completed", value: "COMPLETED" },
+];
+
+function getPaymentMethodLabel(method: string): string {
+  switch (method) {
+    case "CASH": return "Cash";
+    case "EDC_BCA": return "EDC BCA";
+    case "MAYAR": return "QRIS Mayar";
+    default: return method;
+  }
+}
 
 export default function OrderManagementPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [summary, setSummary] = useState<OrderSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<OrderStatus | "ALL">("ALL");
   const debouncedSearch = useDebounce(searchTerm, 300);
+
+  // Confirmation dialog state
+  const [confirmAction, setConfirmAction] = useState<{
+    orderId: string;
+    newStatus: string;
+    title: string;
+    description: string;
+  } | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -47,6 +76,40 @@ export default function OrderManagementPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    try {
+      await api.orders.updateStatus(orderId, newStatus);
+      toast.success(`Status pesanan berhasil diubah ke ${newStatus}`);
+      fetchData();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error("Gagal mengubah status pesanan.");
+    }
+  };
+
+  const promptStatusChange = (orderId: string, newStatus: string) => {
+    const configs: Record<string, { title: string; description: string }> = {
+      READY: {
+        title: "Siapkan Pesanan?",
+        description: "Tandai pesanan ini sebagai SIAP untuk diambil pelanggan.",
+      },
+      COMPLETED: {
+        title: "Selesaikan Pesanan?",
+        description: "Tandai pesanan ini sebagai SELESAI (pelanggan sudah mengambil).",
+      },
+      CANCELLED: {
+        title: "Batalkan Pesanan?",
+        description: "Batalkan pesanan ini. Tindakan ini tidak dapat dibatalkan.",
+      },
+    };
+    const config = configs[newStatus] || { title: "Update Status?", description: "" };
+    setConfirmAction({ orderId, newStatus, ...config });
+  };
+
+  const filteredOrders = activeTab === "ALL" 
+    ? orders 
+    : orders.filter((o) => o.status === activeTab);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -141,6 +204,26 @@ export default function OrderManagementPage() {
         </Card>
       </div>
 
+      {/* Status Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {STATUS_TABS.map((tab) => (
+          <Button
+            key={tab.value}
+            variant={activeTab === tab.value ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "h-10 px-5 rounded-2xl font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
+              activeTab === tab.value
+                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                : "border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-gray-950/50 hover:border-primary/30"
+            )}
+            onClick={() => setActiveTab(tab.value)}
+          >
+            {tab.label}
+          </Button>
+        ))}
+      </div>
+
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1 group">
@@ -178,7 +261,7 @@ export default function OrderManagementPage() {
                     <p className="text-sm font-black uppercase tracking-widest animate-pulse text-muted-foreground/30">Memuat data pesanan...</p>
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-8 py-32 text-center text-muted-foreground">
                     <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-10" />
@@ -186,7 +269,7 @@ export default function OrderManagementPage() {
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => (
+                filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300 group">
                     <td className="px-8 py-6">
                       <p className="text-sm font-black text-foreground uppercase tracking-tight">#{order.id.slice(0, 8)}</p>
@@ -221,7 +304,7 @@ export default function OrderManagementPage() {
                           </Badge>
                         </div>
                         <p className="text-[10px] font-medium text-muted-foreground">
-                          Metode: <span className="font-bold">{order.paymentMethod}</span>
+                          Metode: <span className="font-bold">{getPaymentMethodLabel(order.paymentMethod)}</span>
                         </p>
                       </div>
                     </td>
@@ -229,11 +312,34 @@ export default function OrderManagementPage() {
                       <p className="text-base font-black text-foreground">{formatCurrency(order.totalAmount)}</p>
                     </td>
                     <td className="px-8 py-6 text-right">
-                       <Link href={`/dashboard/orders/${order.id}`}>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-primary/5 hover:text-primary group-hover:bg-primary/10 transition-all">
-                          <ChevronRight className="h-5 w-5" />
-                        </Button>
-                       </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Status action buttons for PRE_ORDER fulfillment */}
+                        {order.status === 'PAID' && (
+                          <Button
+                            size="sm"
+                            className="h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider bg-sky-500 hover:bg-sky-600 text-white shadow-md shadow-sky-500/20"
+                            onClick={() => promptStatusChange(order.id, 'READY')}
+                          >
+                            <PackageCheck className="h-3.5 w-3.5 mr-1" />
+                            Siapkan
+                          </Button>
+                        )}
+                        {order.status === 'READY' && (
+                          <Button
+                            size="sm"
+                            className="h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider bg-green-500 hover:bg-green-600 text-white shadow-md shadow-green-500/20"
+                            onClick={() => promptStatusChange(order.id, 'COMPLETED')}
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                            Selesai
+                          </Button>
+                        )}
+                        <Link href={`/dashboard/orders/${order.id}`}>
+                          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-primary/5 hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -242,22 +348,38 @@ export default function OrderManagementPage() {
           </table>
         </div>
       </Card>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!confirmAction}
+        onOpenChange={(open) => { if (!open) setConfirmAction(null); }}
+        title={confirmAction?.title || ""}
+        description={confirmAction?.description || ""}
+        onConfirm={() => {
+          if (confirmAction) {
+            handleStatusUpdate(confirmAction.orderId, confirmAction.newStatus);
+          }
+        }}
+        confirmText="Ya, Lanjutkan"
+        cancelText="Batal"
+      />
     </div>
   );
 }
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "PAID":
     case "COMPLETED":
       return "bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20";
+    case "PAID":
+      return "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20";
+    case "READY":
+      return "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20";
     case "PENDING":
       return "bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20";
     case "FAILED":
     case "CANCELLED":
       return "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20";
-    case "READY":
-      return "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20";
     default:
       return "bg-gray-500 text-white";
   }

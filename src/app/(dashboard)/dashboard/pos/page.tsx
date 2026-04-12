@@ -484,14 +484,14 @@ export default function POSPage() {
                <Banknote className="h-4 w-4 mr-2" /> Tunai
              </Button>
              <Button 
-               variant={paymentMethod === 'QRIS' ? "default" : "outline"} 
+               variant={paymentMethod === 'EDC_BCA' ? "default" : "outline"} 
                className={cn(
                  "h-12 font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
-                 paymentMethod === 'QRIS' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
+                 paymentMethod === 'EDC_BCA' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
                )}
-               onClick={() => setPaymentMethod('QRIS')}
+               onClick={() => setPaymentMethod('EDC_BCA')}
              >
-               <CreditCard className="h-4 w-4 mr-2" /> Qris
+               <CreditCard className="h-4 w-4 mr-2" /> EDC BCA
              </Button>
           </div>
 
