@@ -5,13 +5,15 @@ import { formatCurrency } from "@/lib/utils";
 import { ShoppingCart, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function FloatingCart() {
   const { totalItems, totalPrice } = useCart();
+  const { isStoreOpen } = useStoreSettings();
   const pathname = usePathname();
 
-  // Hide the floating cart on the checkout pages to prevent distraction
-  if (totalItems === 0 || pathname.startsWith("/checkout")) return null;
+  // Hide the floating cart on the checkout pages or when store is closed to prevent distraction
+  if (totalItems === 0 || pathname.startsWith("/checkout") || !isStoreOpen) return null;
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50 animate-in slide-in-from-bottom-5 duration-300">

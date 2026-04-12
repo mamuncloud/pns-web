@@ -13,11 +13,13 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { CreateOrderDto } from "@/types/financial";
 import Link from "next/link";
-import { Order } from "@/types/financial";
+import { useStoreSettings } from "@/hooks/use-store-settings";
+import { AlertCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalPrice, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { isStoreOpen } = useStoreSettings();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [customerFound, setCustomerFound] = useState(false);
@@ -191,6 +193,16 @@ export default function CheckoutPage() {
             <div className="sticky top-24 bg-white dark:bg-zinc-900/50 rounded-3xl p-6 border border-zinc-100 dark:border-zinc-800 shadow-xl shadow-zinc-200/50 dark:shadow-none">
               <h2 className="text-xl font-bold text-dark dark:text-white mb-6">Detail Pengambilan</h2>
 
+              {!isStoreOpen && (
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-2xl flex gap-3 text-red-600 dark:text-red-400">
+                  <AlertCircle className="h-5 w-5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-bold mb-1">Toko Sedang Tutup</p>
+                    <p className="opacity-90">Maaf, kami tidak menerima pesanan saat ini. Silakan coba lagi nanti.</p>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleCheckout} className="space-y-6">
                 <div className="space-y-4">
                   {/* Phone first — required */}
@@ -257,8 +269,8 @@ export default function CheckoutPage() {
 
                 <Button
                   type="submit"
-                  disabled={isProcessing}
-                  className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] disabled:hover:scale-100"
+                  disabled={isProcessing || !isStoreOpen}
+                  className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] disabled:hover:scale-100 disabled:bg-zinc-400 dark:disabled:bg-zinc-800 disabled:shadow-none"
                 >
                   {isProcessing ? (
                     <>

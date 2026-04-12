@@ -7,10 +7,12 @@ import { formatCurrency, formatWeight } from "@/lib/utils";
 import { ShoppingCart, Zap } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function ProductOrderClient({ product }: { product: Product }) {
   const router = useRouter();
   const { addToCart } = useCart();
+  const { isStoreOpen } = useStoreSettings();
   
   const sortedVariants = [...product.variants].sort((a, b) => a.price - b.price);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
@@ -101,9 +103,9 @@ export default function ProductOrderClient({ product }: { product: Product }) {
       <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-on-background/5 dark:border-zinc-800">
         <Button 
           onClick={handleAddToCart}
-          disabled={!selectedVariant || selectedVariant.stock === 0}
+          disabled={!selectedVariant || selectedVariant.stock === 0 || !isStoreOpen}
           variant="outline"
-          className="w-full sm:w-1/2 h-14 md:h-16 rounded-2xl border-2 border-primary text-primary hover:bg-primary/5 font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 text-base"
+          className="w-full sm:w-1/2 h-14 md:h-16 rounded-2xl border-2 border-primary text-primary hover:bg-primary/5 font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 text-base disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ShoppingCart className="h-5 w-5" />
           Masukkan Keranjang
@@ -111,13 +113,19 @@ export default function ProductOrderClient({ product }: { product: Product }) {
         
         <Button 
           onClick={handleDirectBuy}
-          disabled={!selectedVariant || selectedVariant.stock === 0}
-          className="w-full sm:w-1/2 h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 text-base"
+          disabled={!selectedVariant || selectedVariant.stock === 0 || !isStoreOpen}
+          className="w-full sm:w-1/2 h-14 md:h-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 text-base disabled:bg-zinc-400 disabled:shadow-none disabled:cursor-not-allowed"
         >
           <Zap className="h-5 w-5" />
           Beli Langsung
         </Button>
       </div>
+
+      {!isStoreOpen && (
+        <p className="text-center text-destructive font-bold text-sm bg-destructive/5 py-3 rounded-xl border border-destructive/10">
+          Toko sedang tutup. Pemesanan sementara tidak tersedia.
+        </p>
+      )}
     </div>
   );
 }
