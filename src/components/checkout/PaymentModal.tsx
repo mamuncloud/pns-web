@@ -78,7 +78,7 @@ export function PaymentModal({ orderId, paymentUrl, isOpen, onClose }: PaymentMo
                 <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
                 <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Memuat Sesi Pembayaran...</p>
                 <p className="text-xs text-zinc-400 max-w-[200px] text-center mt-2">
-                    Jika tidak muncul, klik tombol "Buka di Tab Baru" di atas.
+                    Jika tidak muncul, klik tombol &quot;Buka di Tab Baru&quot; di atas.
                 </p>
             </div>
           )}
