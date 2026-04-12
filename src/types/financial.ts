@@ -221,6 +221,8 @@ export interface Order {
     method: PaymentMethod;
     paymentUrl?: string;
     directPaymentUrl?: string;
+    expiresAt?: string;
+    provider?: string;
   };
 }
 
@@ -241,8 +243,6 @@ export interface OrderSummary {
   totalRevenue: number;
   totalOrders: number;
   pendingOrders: number;
-  revenueByType: {
-    WALK_IN: number;
-    PRE_ORDER: number;
-  };
+  walkInRevenue: number;
+  preOrderRevenue: number;
 }

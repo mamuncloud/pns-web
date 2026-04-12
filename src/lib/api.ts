@@ -14,6 +14,7 @@ import {
   StockMovement,
   AdjustStockDto,
   Order,
+  OrderSummary,
   CreateOrderDto,
   Employee,
   CreateEmployeeDto,

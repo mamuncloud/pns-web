@@ -43,6 +43,10 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
     }
 
     const interval = setInterval(() => {
+      if (!order?.payment?.expiresAt) {
+        clearInterval(interval);
+        return;
+      }
       const now = new Date().getTime();
       const distance = new Date(order.payment.expiresAt).getTime() - now;
 

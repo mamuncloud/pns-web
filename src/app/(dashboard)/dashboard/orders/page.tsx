@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
-import { Order } from "@/types/financial";
+import { Order, OrderSummary } from "@/types/financial";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 
-interface OrderSummary {
-  totalRevenue: number;
-  totalOrders: number;
-  pendingOrders: number;
-  walkInRevenue: number;
-  preOrderRevenue: number;
-}
 
 export default function OrderManagementPage() {
   const [orders, setOrders] = useState<Order[]>([]);
