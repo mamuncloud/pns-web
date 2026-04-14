@@ -23,6 +23,15 @@ import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const STATUS_TABS: { label: string; value: OrderStatus | "ALL" }[] = [
   { label: "Semua", value: "ALL" },
@@ -49,6 +58,11 @@ export default function OrderManagementPage() {
   const [activeTab, setActiveTab] = useState<OrderStatus | "ALL">("ALL");
   const debouncedSearch = useDebounce(searchTerm, 300);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 10;
+
   // Confirmation dialog state
   const [confirmAction, setConfirmAction] = useState<{
     orderId: string;
@@ -61,17 +75,25 @@ export default function OrderManagementPage() {
     setIsLoading(true);
     try {
       const [ordersRes, summaryRes] = await Promise.all([
-        api.orders.list(debouncedSearch),
+        api.orders.list(currentPage, LIMIT, debouncedSearch),
         api.orders.getSummary()
       ]);
       setOrders(ordersRes.data);
       setSummary(summaryRes.data);
+      
+      if (ordersRes.meta) {
+        setTotalPages(ordersRes.meta.totalPages as number);
+      }
     } catch (error) {
       console.error("Failed to fetch order data:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, activeTab]);
 
   useEffect(() => {
     fetchData();
@@ -348,6 +370,58 @@ export default function OrderManagementPage() {
           </table>
         </div>
       </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className={cn("cursor-pointer", currentPage === 1 && "pointer-events-none opacity-50")}
+                />
+              </PaginationItem>
+              
+              {/* Simple page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                // Show only current, first, last, and pages around current
+                if (
+                  p === 1 || 
+                  p === totalPages || 
+                  (p >= currentPage - 1 && p <= currentPage + 1)
+                ) {
+                  return (
+                    <PaginationItem key={p}>
+                      <PaginationLink 
+                        onClick={() => setCurrentPage(p)}
+                        isActive={currentPage === p}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                } else if (p === currentPage - 2 || p === currentPage + 2) {
+                  return (
+                    <PaginationItem key={p}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+                return null;
+              })}
+
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  className={cn("cursor-pointer", currentPage === totalPages && "pointer-events-none opacity-50")}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog
