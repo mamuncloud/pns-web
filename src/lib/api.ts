@@ -318,7 +318,13 @@ export const api = {
   },
 
   orders: {
-    list: (search?: string) => api.get<Order[]>(`/orders${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+    list: (page = 1, limit = 10, search?: string) => {
+      const qs = new URLSearchParams();
+      qs.append('page', String(page));
+      qs.append('limit', String(limit));
+      if (search) qs.append('search', search);
+      return api.get<Order[]>(`/orders?${qs.toString()}`);
+    },
     getSummary: () => api.get<OrderSummary>('/orders/summary'),
     get: (id: string) => api.get<Order>(`/orders/${id}`),
     getPublic: (id: string) => api.get<Order>(`/orders/public/${id}`),
