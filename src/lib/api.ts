@@ -333,5 +333,7 @@ export const api = {
       api.patch<Order>(`/orders/${id}/status`, { status }),
     lookupCustomer: (phone: string) =>
       api.get<{ name: string | null }>(`/orders/lookup-customer?phone=${encodeURIComponent(phone)}`),
+    bulkDeleteStale: () =>
+      api.post<{ message: string; deletedCount: number }>('/orders/bulk-delete-stale'),
   },
 };
