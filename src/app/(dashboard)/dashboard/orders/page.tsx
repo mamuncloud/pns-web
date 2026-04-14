@@ -14,9 +14,9 @@ import {
   Clock, 
   ChevronRight,
   TrendingUp,
-  Filter,
   PackageCheck,
-  CheckCircle2
+  CheckCircle2,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,8 @@ export default function OrderManagementPage() {
     title: string;
     description: string;
   } | null>(null);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [showBulkConfirm, setShowBulkConfirm] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -107,6 +109,21 @@ export default function OrderManagementPage() {
     } catch (error) {
       console.error("Failed to update status:", error);
       toast.error("Gagal mengubah status pesanan.");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      const res = await api.orders.bulkDeleteStale();
+      toast.success(res.message || `Berhasil menghapus pesanan usang`);
+      fetchData();
+    } catch (error) {
+      console.error("Failed to bulk delete:", error);
+      toast.error("Gagal menghapus pesanan usang.");
+    } finally {
+      setIsBulkDeleting(false);
+      setShowBulkConfirm(false);
     }
   };
 
@@ -257,9 +274,14 @@ export default function OrderManagementPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="h-14 px-6 rounded-2xl gap-2 font-bold bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50">
-          <Filter className="h-4 w-4" />
-          More Filters
+        <Button 
+          variant="outline" 
+          className="h-14 px-6 rounded-2xl gap-2 font-black uppercase text-[10px] tracking-widest bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all shadow-sm"
+          onClick={() => setShowBulkConfirm(true)}
+          disabled={isBulkDeleting}
+        >
+          <Trash2 className="h-4 w-4" />
+          Hapus Pending Bulky
         </Button>
       </div>
 
@@ -325,9 +347,20 @@ export default function OrderManagementPage() {
                             {order.status}
                           </Badge>
                         </div>
-                        <p className="text-[10px] font-medium text-muted-foreground">
-                          Metode: <span className="font-bold">{getPaymentMethodLabel(order.paymentMethod)}</span>
-                        </p>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-medium text-muted-foreground">
+                            Metode: <span className="font-bold text-foreground">{getPaymentMethodLabel(order.paymentMethod)}</span>
+                          </p>
+                          {order.status === 'PENDING' && order.payments?.[0]?.expiresAt && (
+                            <p className="text-[10px] font-black uppercase tracking-tight text-amber-600 flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Exp: {new Date(order.payments[0].expiresAt).toLocaleTimeString("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-8 py-6 text-right">
@@ -436,6 +469,18 @@ export default function OrderManagementPage() {
         }}
         confirmText="Ya, Lanjutkan"
         cancelText="Batal"
+      />
+
+      {/* Bulk Delete Confirm */}
+      <ConfirmationDialog
+        open={showBulkConfirm}
+        onOpenChange={setShowBulkConfirm}
+        title="Hapus Pesanan Usang?"
+        description="Semua pesanan yang PENDING dan sudah EXPIRED akan dihapus secara massal untuk membersihkan daftar. Tindakan ini tidak dapat dibatalkan."
+        onConfirm={handleBulkDelete}
+        confirmText="Ya, Hapus Semua"
+        cancelText="Batal"
+        variant="destructive"
       />
     </div>
   );

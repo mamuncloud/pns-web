@@ -224,6 +224,13 @@ export interface Order {
     expiresAt?: string;
     provider?: string;
   };
+  payments?: {
+    status: string;
+    expiresAt?: string;
+    amount?: number;
+    method?: string;
+    provider?: string;
+  }[];
 }
 
 export interface CreateOrderDto {
