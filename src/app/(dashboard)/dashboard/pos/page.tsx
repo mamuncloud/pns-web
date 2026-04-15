@@ -151,12 +151,12 @@ export default function POSPage() {
 
   const addToCart = (variant: DisplayVariant) => {
     const existing = cart.find(item => item.id === variant.id);
-    if (existing && existing.quantity >= variant.stock) {
+    if (existing && existing.quantity >= (variant.stock ?? 0)) {
       toast.error("Stok tidak mencukupi!");
       return;
     }
     
-    if (variant.stock <= 0) {
+    if ((variant.stock ?? 0) <= 0) {
       toast.error("Stok habis!");
       return;
     }
