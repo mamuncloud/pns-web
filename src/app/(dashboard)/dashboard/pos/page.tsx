@@ -7,12 +7,19 @@ import { getProductsFromDb } from "@/lib/products-db";
 import { Product, ProductVariant } from "@/types/product";
 import { useDebounce } from "@/hooks/use-debounce";
 import { api } from "@/lib/api";
-import { CreateOrderDto, OrderType, PaymentMethod } from "@/types/financial";
+import { CreateOrderDto, OrderType, PaymentMethod, Event } from "@/types/financial";
 import { EmptyProductState } from "@/components/dashboard/EmptyProductState";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   ShoppingCart, 
   Search, 
@@ -24,7 +31,9 @@ import {
   CreditCard,
   Banknote,
   Percent,
-  Package
+  Package,
+  Calendar,
+  Store
 } from "lucide-react";
 import { cn, getProductImageUrl, formatWeight } from "@/lib/utils";
 import Image from "next/image";
@@ -54,16 +63,27 @@ export default function POSPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
   const [paidAmount, setPaidAmount] = useState<string>("");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>("store");
   
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 20;
 
-  const fetchProducts = useCallback(async (pageNum: number, search?: string) => {
+  const fetchProducts = useCallback(async (pageNum: number, search?: string, eventId?: string) => {
     setIsLoading(true);
     try {
-      const { data, meta } = await getProductsFromDb(pageNum, limit, undefined, search, true);
+      const { data, meta } = await getProductsFromDb(
+        pageNum, 
+        limit, 
+        undefined, 
+        search, 
+        true, 
+        undefined,
+        'desc',
+        eventId && eventId !== 'store' ? eventId : undefined
+      );
       setProducts(data);
       setTotalPages(meta.totalPages);
     } catch (error) {
@@ -74,15 +94,31 @@ export default function POSPage() {
     }
   }, []);
 
+  const fetchEvents = useCallback(async () => {
+    try {
+      const response = await api.events.list();
+      if (response.success) {
+        // Only show OPEN events for POS
+        setEvents(response.data.filter(e => e.status === 'OPEN'));
+      }
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
   useEffect(() => {
     setPage(1);
-    fetchProducts(1, debouncedSearch || undefined);
-  }, [debouncedSearch, fetchProducts]);
+    fetchProducts(1, debouncedSearch || undefined, selectedEventId);
+  }, [debouncedSearch, selectedEventId, fetchProducts]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
-      fetchProducts(newPage, searchQuery || undefined);
+      fetchProducts(newPage, searchQuery || undefined, selectedEventId);
     }
   };
 
@@ -115,6 +151,16 @@ export default function POSPage() {
 
   const addToCart = (variant: DisplayVariant) => {
     const existing = cart.find(item => item.id === variant.id);
+    if (existing && existing.quantity >= (variant.stock ?? 0)) {
+      toast.error("Stok tidak mencukupi!");
+      return;
+    }
+    
+    if ((variant.stock ?? 0) <= 0) {
+      toast.error("Stok habis!");
+      return;
+    }
+
     if (existing) {
       setCart(cart.map(item => 
         item.id === variant.id ? { ...item, quantity: item.quantity + 1 } : item
@@ -154,11 +200,11 @@ export default function POSPage() {
         orderType: 'WALK_IN' as OrderType,
         paymentMethod: paymentMethod,
         paidAmount: paymentMethod === 'CASH' ? parseInt(paidAmount) || totalRevenue : totalRevenue,
+        eventId: selectedEventId !== 'store' ? selectedEventId : undefined,
         items: cart.map(item => ({
           productVariantId: item.id,
           quantity: item.quantity,
           price: item.price,
-          // pricingRuleId is optional
         }))
       };
 
@@ -170,7 +216,7 @@ export default function POSPage() {
         // Clear cart and refetch products to update stock without full reload
         setCart([]);
         setPaidAmount("");
-        fetchProducts(page, searchQuery || undefined);
+        fetchProducts(page, searchQuery || undefined, selectedEventId);
       } else {
         toast.error(response.message || "Gagal memproses transaksi.");
       }
@@ -217,21 +263,64 @@ export default function POSPage() {
       {/* Left Side: Product Selection */}
       <div className="flex-1 flex flex-col gap-6 overflow-hidden">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-2 shrink-0">
-          <div className="space-y-1">
-            <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Kasir (POS)</h2>
-            <p className="text-sm text-muted-foreground font-medium">Pilih produk untuk transaksi baru.</p>
-          </div>
-          {products.length > 0 && (
-            <div className="relative w-full xl:w-80 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input 
-                placeholder="Cari camilan..." 
-                className="pl-12 h-14 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all text-base font-medium"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+          <div className="flex items-center gap-4">
+            <div className="space-y-1">
+              <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Kasir (POS)</h2>
+              <p className="text-sm text-muted-foreground font-medium">Pilih produk untuk transaksi baru.</p>
             </div>
-          )}
+
+            <div className="h-12 w-[1px] bg-gray-200 dark:bg-gray-800 hidden xl:block mx-2" />
+
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Lokasi Jualan</label>
+              <Select 
+                value={selectedEventId} 
+                onValueChange={(val) => {
+                  if (!val) return;
+                  if (cart.length > 0) {
+                    toast.error("Kosongkan keranjang sebelum ganti lokasi!");
+                    return;
+                  }
+                  setSelectedEventId(val);
+                  if (val !== 'store') {
+                    setPaymentMethod('MAYAR');
+                  } else {
+                    setPaymentMethod('CASH');
+                  }
+                }}
+              >
+                <SelectTrigger className="h-12 w-[220px] rounded-2xl border-2 border-gray-100 bg-white/50 backdrop-blur-sm font-bold">
+                  <SelectValue placeholder="Pilih Lokasi" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-2">
+                  <SelectItem value="store" className="focus:bg-primary/10 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <Store className="h-4 w-4 text-primary" />
+                      <span>Gudang Utama</span>
+                    </div>
+                  </SelectItem>
+                  {events.map(event => (
+                    <SelectItem key={event.id} value={event.id} className="focus:bg-primary/10 rounded-xl">
+                      <div className="flex items-center gap-2 text-amber-600">
+                        <Calendar className="h-4 w-4" />
+                        <span>Event: {event.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="relative w-full xl:w-80 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input 
+              placeholder="Cari camilan..." 
+              className="pl-12 h-14 bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-sm focus:shadow-md focus:ring-primary/20 transition-all text-base font-medium"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
@@ -472,27 +561,41 @@ export default function POSPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-2">
-             <Button 
-               variant={paymentMethod === 'CASH' ? "default" : "outline"} 
-               className={cn(
-                 "h-12 font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
-                 paymentMethod === 'CASH' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
-               )}
-               onClick={() => setPaymentMethod('CASH')}
-             >
-               <Banknote className="h-4 w-4 mr-2" /> Tunai
-             </Button>
-             <Button 
-               variant={paymentMethod === 'EDC_BCA' ? "default" : "outline"} 
-               className={cn(
-                 "h-12 font-black uppercase text-[10px] tracking-widest border-2 transition-all duration-300",
-                 paymentMethod === 'EDC_BCA' ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-gray-200"
-               )}
-               onClick={() => setPaymentMethod('EDC_BCA')}
-             >
-               <CreditCard className="h-4 w-4 mr-2" /> EDC BCA
-             </Button>
+          <div className="grid grid-cols-3 gap-2 pt-2">
+             {[
+               { id: 'CASH', label: 'Tunai', icon: Banknote, color: 'emerald' },
+               { id: 'EDC_BCA', label: 'EDC BCA', icon: Wallet, color: 'blue' },
+               { id: 'MAYAR', label: 'QRIS', icon: CreditCard, color: 'rose' }
+             ].map((method) => {
+               const Icon = method.icon;
+               const isActive = paymentMethod === method.id;
+               const isDisabled = (method.id === 'CASH' || method.id === 'EDC_BCA') && selectedEventId !== 'store';
+               
+               return (
+                 <button
+                   key={method.id}
+                   disabled={isDisabled}
+                   onClick={() => setPaymentMethod(method.id as PaymentMethod)}
+                   className={cn(
+                     "flex flex-col items-center justify-center gap-1.5 h-20 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden",
+                     isActive 
+                       ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-[1.02] z-10" 
+                       : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-muted-foreground hover:border-primary/30 hover:bg-primary/5",
+                     isDisabled && "opacity-30 grayscale cursor-not-allowed border-dashed bg-gray-50 dark:bg-black"
+                   )}
+                 >
+                   <Icon className={cn("h-5 w-5", isActive ? "text-white" : "text-primary/70")} />
+                   <span className="text-[9px] font-black uppercase tracking-tighter text-center px-1">
+                     {method.label}
+                   </span>
+                   {isActive && (
+                     <div className="absolute top-1 right-1">
+                       <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                     </div>
+                   )}
+                 </button>
+               );
+             })}
           </div>
 
           {paymentMethod === 'CASH' && (

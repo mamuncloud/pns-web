@@ -146,7 +146,7 @@ export interface CreateRepackDto {
     sizeInGram?: number;
   }[];
 }
-export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL';
+export type StockMovementType = 'PURCHASE' | 'SALE' | 'REPACK_SOURCE' | 'REPACK_TARGET' | 'ADJUSTMENT' | 'RETURN' | 'PURCHASE_REVERSAL' | 'SALE_REVERSAL' | 'EVENT_ALLOCATION' | 'EVENT_RETURN';
 
 
 export interface StockMovement {
@@ -216,6 +216,7 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+  eventId?: string;
   payment?: {
     status: OrderStatus;
     method: PaymentMethod;
@@ -233,6 +234,45 @@ export interface Order {
   }[];
 }
 
+export interface EventItem {
+  id: string;
+  eventId: string;
+  productVariantId: string;
+  stock: number;
+  productVariant?: {
+    id: string;
+    package: string;
+    product?: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+export interface Event {
+  id: string;
+  name: string;
+  type: string;
+  description?: string;
+  status: 'OPEN' | 'CLOSED';
+  createdAt: string;
+  items?: EventItem[];
+}
+
+export interface CreateEventDto {
+  name: string;
+  type: string;
+  description?: string;
+}
+
+export interface AllocateStockDto {
+  items: { productVariantId: string; quantity: number }[];
+}
+
+export interface ReturnStockDto {
+  items?: { productVariantId: string; quantity: number }[];
+}
+
 export interface CreateOrderDto {
   userId?: string;
   customerName?: string;
@@ -245,6 +285,7 @@ export interface CreateOrderDto {
     quantity: number;
     price: number;
   }[];
+  eventId?: string;
 }
 export interface OrderSummary {
   totalRevenue: number;
