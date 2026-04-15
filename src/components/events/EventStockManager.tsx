@@ -11,16 +11,14 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Event, EventItem } from "@/types/financial";
+import { Event } from "@/types/financial";
 import { 
-  Plus, 
   RotateCcw, 
   Package, 
   Box, 
   ArrowDownLeft, 
   ArrowUpRight,
   Loader2,
-  Trash2,
   PackageOpen
 } from "lucide-react";
 import { AllocateStockDialog } from "./AllocateStockDialog";
@@ -52,8 +50,9 @@ export function EventStockManager({ event, onRefresh }: EventStockManagerProps) 
       toast.success("Semua stok berhasil dikembalikan ke gudang utama");
       setIsReturnDialogOpen(false);
       onRefresh();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal mengembalikan stok");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal mengembalikan stok";
+      toast.error(message);
     } finally {
       setIsReturning(false);
     }

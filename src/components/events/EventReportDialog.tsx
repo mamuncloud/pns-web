@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { api } from "@/lib/api";
 import { Loader2, DollarSign, ShoppingBag, Package } from "lucide-react";
@@ -35,25 +35,26 @@ export function EventReportDialog({ isOpen, onOpenChange, eventId, eventName }: 
   const [report, setReport] = useState<EventReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && eventId) {
-      fetchReport();
-    }
-  }, [isOpen, eventId]);
-
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
+    if (!eventId) return;
     setIsLoading(true);
     try {
       const response = await api.events.getReport(eventId);
-      if (response.success) {
-        setReport(response.data);
+      if (response.success && response.data) {
+        setReport(response.data as EventReport);
       }
     } catch (error) {
       console.error("Failed to fetch event report:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId]);
+
+  useEffect(() => {
+    if (isOpen && eventId) {
+      fetchReport();
+    }
+  }, [isOpen, eventId, fetchReport]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
