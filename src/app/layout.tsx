@@ -20,6 +20,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/contexts/CartContext";
 import FloatingCart from "@/components/FloatingCart";
+import { ClientOnly } from "@/components/ClientOnly";
 
 export default function RootLayout({
   children,
@@ -45,8 +46,10 @@ export default function RootLayout({
         >
           <CartProvider>
             {children}
-            <FloatingCart />
-            <Toaster />
+            <ClientOnly>
+              <FloatingCart />
+              <Toaster />
+            </ClientOnly>
           </CartProvider>
         </ThemeProvider>
       </body>
