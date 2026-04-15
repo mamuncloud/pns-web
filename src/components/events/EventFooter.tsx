@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Footer() {
+export default function EventFooter() {
   return (
     <footer className="bg-primary dark:bg-zinc-950 text-white pt-16 pb-10 px-6 border-t border-transparent dark:border-zinc-900">
       <div className="max-w-7xl mx-auto">
@@ -10,14 +10,14 @@ export default function Footer() {
           <div className="lg:col-span-5 space-y-8">
             <div className="flex items-center gap-4">
               <div className="relative h-16 w-16 bg-white rounded-2xl p-2">
-                <Image
-                  alt="Planet Nyemil Snack Logo"
-                  className="object-contain p-2"
-                  src="/logo.png"
-                  fill
-                  sizes="64px"
-                  loading="eager"
-                />
+              <Image
+                alt="Planet Nyemil Snack Logo"
+                className="object-contain p-2"
+                src="/logo.png"
+                fill
+                sizes="64px"
+                loading="eager"
+              />
               </div>
               <span className="font-headline font-black text-2xl leading-tight">
                 Planet Nyemil
@@ -97,10 +97,6 @@ export default function Footer() {
                 <span className="material-symbols-outlined text-white/60">call</span>
                 <span>+6285800342727</span>
               </li>
-              <li className="flex gap-4">
-                {/* <span className="material-symbols-outlined text-white/60">mail</span> */}
-                {/* <span>halo@pnsnack.id</span> */}
-              </li>
             </ul>
           </div>
         </div>
@@ -112,13 +108,13 @@ export default function Footer() {
           </p>
           <div className="flex gap-10 text-xs font-bold text-white/40 uppercase tracking-widest">
             <Link className="hover:text-white transition-colors" href="#">
-              {/* Privacy */}
+              Privacy
             </Link>
             <Link className="hover:text-white transition-colors" href="#">
-              {/* Terms */}
+              Terms
             </Link>
             <Link className="hover:text-white transition-colors" href="#">
-              {/* Cookies */}
+              Cookies
             </Link>
           </div>
         </div>

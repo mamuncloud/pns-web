@@ -15,8 +15,8 @@ export default async function Bestsellers() {
         Produk Terlaris Minggu Ini
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {bestsellerProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {bestsellerProducts.map((product, index) => (
+          <ProductCard key={product.id} product={product} priority={index < 3} />
         ))}
       </div>
     </section>

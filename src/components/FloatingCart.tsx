@@ -8,16 +8,18 @@ import { usePathname } from "next/navigation";
 import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function FloatingCart() {
-  const { totalItems, totalPrice } = useCart();
+  const { totalItems, totalPrice, eventId } = useCart();
   const { isStoreOpen } = useStoreSettings();
   const pathname = usePathname();
 
   // Hide the floating cart on the checkout pages or when store is closed to prevent distraction
   if (totalItems === 0 || pathname.startsWith("/checkout") || !isStoreOpen) return null;
 
+  const checkoutUrl = eventId ? `/checkout?eventId=${eventId}` : "/checkout";
+
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50 animate-in slide-in-from-bottom-5 duration-300">
-      <Link href="/checkout">
+      <Link href={checkoutUrl}>
         <div className="bg-dark/90 dark:bg-primary backdrop-blur-md rounded-2xl p-4 shadow-2xl flex items-center justify-between text-white border border-white/10 dark:border-primary/20 transition-transform duration-300 hover:scale-[1.02] active:scale-95 group">
           <div className="flex items-center gap-3">
             <div className="relative">

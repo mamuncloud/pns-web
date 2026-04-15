@@ -21,9 +21,11 @@ const tasteColors = {
 };
 
 export default function ProductCard({ 
-  product
+  product,
+  priority = false
 }: { 
   product: Product;
+  priority?: boolean;
 }) {
   // Sort variants by price to find lowest price
   const sortedVariants = [...product.variants].sort((a, b) => a.price - b.price);
@@ -39,10 +41,7 @@ export default function ProductCard({
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            onError={(e) => {
-              const img = e.target as HTMLImageElement;
-              img.src = "https://szaprhbdfkxrcoxuaogl.supabase.co/storage/v1/object/public/products/product_default.png";
-            }}
+            priority={priority}
           />
           <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
             {product.taste.map((t, index) => (
