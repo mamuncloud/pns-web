@@ -87,25 +87,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [eventId]);
 
   const addToCart = useCallback((product: Product, variant: ProductVariant, quantity: number = 1) => {
+    let toastMessage: string | null = null;
+    let toastType: "success" | "error" = "success";
+
     setItems((prev) => {
       const existingItem = prev.find((item) => item.id === variant.id);
-      
+
       if (existingItem) {
         const maxStock = variant.stock ?? Infinity;
         const newQuantity = Math.min(existingItem.quantity + quantity, maxStock);
-        
+
         if (newQuantity === existingItem.quantity) {
-          toast.error(`Maksimal stok ${maxStock === Infinity ? "terpenuhi" : maxStock} telah tercapai`);
+          toastType = "error";
+          toastMessage = `Maksimal stok ${maxStock === Infinity ? "terpenuhi" : maxStock} telah tercapai`;
           return prev;
         }
 
-        toast.success(`Berhasil menambahkan ${product.name} ke keranjang`);
+        toastMessage = `Berhasil menambahkan ${product.name} ke keranjang`;
         return prev.map((item) =>
           item.id === variant.id ? { ...item, quantity: newQuantity } : item
         );
       }
 
-      toast.success(`Berhasil menambahkan ${product.name} (${variant.package}) ke keranjang`);
+      toastMessage = `Berhasil menambahkan ${product.name} (${variant.package}) ke keranjang`;
       return [
         ...prev,
         {
@@ -121,6 +125,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
+
+    if (toastMessage) {
+      toast[toastType](toastMessage);
+    }
   }, []);
 
   const removeFromCart = useCallback((variantId: string) => {
