@@ -348,6 +348,6 @@ export const api = {
     allocateStock: (id: string, data: AllocateStockDto) => api.post<{ message: string }>(`/events/${id}/allocate`, data),
     returnStock: (id: string, data: ReturnStockDto) => api.post<{ message: string }>(`/events/${id}/return`, data),
     updateStatus: (id: string, status: 'OPEN' | 'CLOSED') => api.patch<Event>(`/events/${id}/status`, { status }),
-    getReport: (id: string) => api.get<any>(`/events/${id}/report`),
+    getReport: (id: string) => api.get<unknown>(`/events/${id}/report`),
   },
 };

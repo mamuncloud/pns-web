@@ -41,8 +41,9 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
       setOpen(false);
       setFormData({ name: "", type: "Exhibition", description: "" });
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal membuat event");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal membuat event";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

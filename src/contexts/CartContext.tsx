@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useCallback } from "react";
 import { Product, ProductVariant } from "@/types/product";
 import { toast } from "sonner";
 import { getProductImageUrl } from "@/lib/utils";
 
 export interface CartItem {
-  id: string; // use variant id as cart item id
+  id: string;
   productId: string;
   name: string;
   package: string;
@@ -19,6 +19,8 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
+  eventId: string | null;
+  setEventId: (eventId: string | null) => void;
   addToCart: (product: Product, variant: ProductVariant, quantity?: number) => void;
   removeFromCart: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
@@ -29,37 +31,71 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+interface CartStorage {
+  items: CartItem[];
+  eventId: string | null;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem("pns_cart");
-      return saved ? (JSON.parse(saved) as CartItem[]) : [];
+      if (saved) {
+        const data: CartStorage = JSON.parse(saved);
+        return data.items || [];
+      }
+      return [];
     } catch {
       return [];
     }
   });
-
-  // Persist to localStorage whenever items change
-  useEffect(() => {
+  const [eventId, setEventIdState] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
-      localStorage.setItem("pns_cart", JSON.stringify(items));
+      const saved = localStorage.getItem("pns_cart");
+      if (saved) {
+        const data: CartStorage = JSON.parse(saved);
+        return data.eventId || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  });
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    try {
+      const data: CartStorage = { items, eventId };
+      localStorage.setItem("pns_cart", JSON.stringify(data));
     } catch (e) {
       console.error("Failed to save cart to local storage", e);
     }
-  }, [items]);
+  }, [items, eventId]);
 
-  const addToCart = (product: Product, variant: ProductVariant, quantity: number = 1) => {
+  const setEventId = useCallback((id: string | null) => {
+    if (id !== eventId) {
+      setItems([]);
+      toast.info("Keranjang dikosongkan karena Anda berpindah ke area belanja yang berbeda");
+    }
+    setEventIdState(id);
+  }, [eventId]);
+
+  const addToCart = useCallback((product: Product, variant: ProductVariant, quantity: number = 1) => {
     setItems((prev) => {
       const existingItem = prev.find((item) => item.id === variant.id);
       
       if (existingItem) {
-        // Ensure we don't exceed stock
         const maxStock = variant.stock ?? Infinity;
         const newQuantity = Math.min(existingItem.quantity + quantity, maxStock);
         
         if (newQuantity === existingItem.quantity) {
-          toast.error(`Maksimal stok ${maxStock} telah tercapai`);
+          toast.error(`Maksimal stok ${maxStock === Infinity ? "terpenuhi" : maxStock} telah tercapai`);
           return prev;
         }
 
@@ -69,7 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
 
-      toast.success(`Berhasil menambahkan ${product.name} ke keranjang`);
+      toast.success(`Berhasil menambahkan ${product.name} (${variant.package}) ke keranjang`);
       return [
         ...prev,
         {
@@ -85,13 +121,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
-  };
+  }, []);
 
-  const removeFromCart = (variantId: string) => {
+  const removeFromCart = useCallback((variantId: string) => {
     setItems((prev) => prev.filter((item) => item.id !== variantId));
-  };
+  }, []);
 
-  const updateQuantity = (variantId: string, quantity: number) => {
+  const updateQuantity = useCallback((variantId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(variantId);
       return;
@@ -106,11 +142,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return item;
       })
     );
-  };
+  }, [removeFromCart]);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setItems([]);
-  };
+    setEventIdState(null);
+  }, []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -119,6 +156,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         items,
+        eventId,
+        setEventId,
         addToCart,
         removeFromCart,
         updateQuantity,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import { api } from "@/lib/api";
 import { Event } from "@/types/financial";
 import { Loader2, ArrowLeft, Star, Calendar, Tag, Lock, Unlock, BarChart3 } from "lucide-react";
@@ -19,7 +19,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const [isLoading, setIsLoading] = useState(true);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       const response = await api.events.get(eventId);
       setEvent(response.data);
@@ -29,11 +29,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [eventId]);
 
   useEffect(() => {
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, fetchEvent]);
 
   const toggleStatus = async () => {
     if (!event) return;
@@ -42,8 +42,9 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
       await api.events.updateStatus(event.id, newStatus);
       toast.success(`Event ${newStatus === "CLOSED" ? "Ditutup" : "Dibuka"}`);
       fetchEvent();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal mengubah status event");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal mengubah status event";
+      toast.error(message);
     }
   };
 

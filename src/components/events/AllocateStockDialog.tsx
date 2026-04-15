@@ -1,19 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Boxes, Loader2, Layers, AlertCircle } from "lucide-react";
+import { Plus, Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
 import { getProductsFromDb } from "@/lib/products-db";
 import { Product } from "@/types/product";
@@ -88,8 +87,9 @@ export function AllocateStockDialog({ event, onSuccess }: AllocateStockDialogPro
       setOpen(false);
       resetForm();
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Gagal mengalokasikan stok");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Gagal mengalokasikan stok";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

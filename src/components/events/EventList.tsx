@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -15,12 +15,26 @@ import { api } from "@/lib/api";
 import { Event } from "@/types/financial";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Loader2, ArrowRight, Calendar, Tag } from "lucide-react";
+import { Loader2, ArrowRight, Calendar, Tag, Copy, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyEventLink = useCallback(async (eventId: string) => {
+    const baseUrl = window.location.origin;
+    const eventUrl = `${baseUrl}/events/${eventId}`;
+    
+    try {
+      await navigator.clipboard.writeText(eventUrl);
+      setCopiedId(eventId);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -63,7 +77,7 @@ export function EventList() {
             <TableHead className="text-xs font-black uppercase tracking-wider h-12">Tipe</TableHead>
             <TableHead className="text-xs font-black uppercase tracking-wider h-12">Tanggal Dibuat</TableHead>
             <TableHead className="text-xs font-black uppercase tracking-wider h-12">Status</TableHead>
-            <TableHead className="text-right text-xs font-black uppercase tracking-wider h-12 pr-6">Aksi</TableHead>
+            <TableHead className="text-xs font-black uppercase tracking-wider h-12">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -106,13 +120,40 @@ export function EventList() {
                   {event.status}
                 </Badge>
               </TableCell>
-              <TableCell className="py-4 text-right pr-6">
-                <Link href={`/dashboard/events/${event.id}`}>
-                  <Button variant="ghost" size="sm" className="rounded-full font-bold h-9 hover:bg-primary/10 hover:text-primary group/btn">
-                    Kelola Stok
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+              <TableCell className="py-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full h-8 text-xs font-bold border-primary/20 hover:bg-primary/10 hover:text-primary"
+                    onClick={() => copyEventLink(event.id)}
+                    disabled={copiedId === event.id}
+                  >
+                    {copiedId === event.id ? (
+                      <>
+                        <Check className="mr-1.5 h-3.5 w-3.5" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-1.5 h-3.5 w-3.5" />
+                        Copy Link
+                      </>
+                    )}
                   </Button>
-                </Link>
+                  <Link href={`/events/${event.id}`} target="_blank">
+                    <Button variant="ghost" size="sm" className="rounded-full h-8 text-xs font-bold hover:bg-primary/10 hover:text-primary">
+                      <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                      Lihat
+                    </Button>
+                  </Link>
+                  <Link href={`/dashboard/events/${event.id}`}>
+                    <Button variant="ghost" size="sm" className="rounded-full font-bold h-9 hover:bg-primary/10 hover:text-primary group/btn">
+                      Kelola Stok
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                    </Button>
+                  </Link>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -122,6 +163,7 @@ export function EventList() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }
