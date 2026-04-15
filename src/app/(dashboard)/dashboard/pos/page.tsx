@@ -276,6 +276,7 @@ export default function POSPage() {
               <Select 
                 value={selectedEventId} 
                 onValueChange={(val) => {
+                  if (!val) return;
                   if (cart.length > 0) {
                     toast.error("Kosongkan keranjang sebelum ganti lokasi!");
                     return;
