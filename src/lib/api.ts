@@ -19,6 +19,10 @@ import {
   Employee,
   CreateEmployeeDto,
   UpdateEmployeeDto,
+  Event,
+  CreateEventDto,
+  AllocateStockDto,
+  ReturnStockDto,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -335,5 +339,15 @@ export const api = {
       api.get<{ name: string | null }>(`/orders/lookup-customer?phone=${encodeURIComponent(phone)}`),
     bulkDeleteStale: () =>
       api.post<{ message: string; deletedCount: number }>('/orders/bulk-delete-stale'),
+  },
+
+  events: {
+    list: () => api.get<Event[]>('/events'),
+    get: (id: string) => api.get<Event>(`/events/${id}`),
+    create: (data: CreateEventDto) => api.post<Event>('/events', data),
+    allocateStock: (id: string, data: AllocateStockDto) => api.post<{ message: string }>(`/events/${id}/allocate`, data),
+    returnStock: (id: string, data: ReturnStockDto) => api.post<{ message: string }>(`/events/${id}/return`, data),
+    updateStatus: (id: string, status: 'OPEN' | 'CLOSED') => api.patch<Event>(`/events/${id}/status`, { status }),
+    getReport: (id: string) => api.get<any>(`/events/${id}/report`),
   },
 };

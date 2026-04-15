@@ -100,6 +100,12 @@ const navGroups = [
         icon: Users,
         roles: ["MANAGER"],
       },
+      {
+        name: "Events",
+        href: "/dashboard/events",
+        icon: Activity, // Or use a star/gift icon
+        roles: ["MANAGER"],
+      },
     ],
   },
 ];
