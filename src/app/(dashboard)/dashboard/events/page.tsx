@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { EventList } from "@/components/events/EventList";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
-import { Star } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function EventsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -13,7 +13,7 @@ export default function EventsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-1">
-            <Star className="h-5 w-5 text-primary fill-primary animate-pulse" />
+            <Sparkles className="h-5 w-5 text-primary fill-primary animate-pulse" />
             <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">PNS Feature</span>
           </div>
           <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase italic bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">

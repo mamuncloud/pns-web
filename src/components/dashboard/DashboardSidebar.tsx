@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -103,7 +104,7 @@ const navGroups = [
       {
         name: "Events",
         href: "/dashboard/events",
-        icon: Activity, // Or use a star/gift icon
+        icon: Sparkles,
         roles: ["MANAGER"],
       },
     ],
