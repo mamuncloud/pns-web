@@ -33,7 +33,11 @@ import {
   Percent,
   Package,
   Calendar,
-  Store
+  Store,
+  Smartphone,
+  User as UserIcon,
+  UserCheck,
+  Loader2
 } from "lucide-react";
 import { cn, getProductImageUrl, formatWeight } from "@/lib/utils";
 import Image from "next/image";
@@ -65,6 +69,12 @@ export default function POSPage() {
   const [paidAmount, setPaidAmount] = useState<string>("");
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("store");
+  
+  // Customer Info State
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const debouncedPhone = useDebounce(customerPhone, 500);
   
   // Pagination state
   const [page, setPage] = useState(1);
@@ -114,6 +124,31 @@ export default function POSPage() {
     setPage(1);
     fetchProducts(1, debouncedSearch || undefined, selectedEventId);
   }, [debouncedSearch, selectedEventId, fetchProducts]);
+
+  // Customer Lookup logic
+  useEffect(() => {
+    const lookupCustomer = async () => {
+      // Typically Indonesian phone numbers are 10-13 digits
+      if (debouncedPhone.length >= 10) {
+        setIsLookingUp(true);
+        try {
+          const response = await api.orders.lookupCustomer(debouncedPhone);
+          if (response.success && response.data.name) {
+            setCustomerName(response.data.name);
+            toast.success(`Pelanggan ditemukan: ${response.data.name}`, {
+              icon: <UserCheck className="h-4 w-4 text-green-500" />,
+            });
+          }
+        } catch (error) {
+          console.error("Failed to lookup customer:", error);
+        } finally {
+          setIsLookingUp(false);
+        }
+      }
+    };
+
+    lookupCustomer();
+  }, [debouncedPhone]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -205,7 +240,9 @@ export default function POSPage() {
           productVariantId: item.id,
           quantity: item.quantity,
           price: item.price,
-        }))
+        })),
+        customerPhone: paymentMethod === 'MAYAR' ? customerPhone : undefined,
+        customerName: paymentMethod === 'MAYAR' ? customerName : undefined,
       };
 
       const response = await api.orders.create(orderData);
@@ -216,6 +253,8 @@ export default function POSPage() {
         // Clear cart and refetch products to update stock without full reload
         setCart([]);
         setPaidAmount("");
+        setCustomerPhone("");
+        setCustomerName("");
         fetchProducts(page, searchQuery || undefined, selectedEventId);
       } else {
         toast.error(response.message || "Gagal memproses transaksi.");
@@ -247,6 +286,13 @@ export default function POSPage() {
       const amount = parseInt(paidAmount) || 0;
       if (amount < totalRevenue) {
         toast.error("Jumlah bayar kurang!");
+        return;
+      }
+    }
+    
+    if (paymentMethod === 'MAYAR') {
+      if (!customerPhone || customerPhone.length < 10) {
+        toast.error("Nomor WhatsApp pelanggan diperlukan untuk pembayaran QRIS!");
         return;
       }
     }
@@ -597,6 +643,55 @@ export default function POSPage() {
                );
              })}
           </div>
+
+          {paymentMethod === 'MAYAR' && (
+            <div className="space-y-4 animate-in slide-in-from-top duration-300 p-4 bg-rose-50/30 dark:bg-rose-950/10 border-2 border-rose-100/50 dark:border-rose-900/20 rounded-2xl">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-6 w-6 rounded-full bg-rose-100 dark:bg-rose-900 flex items-center justify-center">
+                  <Smartphone className="h-3 w-3 text-rose-600" />
+                </div>
+                <h4 className="text-[10px] font-black text-rose-700 dark:text-rose-300 uppercase tracking-widest">Informasi Pelanggan</h4>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">Nomor WhatsApp</label>
+                  <div className="relative">
+                    <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="0812xxxx (Wajib QRIS)"
+                      className="pl-10 h-11 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-xl text-sm font-bold focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                    />
+                    {isLookingUp && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary animate-spin" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-1">Nama Pelanggan (Opsi)</label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Nama Pelanggan"
+                      className="pl-10 h-11 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-xl text-sm font-bold focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-2 bg-rose-50 dark:bg-rose-900/20 rounded-lg flex items-start gap-2">
+                <AlertCircle className="h-3 w-3 text-rose-600 mt-0.5 shrink-0" />
+                <p className="text-[8px] text-rose-700 dark:text-rose-400 font-medium leading-tight">
+                  Nomor telp akan diproses untuk invoice QRIS Mayar dan pendaftaran otomatis pelanggan baru.
+                </p>
+              </div>
+            </div>
+          )}
 
           {paymentMethod === 'CASH' && (
             <div className="space-y-4 animate-in slide-in-from-top duration-300">
