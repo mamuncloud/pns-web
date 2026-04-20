@@ -294,3 +294,62 @@ export interface OrderSummary {
   walkInRevenue: number;
   preOrderRevenue: number;
 }
+
+export interface Customer {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  totalOrders: number;
+  totalSpent: number;
+  lastOrderDate: string | null;
+  createdAt: string;
+}
+
+export interface CustomerOrderItem {
+  productName: string;
+  package: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface CustomerOrder {
+  id: string;
+  orderType: string;
+  status: string;
+  totalAmount: number;
+  paymentMethod: string;
+  createdAt: string;
+  items: CustomerOrderItem[];
+}
+
+export interface CustomerDetail {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+  totalOrders: number;
+  totalSpent: number;
+  lastOrderDate: string | null;
+  createdAt: string;
+  orders: CustomerOrder[];
+}
+
+export interface CustomerSummary {
+  totalCustomers: number;
+  newThisMonth: number;
+  topSpenders: {
+    id: string;
+    name: string | null;
+    phone: string | null;
+    totalSpent: number;
+  }[];
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}

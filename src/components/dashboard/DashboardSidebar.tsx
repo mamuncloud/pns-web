@@ -80,15 +80,21 @@ const navGroups = [
       },
     ],
   },
-  {
-    label: "MANAGEMENT",
-    items: [
-      {
-        name: "Purchases",
-        href: "/dashboard/purchases",
-        icon: ShoppingBag,
-        roles: ["MANAGER"],
-      },
+{
+        label: "MANAGEMENT",
+        items: [
+          {
+            name: "Customers",
+            href: "/dashboard/customers",
+            icon: Users,
+            roles: ["MANAGER"],
+          },
+          {
+            name: "Purchases",
+            href: "/dashboard/purchases",
+            icon: ShoppingBag,
+            roles: ["MANAGER"],
+          },
       {
         name: "Suppliers",
         href: "/dashboard/suppliers",

@@ -4,9 +4,9 @@ declare global {
   }
 }
 
-import { 
-  AuthUser, 
-  StockAdjustment, 
+import {
+  AuthUser,
+  StockAdjustment,
   Purchase,
   CreatePurchaseDto,
   Repack,
@@ -23,6 +23,10 @@ import {
   CreateEventDto,
   AllocateStockDto,
   ReturnStockDto,
+  Customer,
+  CustomerDetail,
+  CustomerSummary,
+  PaginationMeta,
 } from "@/types/financial";
 
 interface ApiResponse<T> {
@@ -349,5 +353,19 @@ export const api = {
     returnStock: (id: string, data: ReturnStockDto) => api.post<{ message: string }>(`/events/${id}/return`, data),
     updateStatus: (id: string, status: 'OPEN' | 'CLOSED') => api.patch<Event>(`/events/${id}/status`, { status }),
     getReport: (id: string) => api.get<unknown>(`/events/${id}/report`),
+  },
+
+  customers: {
+    list: (page = 1, limit = 10, search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') => {
+      const qs = new URLSearchParams();
+      qs.append('page', String(page));
+      qs.append('limit', String(limit));
+      if (search) qs.append('search', search);
+      if (sortBy) qs.append('sortBy', sortBy);
+      if (sortOrder) qs.append('sortOrder', sortOrder);
+      return api.get<{ data: Customer[]; meta: PaginationMeta }>(`/customers?${qs.toString()}`);
+    },
+    getSummary: () => api.get<CustomerSummary>('/customers/summary'),
+    get: (id: string) => api.get<CustomerDetail>(`/customers/${id}`),
   },
 };
