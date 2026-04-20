@@ -5,7 +5,7 @@ import { Product, ProductVariant } from "@/types/product";
 import { toast } from "sonner";
 import { getProductImageUrl } from "@/lib/utils";
 
-export interface CartItem {
+interface CartItem {
   id: string;
   productId: string;
   name: string;

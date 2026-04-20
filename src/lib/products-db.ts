@@ -8,7 +8,7 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
-export interface PaginatedProducts {
+interface PaginatedProducts {
   data: Product[];
   meta: PaginationMeta;
 }
