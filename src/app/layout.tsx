@@ -40,8 +40,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-body selection:bg-accent/30 selection:text-dark overflow-x-hidden">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <CartProvider>
