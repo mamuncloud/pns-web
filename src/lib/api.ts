@@ -61,7 +61,7 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
-export interface FetchOptions extends RequestInit {
+interface FetchOptions extends RequestInit {
   silent?: boolean;
 }
 
@@ -168,7 +168,7 @@ async function fetchApi<T>(endpoint: string, options: FetchOptions = {}): Promis
   return result as ApiResponse<T>;
 }
 
-export interface Brand {
+interface Brand {
   id: string;
   name: string;
 }
@@ -182,7 +182,7 @@ export interface Supplier {
   address?: string;
 }
 
-export interface CreateSupplierDto {
+interface CreateSupplierDto {
   name: string;
   contactName?: string;
   email?: string;
@@ -190,11 +190,11 @@ export interface CreateSupplierDto {
   address?: string;
 }
 
-export type UpdateSupplierDto = Partial<CreateSupplierDto>;
+type UpdateSupplierDto = Partial<CreateSupplierDto>;
 
 export type PackageType = 'Medium' | 'Small' | '250gr' | '500gr' | '1kg' | 'bal';
 
-export interface CreateVariantDto {
+interface CreateVariantDto {
   package: PackageType;
   price: number;
   initialStock?: number;

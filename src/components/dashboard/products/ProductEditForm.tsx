@@ -184,7 +184,7 @@ export function ProductEditForm({
     if (img.isPrimary && remaining.length > 0) {
       remaining[0].isPrimary = true;
     } else if (remaining.length === 0 && newImages.length > 0) {
-      newImages[0].isPrimary = true;
+      setNewImages(prev => prev.map((img, i) => ({ ...img, isPrimary: i === 0 })));
     }
 
     setExistingImages(remaining);

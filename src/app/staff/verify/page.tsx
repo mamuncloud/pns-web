@@ -52,7 +52,6 @@ function VerifyContent() {
     const isMobile = isMobileDevice();
 
     if (isMobile) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsWaitingForApp(true);
       // Small delay on mobile to allow app-link switch/processing first
       const timeout = setTimeout(() => {

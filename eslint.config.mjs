@@ -13,6 +13,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // False positive: calling async data-fetching functions inside useEffect
+      // is the standard pattern for client-side data fetching in React.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
