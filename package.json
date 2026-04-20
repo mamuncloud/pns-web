@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit",
     "cleanup": "bun run scripts/cleanup.ts",
     "test:e2e": "playwright test",
+    "knip": "knip",
     "prepare": "husky"
   },
   "dependencies": {
