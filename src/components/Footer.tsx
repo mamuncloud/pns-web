@@ -26,8 +26,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-white/70 text-lg leading-relaxed max-w-md">
-              Pusat camilan lezat dan autentik untuk menemani setiap momen kamu
-              dengan cita rasa Indonesia yang khas.
+              Planet Nyemil Snack adalah <strong>toko snack Karawaci</strong> terbaik yang menyediakan berbagai camilan kekinian, basreng, makaroni, dan snack kiloan dengan harga grosir maupun eceran di Tangerang.
             </p>
             <div className="flex gap-4">
               <Link
