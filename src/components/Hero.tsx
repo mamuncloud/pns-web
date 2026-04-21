@@ -3,46 +3,54 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getProductsFromDb } from "@/lib/products-db";
 
-const snackItems = [
-  {
-    id: 1,
-    name: "Basreng Pedas",
-    image: "/hero/basreng.webp",
-    className: "lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto", // Large Square
-    tag: "Terlaris",
-  },
-  {
-    id: 2,
-    name: "Makaroni Spiral",
-    image: "/hero/makaroni.jpg",
-    className: "aspect-square", // Small Square
-    tag: "Gurih",
-  },
-  {
-    id: 3,
-    name: "Seblak Kering",
-    image: "/hero/seblak.jpg",
-    className: "aspect-square", // Small Square
-    tag: "Mix",
-  },
-  {
-    id: 4,
-    name: "Keripik Pisang",
-    image: "/hero/pisang.jpg",
-    className: "aspect-square", // Small Square
-    tag: "Manis",
-  },
-  {
-    id: 5,
-    name: "Usus Balado",
-    image: "/hero/usus.jpg",
-    className: "col-span-2 aspect-[2/1] lg:aspect-auto", // Wide Rect
-    tag: "Kriuk",
-  },
+const bentoClassNames = [
+  "lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto", // Large Square
+  "aspect-square", // Small Square
+  "aspect-square", // Small Square
+  "aspect-square", // Small Square
+  "col-span-2 aspect-[2/1] lg:aspect-auto", // Wide Rect
 ];
 
-export default function Hero() {
+export default async function Hero() {
+  // Fetch more products to increase chances of finding enough with images
+  const { data: allProducts } = await getProductsFromDb(1, 50);
+  
+  // Filter products that have an image
+  const productsWithImage = allProducts.filter(p => p.imageUrl && p.imageUrl.trim() !== "");
+  
+  // Shuffle randomly
+  const shuffled = [...productsWithImage].sort(() => 0.5 - Math.random());
+  
+  // Map them into snackItems format
+  const dynamicItems = shuffled.slice(0, 5).map((product, index) => ({
+    id: product.id,
+    name: product.name,
+    image: product.imageUrl,
+    className: bentoClassNames[index],
+    tag: product.taste && product.taste.length > 0 ? product.taste[0] : "Spesial",
+  }));
+
+  const fallbackItems = [
+    { id: "f1", name: "Basreng Pedas", image: "/hero/basreng.webp", className: bentoClassNames[0], tag: "Terlaris" },
+    { id: "f2", name: "Makaroni Spiral", image: "/hero/makaroni.jpg", className: bentoClassNames[1], tag: "Gurih" },
+    { id: "f3", name: "Seblak Kering", image: "/hero/seblak.jpg", className: bentoClassNames[2], tag: "Mix" },
+    { id: "f4", name: "Keripik Pisang", image: "/hero/pisang.jpg", className: bentoClassNames[3], tag: "Manis" },
+    { id: "f5", name: "Usus Balado", image: "/hero/usus.jpg", className: bentoClassNames[4], tag: "Kriuk" },
+  ];
+
+  // Fill remaining slots with fallbacks if needed
+  const finalItems = Array.from({ length: 5 }).map((_, i) => {
+    if (i < dynamicItems.length) {
+      return dynamicItems[i];
+    }
+    return {
+      ...fallbackItems[i],
+      className: bentoClassNames[i], // Ensure class is correct
+    };
+  });
+
   return (
     <section className="relative w-full min-h-screen flex items-center pt-16 pb-24 lg:pt-20 lg:pb-32 overflow-x-clip">
       {/* Background Mesh Decor */}
@@ -93,7 +101,7 @@ export default function Hero() {
           {/* Bento Grid Variety */}
           <div className="lg:col-span-12 xl:col-span-7 order-2 lg:order-2">
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {snackItems.map((item, index) => (
+              {finalItems.map((item, index) => (
                 <div
                   key={item.id}
                   className={cn(
