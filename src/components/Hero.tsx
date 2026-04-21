@@ -68,7 +68,7 @@ export default async function Hero() {
               
               <div className="flex items-center gap-2 mb-6 text-primary font-black uppercase tracking-[0.2em] text-xs">
                 <Sparkles className="h-4 w-4" />
-                <span>Planet Nyemil Snack</span>
+                <span>Planet Nyemil Snack — Toko Snack Karawaci</span>
               </div>
 
               <h1 className="font-headline text-5xl md:text-7xl font-black text-on-background dark:text-white leading-[1.1] tracking-tighter mb-6">

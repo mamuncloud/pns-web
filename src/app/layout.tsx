@@ -9,8 +9,25 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Planet Nyemil Snack",
-  description: "Nikmati Camilan Favorit Kamu",
+  metadataBase: new URL("https://www.planetnyemilsnack.store"),
+  title: "Planet Nyemil Snack | Toko Snack Karawaci Terlengkap & Termurah",
+  description: "Cari toko snack Karawaci? Planet Nyemil Snack menyediakan berbagai camilan pedas, gurih, dan manis terlengkap di Tangerang. Lokasi strategis di Karawaci Baru.",
+  keywords: ["toko snack karawaci", "camilan karawaci", "snack pedas tangerang", "planet nyemil snack", "pusat camilan karawaci"],
+  openGraph: {
+    title: "Planet Nyemil Snack | Toko Snack Karawaci",
+    description: "Pusat camilan favorit Karawaci. Grosir dan eceran snack kekinian.",
+    url: "https://www.planetnyemilsnack.store/",
+    siteName: "Planet Nyemil Snack",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
   icons: {
     icon: "/favicon.png",
   },
@@ -38,6 +55,50 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col font-body selection:bg-accent/30 selection:text-dark overflow-x-hidden">
+        {/* Local Business Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "Planet Nyemil Snack",
+              "image": "https://www.planetnyemilsnack.store/logo.png",
+              "@id": "https://www.planetnyemilsnack.store",
+              "url": "https://www.planetnyemilsnack.store",
+              "telephone": "+6285800342727",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Jl. Beringin Raya No.6B, RT.006/RW.002, Karawaci Baru, Kec. Karawaci",
+                "addressLocality": "Tangerang",
+                "postalCode": "15116",
+                "addressCountry": "ID"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": -6.1947517,
+                "longitude": 106.6111053
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                "opens": "10:00",
+                "closes": "22:00"
+              },
+              "sameAs": [
+                "https://www.instagram.com/planetnyemilsnack"
+              ]
+            })
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
