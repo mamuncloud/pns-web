@@ -2,6 +2,7 @@
 
 import { Button } from "./ui/button";
 import { PackageOpen, ArrowRight, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export default function Wholesale() {
   return (
@@ -30,13 +31,15 @@ export default function Wholesale() {
             </p>
             
             <div className="pt-4">
-              <Button className="group/btn relative h-16 px-10 overflow-hidden rounded-2xl bg-primary font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:shadow-primary/50 hover:scale-[1.05] active:scale-[0.98] border border-white/10 text-primary-foreground">
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
-                <div className="relative flex items-center justify-center gap-3">
-                  Pesan Grosir Sekarang
-                  <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover/btn:translate-x-1" />
-                </div>
-              </Button>
+              <Link href="/products?package=bal">
+                <Button className="group/btn relative h-16 px-10 overflow-hidden rounded-2xl bg-primary font-black uppercase tracking-widest text-sm italic transition-all duration-500 hover:shadow-primary/50 hover:scale-[1.05] active:scale-[0.98] border border-white/10 text-primary-foreground">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                  <div className="relative flex items-center justify-center gap-3">
+                    Pesan Grosir Sekarang
+                    <ArrowRight className="h-5 w-5 transition-transform duration-500 group-hover/btn:translate-x-1" />
+                  </div>
+                </Button>
+              </Link>
             </div>
           </div>
 

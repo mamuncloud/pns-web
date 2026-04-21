@@ -11,11 +11,12 @@ export const metadata = {
 };
 
 export default async function ProductsPage(props: {
-  searchParams: Promise<{ page?: string; tab?: string }>;
+  searchParams: Promise<{ page?: string; tab?: string; package?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
   const activeTab = searchParams.tab || "semua";
+  const packageFilter = searchParams.package;
   
   // Map tab to taste filter for backend
   const tasteMap: Record<string, string | undefined> = {
@@ -28,7 +29,7 @@ export default async function ProductsPage(props: {
   const tasteFilter = tasteMap[activeTab];
   
   // Fetch paginated products from DB - request only items that have stock
-  const { data: products, meta } = await getProductsFromDb(page, 12, tasteFilter, undefined, true);
+  const { data: products, meta } = await getProductsFromDb(page, 12, tasteFilter, undefined, true, undefined, 'desc', undefined, packageFilter);
 
   return (
     <>
