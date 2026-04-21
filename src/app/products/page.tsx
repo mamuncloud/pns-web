@@ -35,24 +35,6 @@ export default async function ProductsPage(props: {
       <Navbar />
       <main className="pt-24 md:pt-32 pb-32 min-h-screen">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Promo Banner */}
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-primary to-[#FF8A65] dark:from-primary/20 dark:to-accent/20 dark:border dark:border-white/10 p-10 mb-12 flex flex-col md:flex-row items-center justify-between text-white shadow-xl">
-            <div className="z-10 relative">
-              <span className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md dark:bg-primary/20 rounded-full text-sm font-bold mb-4">
-                🔥 Promo Spesial Bulan Ini
-              </span>
-              <h1 className="font-headline text-4xl md:text-5xl font-black mb-4 tracking-tight dark:text-primary">
-                Diskon 20% Untuk Semua Produk &quot;Pedas&quot;
-              </h1>
-              <p className="text-lg text-white/90 dark:text-zinc-300 font-medium">
-                Gunakan kode <strong className="bg-white dark:bg-primary text-primary dark:text-zinc-950 px-2 py-0.5 rounded ml-1">PEDASGILA20</strong> saat checkout!
-              </p>
-            </div>
-            {/* Abstract decoration */}
-            <div className="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute right-10 -bottom-20 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          </div>
-
           <div className="mb-10 text-center md:text-left">
             <h2 className="font-headline text-4xl font-extrabold text-dark dark:text-white tracking-tight mb-2">
               Katalog Produk
