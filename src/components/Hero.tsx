@@ -80,18 +80,20 @@ export default async function Hero() {
                 Puas-puasin lidah kamu dengan camilan autentik paling nagih se-jagad raya.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/products" className="w-full sm:w-auto">
-                  <Button className="group w-full h-14 md:h-16 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all duration-300 hover:scale-[1.05] hover:shadow-lg">
-                    <ShoppingBag className="mr-2 h-5 w-5" />
-                    Pesan Sekarang
-                    <ArrowRight className="ml-2 h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </Button>
-                </Link>
-                
-                <Link href="/products" className="w-full sm:w-auto">
-                  <Button variant="ghost" className="w-full h-14 md:h-16 px-8 rounded-2xl border-2 border-primary hover:bg-primary/5 text-primary dark:text-white font-bold transition-all">
-                    Lihat Etalase
+              <div className="flex w-full mt-6">
+                <Link href="/products" className="w-full relative group">
+                  <Button className="relative w-full h-16 md:h-20 rounded-2xl bg-primary hover:bg-primary/95 text-white text-lg md:text-xl font-black overflow-hidden transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl">
+                    
+                    {/* Hover swoosh shine effect */}
+                    <div className="absolute inset-0 -translate-x-[150%] skew-x-[-25deg] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-in-out group-hover:translate-x-[150%]" />
+                    
+                    <div className="relative flex items-center justify-center gap-3 w-full">
+                      <ShoppingBag className="h-6 w-6 md:h-7 md:w-7 transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110" />
+                      <span className="tracking-wide uppercase">
+                        Jelajahi Ribuan Rasa
+                      </span>
+                      <ArrowRight className="h-6 w-6 md:h-7 md:w-7 transition-transform duration-500 group-hover:translate-x-2" />
+                    </div>
                   </Button>
                 </Link>
               </div>
