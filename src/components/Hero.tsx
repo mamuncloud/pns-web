@@ -20,8 +20,8 @@ export default async function Hero() {
   // Filter products that have an image
   const productsWithImage = allProducts.filter(p => p.imageUrl && p.imageUrl.trim() !== "");
   
-  // Shuffle randomly
-  const shuffled = [...productsWithImage].sort(() => 0.5 - Math.random());
+  // For now, just use the products as they are to avoid purity issues with Math.random()
+  const shuffled = productsWithImage;
   
   // Map them into snackItems format
   const dynamicItems = shuffled.slice(0, 5).map((product, index) => ({
