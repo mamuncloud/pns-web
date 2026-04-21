@@ -8,18 +8,6 @@ export default async function Categories() {
     return null;
   }
 
-  const counts = { Pedas: 0, Gurih: 0, Manis: 0 };
-  
-  products.forEach((p) => {
-    if (p.taste) {
-      p.taste.forEach((t) => {
-        if (t in counts) {
-          counts[t as keyof typeof counts]++;
-        }
-      });
-    }
-  });
-
   return (
     <section className="max-w-7xl mx-auto px-6 mb-24">
       <div className="flex justify-between items-end mb-10">
@@ -33,14 +21,14 @@ export default async function Categories() {
         </div>
         <Link
           className="text-primary font-bold flex items-center gap-1 hover:gap-2 transition-all"
-          href="#"
+          href="/products"
         >
           Lihat Semua <span className="material-symbols-outlined text-xl">chevron_right</span>
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Pedas */}
-        <div className="md:col-span-6 group relative overflow-hidden rounded-[2.5rem] bg-[#C62828] h-[400px] flex items-end p-10 cursor-pointer">
+        <Link href="/products?tab=pedas&page=1" className="md:col-span-6 group relative overflow-hidden rounded-[2.5rem] bg-[#C62828] h-[400px] flex items-end p-10 cursor-pointer">
           <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
             <Image
               alt="Pedas category"
@@ -53,15 +41,15 @@ export default async function Categories() {
           </div>
           <div className="relative z-10">
             <h3 className="font-headline text-5xl font-black text-white mb-2">Pedas</h3>
-            <p className="text-white/90 text-lg">Bikin nagih & meledak di mulut</p>
+            <p className="text-white/90 text-lg mb-2">Bikin nagih & meledak di mulut</p>
           </div>
           <div className="absolute bottom-10 right-10 bg-white/20 backdrop-blur-md rounded-full p-4 group-hover:bg-white/40 transition-all">
             <span className="material-symbols-outlined text-white">call_made</span>
           </div>
-        </div>
+        </Link>
 
         {/* Gurih */}
-        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#E5E0D8] dark:bg-stone-800 h-[400px] flex items-end p-8 cursor-pointer">
+        <Link href="/products?tab=gurih&page=1" className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#E5E0D8] dark:bg-stone-800 h-[400px] flex items-end p-8 cursor-pointer">
           <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
             <Image
               alt="Gurih category"
@@ -73,12 +61,11 @@ export default async function Categories() {
           </div>
           <div className="relative z-10">
             <h3 className="font-headline text-3xl font-extrabold text-dark dark:text-white mb-1">Gurih</h3>
-            <p className="text-dark/60 dark:text-zinc-400 font-bold">{counts.Gurih} Produk</p>
           </div>
-        </div>
+        </Link>
 
         {/* Manis */}
-        <div className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#F8F6F4] dark:bg-zinc-800 h-[400px] flex items-end p-8 cursor-pointer">
+        <Link href="/products?tab=manis&page=1" className="md:col-span-3 group relative overflow-hidden rounded-[2.5rem] bg-[#F8F6F4] dark:bg-zinc-800 h-[400px] flex items-end p-8 cursor-pointer">
           <div className="absolute inset-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
             <Image
               alt="Manis category"
@@ -90,9 +77,8 @@ export default async function Categories() {
           </div>
           <div className="relative z-10">
             <h3 className="font-headline text-3xl font-extrabold text-dark dark:text-white mb-1">Manis</h3>
-            <p className="text-dark/60 dark:text-zinc-400 font-bold">{counts.Manis} Produk</p>
           </div>
-        </div>
+        </Link>
       </div>
     </section>
   );
