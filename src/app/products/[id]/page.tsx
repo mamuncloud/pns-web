@@ -25,11 +25,31 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     };
   }
 
+  const images = product.images && product.images.length > 0 
+    ? product.images.map(img => img.url)
+    : [product.imageUrl || getProductImageUrl(null)];
+    
+  const primaryImage = images[0];
+  const lowPrice = product.variants.length > 0 ? Math.min(...product.variants.map(v => v.price)) : 0;
+
   return {
     title: `${product.name} | Planet Nyemil Snack`,
-    description: product.description || `Pesan ${product.name} rasa otentik dari Planet Nyemil Snack.`,
+    description: product.description || `Pesan ${product.name} rasa otentik dari Planet Nyemil Snack. Tersedia mulai dari Rp ${lowPrice.toLocaleString('id-ID')}.`,
     alternates: {
       canonical: `/products/${product.id}`,
+    },
+    openGraph: {
+      title: `${product.name} | Planet Nyemil Snack`,
+      description: product.description || `Pesan ${product.name} rasa otentik dari Planet Nyemil Snack.`,
+      images: [
+        {
+          url: primaryImage,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ],
+      type: 'article',
     },
   };
 }
