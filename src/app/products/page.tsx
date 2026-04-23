@@ -6,10 +6,16 @@ import ProductPagination from "@/components/ProductPagination";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Produk | Planet Nyemil Snack",
-  description: "Daftar lengkap produk snack Planet Nyemil Snack (PNS).",
+  title: "Katalog Camilan Karawaci | Planet Nyemil Snack",
+  description: "Eksplorasi koleksi camilan terlengkap di Karawaci. Mulai dari snack pedas 🔥, gurih 🧀, hingga manis 🍯. Tersedia untuk eceran dan grosir.",
+  keywords: ["katalog snack", "camilan pedas tangerang", "snack gurih", "snack manis", "jual camilan karawaci"],
   alternates: {
     canonical: "/products",
+  },
+  openGraph: {
+    title: "Katalog Camilan Karawaci | Planet Nyemil Snack",
+    description: "Cari camilan favoritmu di Planet Nyemil Snack Karawaci. Koleksi snack pedas, gurih, dan manis terlengkap.",
+    images: ["/logo.png"],
   },
 };
 
