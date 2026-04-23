@@ -8,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Store, TrendingUp, Handshake } from "lucide-react";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Program Kemitraan & Reseller | Planet Nyemil Snack",
+  description: "Ingin jualan snack? Bergabunglah menjadi mitra Planet Nyemil Snack. Program reseller, dropshipper, dan grosir snack Karawaci dengan keuntungan menjanjikan.",
+  keywords: ["reseller snack karawaci", "dropship camilan tangerang", "grosir snack murah", "kemitraan planet nyemil snack"],
+};
+
 export default function PartnerPage() {
   const [state, formAction, pending] = useActionState(submitPartnerForm, {
     success: false,

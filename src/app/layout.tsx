@@ -62,44 +62,56 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "name": "Planet Nyemil Snack",
-              "image": "https://www.planetnyemilsnack.store/logo.png",
-              "@id": "https://www.planetnyemilsnack.store",
-              "url": "https://www.planetnyemilsnack.store",
-              "telephone": "+6285800342727",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Jl. Beringin Raya No.6B, RT.006/RW.002, Karawaci Baru, Kec. Karawaci",
-                "addressLocality": "Tangerang",
-                "postalCode": "15116",
-                "addressCountry": "ID"
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                "name": "Planet Nyemil Snack",
+                "image": "https://www.planetnyemilsnack.store/logo.png",
+                "@id": "https://www.planetnyemilsnack.store",
+                "url": "https://www.planetnyemilsnack.store",
+                "telephone": "+6285800342727",
+                "address": {
+                  "@type": "PostalAddress",
+                  "streetAddress": "Jl. Beringin Raya No.6B, RT.006/RW.002, Karawaci Baru, Kec. Karawaci",
+                  "addressLocality": "Tangerang",
+                  "postalCode": "15116",
+                  "addressCountry": "ID"
+                },
+                "geo": {
+                  "@type": "GeoCoordinates",
+                  "latitude": -6.1947517,
+                  "longitude": 106.6111053
+                },
+                "openingHoursSpecification": {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday"
+                  ],
+                  "opens": "10:00",
+                  "closes": "22:00"
+                },
+                "sameAs": [
+                  "https://www.instagram.com/planetnyemilsnack"
+                ]
               },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": -6.1947517,
-                "longitude": 106.6111053
-              },
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                  "Sunday"
-                ],
-                "opens": "10:00",
-                "closes": "22:00"
-              },
-              "sameAs": [
-                "https://www.instagram.com/planetnyemilsnack"
-              ]
-            })
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "url": "https://www.planetnyemilsnack.store",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://www.planetnyemilsnack.store/products?search={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            ])
           }}
         />
         <ThemeProvider
