@@ -52,6 +52,10 @@ export async function generateMetadata({ params }: EventPageProps) {
     description:
       event.description ||
       `Pesanan untuk event ${event.name} dari Planet Nyemil Snack.`,
+    alternates: {
+      canonical: `/events/${event.id}`,
+    },
+    robots: event.status === "CLOSED" ? "noindex, follow" : undefined,
   };
 }
 

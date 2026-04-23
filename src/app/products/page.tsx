@@ -8,6 +8,9 @@ import Link from "next/link";
 export const metadata = {
   title: "Produk | Planet Nyemil Snack",
   description: "Daftar lengkap produk snack Planet Nyemil Snack (PNS).",
+  alternates: {
+    canonical: "/products",
+  },
 };
 
 export default async function ProductsPage(props: {
