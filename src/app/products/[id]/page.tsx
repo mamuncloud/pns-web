@@ -28,6 +28,9 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   return {
     title: `${product.name} | Planet Nyemil Snack`,
     description: product.description || `Pesan ${product.name} rasa otentik dari Planet Nyemil Snack.`,
+    alternates: {
+      canonical: `/products/${product.id}`,
+    },
   };
 }
 
@@ -63,9 +66,64 @@ export default async function PublicProductDetailPage(props: { params: Promise<{
     
   const primaryImage = images[0];
 
+  // Schema.org Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": images,
+    "description": product.description || `Pesan ${product.name} rasa otentik dari Planet Nyemil Snack.`,
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand?.name || "Planet Nyemil Snack"
+    },
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "IDR",
+      "lowPrice": Math.min(...product.variants.map(v => v.price)),
+      "highPrice": Math.max(...product.variants.map(v => v.price)),
+      "offerCount": product.variants.length,
+      "availability": (product.stockQty ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "url": `https://www.planetnyemilsnack.store/products/${product.id}`
+    }
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.planetnyemilsnack.store"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Produk",
+        "item": "https://www.planetnyemilsnack.store/products"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": `https://www.planetnyemilsnack.store/products/${product.id}`
+      }
+    ]
+  };
+
   return (
     <>
       <Navbar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <main className="pt-24 md:pt-32 pb-24 md:pb-32 min-h-screen bg-[#fcfcfc] dark:bg-zinc-950">
         <div className="max-w-7xl mx-auto px-6">
           

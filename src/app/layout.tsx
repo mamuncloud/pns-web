@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
   },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 import { Toaster } from "@/components/ui/sonner";
